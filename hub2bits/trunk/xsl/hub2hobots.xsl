@@ -212,9 +212,13 @@
   </xsl:function>
   
   <xsl:template match="dbk:part | dbk:chapter | dbk:preface" mode="default">
-    <xsl:element name="{jats:book-part(.)}">
+    <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
+    <xsl:element name="{$elt-name}">
       <xsl:call-template name="atts"/>
       <xsl:sequence select="$dtd-version-att"/>
+      <xsl:if test="$elt-name eq 'book-part'">
+        <xsl:attribute name="book-part-type" select="local-name()"/>
+      </xsl:if>
       <xsl:variable name="context" select="." as="element(*)"/>
       <xsl:for-each-group select="*" group-adjacent="boolean(self::dbk:title or self::dbk:info)">
         <xsl:choose>
