@@ -8,6 +8,8 @@
   exclude-result-prefixes="css dbk jats xs xlink"
   version="2.0">
 
+  <xsl:import href="http://transpect.le-tex.de/hub2html/xsl/css-atts2wrap.xsl"/>
+  
   <xsl:param name="srcpaths" select="'no'"/>
 
   <xsl:variable name="dtd-version-att" as="attribute(dtd-version)">
@@ -42,7 +44,7 @@
     <xsl:message>Unhandled: <xsl:apply-templates select="." mode="unhandled"/>
     </xsl:message>
     <xsl:copy copy-namespaces="no">
-      <xsl:call-template name="content"/>
+      <xsl:call-template name="css:content"/>
     </xsl:copy>
   </xsl:template>
   
@@ -61,40 +63,6 @@
     <xsl:message select="concat('  ', name(), '=', .)" /> 
   </xsl:template>
   
-  <xsl:template name="content">
-    <xsl:call-template name="atts"/>
-    <xsl:call-template name="wrap">
-      <xsl:with-param name="atts" select="@*[jats:map-att-to-elt(.)]"/>
-    </xsl:call-template>
-  </xsl:template>
-  
-  <xsl:template name="atts">
-    <xsl:apply-templates select="@*[not(jats:map-att-to-elt(.))]" mode="#current"/>
-  </xsl:template>
-  
-  <xsl:template name="wrap">
-    <xsl:param name="atts" as="attribute(*)*"/>
-    <xsl:choose>
-      <xsl:when test="$atts">
-        <xsl:element name="{jats:map-att-to-elt($atts[1])}">
-          <xsl:call-template name="wrap">
-            <xsl:with-param name="atts" select="$atts except $atts[1]"/>
-          </xsl:call-template>
-        </xsl:element>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:apply-templates mode="#current"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-  
-  <xsl:function name="jats:map-att-to-elt" as="xs:string?">
-    <xsl:param name="prop" as="attribute(*)"/>
-    <xsl:choose>
-      <xsl:when test="$prop/self::attribute(css:font-style) and $prop = ('italic', 'oblique')"><xsl:sequence select="'italic'"/></xsl:when>
-      <xsl:when test="$prop/self::attribute(css:font-weight) and matches($prop, '^bold|[6-9]00$')"><xsl:sequence select="'bold'"/></xsl:when>
-    </xsl:choose>
-  </xsl:function>
 
   <!-- DEFAULT ATTRIBUTE HANDLING -->
 
@@ -170,7 +138,7 @@
   <xsl:template match="dbk:toc" mode="default">
     <toc>
       <xsl:apply-templates select="." mode="toc-depth"/>
-      <xsl:call-template name="content"/>
+      <xsl:call-template name="css:content"/>
     </toc>
   </xsl:template>
 
@@ -186,11 +154,11 @@
   </xsl:template>
 
   <xsl:template match="dbk:section" mode="default">
-    <sec><xsl:call-template name="content"/></sec>
+    <sec><xsl:call-template name="css:content"/></sec>
   </xsl:template>
 
   <xsl:template match="dbk:appendix" mode="default">
-    <app><xsl:call-template name="content"/></app>
+    <app><xsl:call-template name="css:content"/></app>
   </xsl:template>
   
   <xsl:function name="jats:book-part" as="xs:string">
@@ -214,7 +182,7 @@
   <xsl:template match="dbk:part | dbk:chapter | dbk:preface" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
-      <xsl:call-template name="atts"/>
+      <xsl:call-template name="css:other-atts"/>
       <xsl:sequence select="$dtd-version-att"/>
       <xsl:if test="$elt-name eq 'book-part'">
         <xsl:attribute name="book-part-type" select="local-name()"/>
@@ -276,20 +244,20 @@
   </xsl:template>
 
   <xsl:template match="dbk:abstract" mode="default">
-    <abstract><xsl:call-template name="content"/></abstract>
+    <abstract><xsl:call-template name="css:content"/></abstract>
   </xsl:template>
 
   <xsl:template match="dbk:author" mode="default">
-    <contrib contrib-type="{local-name()}"><xsl:call-template name="content"/></contrib>
+    <contrib contrib-type="{local-name()}"><xsl:call-template name="css:content"/></contrib>
   </xsl:template>
   
   <xsl:template match="dbk:personname" mode="default">
-    <string-name><xsl:call-template name="content"/></string-name>
+    <string-name><xsl:call-template name="css:content"/></string-name>
   </xsl:template>
   <!-- BLOCK -->
   
   <xsl:template match="dbk:title" mode="default">
-    <title><xsl:call-template name="content"/></title>
+    <title><xsl:call-template name="css:content"/></title>
   </xsl:template>
 
   <xsl:template match="dbk:title[dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]]" mode="default">
@@ -303,13 +271,13 @@
   </xsl:template>
 
   <xsl:template match="dbk:para" mode="default">
-    <p><xsl:call-template name="content"/></p>
+    <p><xsl:call-template name="css:content"/></p>
   </xsl:template>
   
   <!-- INLINE -->
   
   <xsl:template match="dbk:phrase" mode="default">
-    <styled-content><xsl:call-template name="content"/></styled-content>
+    <styled-content><xsl:call-template name="css:content"/></styled-content>
   </xsl:template>
 
   <xsl:template match="dbk:phrase/@role" mode="default">
@@ -317,15 +285,15 @@
   </xsl:template>
 
   <xsl:template match="dbk:link[@linkend, @linkends]" mode="default">
-    <xref><xsl:call-template name="content"/></xref>
+    <xref><xsl:call-template name="css:content"/></xref>
   </xsl:template>
   
   <xsl:template match="dbk:link[@xlink:href]" mode="default">
-    <ext-link><xsl:call-template name="content"/></ext-link>
+    <ext-link><xsl:call-template name="css:content"/></ext-link>
   </xsl:template>
 
   <xsl:template match="dbk:anchor" mode="default">
-    <target><xsl:call-template name="content"/></target>
+    <target><xsl:call-template name="css:content"/></target>
   </xsl:template>
 
   <xsl:template match="dbk:br" mode="default">
@@ -335,7 +303,7 @@
   <!-- FOOTNOTES -->
   
   <xsl:template match="dbk:footnote" mode="default">
-    <fn><xsl:call-template name="content"/></fn>
+    <fn><xsl:call-template name="css:content"/></fn>
   </xsl:template>
   
   
@@ -361,37 +329,37 @@
   
   <xsl:template match="dbk:title[parent::table]" mode="default">
     <caption>
-      <xsl:call-template name="content"/>
+      <xsl:call-template name="css:content"/>
     </caption>
   </xsl:template>
   
   <xsl:template match="dbk:row" mode="default">
     <tr>
-      <xsl:call-template name="content"/>
+      <xsl:call-template name="css:content"/>
     </tr>
   </xsl:template>
   
   <xsl:template match="dbk:tgroup" mode="default">
-    <xsl:call-template name="content"/>
+    <xsl:call-template name="css:content"/>
   </xsl:template>
   
   <xsl:template match="dbk:tgroup/@cols" mode="default"/>
   
   <xsl:template match="dbk:tbody" mode="default">
     <tbody>
-      <xsl:call-template name="content"/>
+      <xsl:call-template name="css:content"/>
     </tbody>
   </xsl:template>
   
   <xsl:template match="dbk:thead" mode="default">
     <thead>
-      <xsl:call-template name="content"/>
+      <xsl:call-template name="css:content"/>
     </thead>
   </xsl:template>
   
   <xsl:template match="dbk:entry" mode="default">
     <xsl:element name="{if (ancestor::dbk:thead) then 'th' else 'td'}">
-      <xsl:call-template name="content"/>
+      <xsl:call-template name="css:content"/>
     </xsl:element>
   </xsl:template>
   
@@ -407,7 +375,7 @@
   
   <xsl:template match="dbk:table" mode="default" priority="2">
     <table-wrap>
-      <xsl:call-template name="atts"/>
+      <xsl:call-template name="css:other-atts"/>
       <label>
         <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
       </label>
@@ -424,7 +392,7 @@
   <xsl:template match="dbk:informaltable | dbk:table" mode="default">
     <table>
       <xsl:for-each select="self::dbk:informaltable">
-        <xsl:call-template name="atts"/>
+        <xsl:call-template name="css:other-atts"/>
       </xsl:for-each>
       <xsl:choose>
         <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
@@ -443,15 +411,15 @@
   <!-- BIBLIOGRAPHY -->
   
   <xsl:template match="dbk:bibliography" mode="default">
-    <ref-list><xsl:call-template name="content"/></ref-list>
+    <ref-list><xsl:call-template name="css:content"/></ref-list>
   </xsl:template>
 
   <xsl:template match="dbk:biblioentry" mode="default">
-    <ref><xsl:call-template name="content"/></ref>
+    <ref><xsl:call-template name="css:content"/></ref>
   </xsl:template>
   
   <xsl:template match="dbk:bibliomisc" mode="default">
-    <mixed-citation><xsl:call-template name="content"/></mixed-citation>
+    <mixed-citation><xsl:call-template name="css:content"/></mixed-citation>
   </xsl:template>
   
 
