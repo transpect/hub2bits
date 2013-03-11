@@ -300,12 +300,44 @@
     <break/>
   </xsl:template>
   
+  <xsl:template match="dbk:superscript" mode="default">
+    <sup>
+      <xsl:next-match/>
+    </sup>
+  </xsl:template>
+  
+  <xsl:template match="dbk:subscript" mode="default">
+    <sub>
+      <xsl:next-match/>
+    </sub>
+  </xsl:template>
+  
+  
   <!-- FOOTNOTES -->
   
   <xsl:template match="dbk:footnote" mode="default">
     <fn><xsl:call-template name="css:content"/></fn>
   </xsl:template>
   
+  <!-- LISTS -->
+  
+  <xsl:template match="dbk:orderedlist" mode="default">
+    <list list-type="order">
+      <xsl:call-template name="css:content"/>
+    </list>
+  </xsl:template>
+  
+  <xsl:template match="dbk:itemizedlist" mode="default">
+    <list list-type="bullet">
+      <xsl:call-template name="css:content"/>
+    </list>
+  </xsl:template>
+  
+  <xsl:template match="dbk:listitem" mode="default">
+    <list-item>
+      <xsl:call-template name="css:content"/>
+    </list-item>
+  </xsl:template>
   
   <!-- BOXES -->
   
