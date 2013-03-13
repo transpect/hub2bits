@@ -26,6 +26,7 @@
     <p:with-option name="srcpaths" select="$srcpaths"/>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:input port="additional-inputs"><p:empty/></p:input>
   </bc:dynamic-transformation-pipeline>
 
   <p:xslt>
