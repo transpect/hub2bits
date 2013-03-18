@@ -98,7 +98,7 @@
     <xsl:variable name="name" select="$elt/local-name()" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$name = 'info'"><xsl:sequence select="''"/></xsl:when>
-      <xsl:when test="$name = ('toc', 'preface')"><xsl:sequence select="'front-matter'"/></xsl:when>
+      <xsl:when test="$name = ('toc', 'preface', 'partintro')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
       <xsl:when test="$name = ('appendix')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
@@ -162,6 +162,7 @@
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:partintro"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface"><xsl:sequence select="'preface'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'unknown-book-part'"/></xsl:otherwise>
     </xsl:choose>
@@ -171,12 +172,12 @@
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'body'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:preface"><xsl:sequence select="'named-book-part-body'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:preface or $elt/self::dbk:partintro"><xsl:sequence select="'named-book-part-body'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="concat('unknown-book-part-body_', $elt/name())"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
   
-  <xsl:template match="dbk:part | dbk:chapter | dbk:preface" mode="default">
+  <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:partintro" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
       <xsl:call-template name="css:other-atts"/>
