@@ -9,7 +9,7 @@
   version="2.0">
 
   <xsl:import href="http://transpect.le-tex.de/hub2html/xsl/css-atts2wrap.xsl"/>
-  
+
   <xsl:param name="srcpaths" select="'no'"/>
 
   <xsl:variable name="dtd-version-att" as="attribute(dtd-version)">
@@ -40,8 +40,10 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <xsl:template match="styled-content[. = '']" mode="clean-up" priority="2"/>
+
   <xsl:template match="*" mode="default" priority="-1">
-    <xsl:message>Unhandled: <xsl:apply-templates select="." mode="unhandled"/>
+    <xsl:message>hub2hobots: unhandled: <xsl:apply-templates select="." mode="css:unhandled"/>
     </xsl:message>
     <xsl:copy copy-namespaces="no">
       <xsl:call-template name="css:content"/>
@@ -50,17 +52,8 @@
   
   <xsl:template match="@*" mode="default" priority="-1.5">
     <xsl:copy/>
-    <xsl:message>Unhandled attr: <xsl:apply-templates select="." mode="unhandled"/>
+    <xsl:message>hub2hobots: unhandled attr: <xsl:apply-templates select="." mode="css:unhandled"/>
     </xsl:message>
-  </xsl:template>
-  
-  <xsl:template match="*" mode="unhandled" >
-    <xsl:message select="concat(name(), '  ', substring(normalize-space(.),1,40))" /> 
-    <xsl:apply-templates select="@*" mode="#current" />
-  </xsl:template>
-  
-  <xsl:template match="@*" mode="unhandled" >
-    <xsl:message select="concat('  ', name(), '=', .)" /> 
   </xsl:template>
   
 
@@ -155,6 +148,10 @@
 
   <xsl:template match="dbk:section" mode="default">
     <sec><xsl:call-template name="css:content"/></sec>
+  </xsl:template>
+  
+  <xsl:template match="@renderas" mode="default">
+    <xsl:attribute name="disp-level" select="."/>
   </xsl:template>
 
   <xsl:template match="dbk:appendix" mode="default">
@@ -254,6 +251,7 @@
   <xsl:template match="dbk:personname" mode="default">
     <string-name><xsl:call-template name="css:content"/></string-name>
   </xsl:template>
+  
   <!-- BLOCK -->
   
   <xsl:template match="dbk:title" mode="default">
@@ -270,8 +268,12 @@
     </title>
   </xsl:template>
 
-  <xsl:template match="dbk:para" mode="default">
+  <xsl:template match="dbk:para | dbk:simpara" mode="default">
     <p><xsl:call-template name="css:content"/></p>
+  </xsl:template>
+  
+  <xsl:template match="dbk:blockquote" mode="default">
+    <disp-quote><xsl:call-template name="css:content"/></disp-quote>
   </xsl:template>
   
   <!-- INLINE -->
@@ -312,6 +314,51 @@
     </sub>
   </xsl:template>
   
+  <!-- INDEXTERMS -->
+  
+  <xsl:template match="dbk:indexterm" mode="default">
+    <index-term>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates select="dbk:primary" mode="#current"/>
+    </index-term>
+  </xsl:template>
+  
+  <xsl:template match="dbk:primary" mode="default">
+    <term>
+      <xsl:call-template name="css:content"/>
+    </term>
+    <xsl:apply-templates select="if(../dbk:secondary) then ../dbk:secondary else ( dbk:see | dbk:seealso)" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:secondary" mode="default">
+    <index-term>
+      <term>
+        <xsl:call-template name="css:content"/>
+      </term>
+      <xsl:apply-templates select="if(../dbk:tertiary) then ../dbk:tertiary else ( dbk:see | dbk:seealso)" mode="#current"/>
+    </index-term>
+  </xsl:template>
+  
+  <xsl:template match="dbk:tertiary" mode="default">
+    <index-term>
+      <term>
+        <xsl:call-template name="css:content"/>
+      </term>
+      <xsl:apply-templates select="dbk:see | dbk:seealso" mode="#current"/>
+    </index-term>
+  </xsl:template>
+  
+  <xsl:template match="dbk:see" mode="default">
+    <see>
+      <xsl:call-template name="css:content"/>
+    </see>
+  </xsl:template>
+  
+  <xsl:template match="dbk:seealso" mode="default">
+    <see-also>
+      <xsl:call-template name="css:content"/>
+    </see-also>
+  </xsl:template>
   
   <!-- FOOTNOTES -->
   
@@ -323,20 +370,54 @@
   
   <xsl:template match="dbk:orderedlist" mode="default">
     <list list-type="order">
-      <xsl:call-template name="css:content"/>
+      <xsl:attribute name="id" select="generate-id()"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </list>
   </xsl:template>
   
   <xsl:template match="dbk:itemizedlist" mode="default">
     <list list-type="bullet">
-      <xsl:call-template name="css:content"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </list>
+  </xsl:template>
+  
+  <xsl:template match="@numeration" mode="default">
+    <xsl:choose>
+      <xsl:when test=". = 'arabic'"><xsl:attribute name="list-type" select="'order'"/></xsl:when>
+      <xsl:when test=". = 'upperalpha'"><xsl:attribute name="list-type" select="'alpha-upper'"/></xsl:when> 
+      <xsl:when test=". = 'loweralpha'"><xsl:attribute name="list-type" select="'alpha-lower'"/></xsl:when>
+      <xsl:when test=". = 'upperroman'"><xsl:attribute name="list-type" select="'roman-upper'"/></xsl:when> 
+      <xsl:when test=". = 'lowerroman'"><xsl:attribute name="list-type" select="'roman-lower'"/></xsl:when>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="@continuation[. = 'continues']" mode="default">
+    <xsl:variable name="preceding-list" select="../preceding-sibling::dbk:orderedlist[1]" as="element(dbk:orderedlist)?"/>
+    <xsl:attribute name="continued-from" select="$preceding-list/(@xml:id, generate-id())[1]"/>    
+    <xsl:if test="not($preceding-list)">
+      <xsl:message>hub2hobots: No list to continue found. Look for an empty continued-from attribute in the output.</xsl:message>
+    </xsl:if>    
+  </xsl:template>
+
+  <xsl:template match="@startingnumber" mode="default">
+    <xsl:message>hub2hobots: No startingnumber support in BITS. Attribute copied nonetheless.</xsl:message>
+    <xsl:copy/>
   </xsl:template>
   
   <xsl:template match="dbk:listitem" mode="default">
     <list-item>
-      <xsl:call-template name="css:content"/>
+      <xsl:apply-templates select="@* except @override, @override, node()" mode="#current"/>
     </list-item>
+  </xsl:template>
+  
+  <xsl:template match="dbk:listitem/@override" mode="default">
+    <label>
+      <xsl:value-of select="."/>
+    </label>
+  </xsl:template>
+  
+  <xsl:template match="dbk:itemizedlist/@mark" mode="default">
+    <xsl:attribute name="css:list-style-type" select="'dash'"/>
   </xsl:template>
   
   <!-- BOXES -->
@@ -354,6 +435,36 @@
   </xsl:template>
 
   <xsl:template match="@*" mode="box-type"/>
+  
+  <!-- FIGURES -->
+  
+  <xsl:template match="dbk:figure" mode="default">
+    <fig>
+      <xsl:call-template name="css:content"/>
+    </fig>
+  </xsl:template>
+  
+  <xsl:template match="dbk:mediaobject | dbk:imageobject" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:imagedata" mode="default">
+    <graphic>
+      <xsl:apply-templates select="ancestor::dbk:mediaobject[1]/@xml:id" mode="#current"/>
+      <xsl:call-template name="css:content"/>
+    </graphic>
+  </xsl:template>
+  
+  <xsl:template match="dbk:imagedata/@fileref" mode="default">
+    <!-- Keep just one directory level above the file name.
+        Replace extension with .png (preliminarily) --> 
+    <xsl:attribute name="xlink:href" 
+      select="replace(
+                replace(., '^.*?([^/]+/[^/]+)$', '$1'),
+                '\.[^.]+$',
+                '.png'
+              )"/>
+  </xsl:template>
   
   <!-- TABLES -->
   
@@ -405,37 +516,35 @@
     </xsl:if>
   </xsl:template>
   
-  <xsl:template match="dbk:table" mode="default" priority="2">
+  <xsl:template match="dbk:informaltable | dbk:table" mode="default">
     <table-wrap>
       <xsl:call-template name="css:other-atts"/>
-      <label>
-        <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
-      </label>
-      <caption>
-        <title>
-          <xsl:apply-templates mode="#current" 
-            select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>  
-        </title>
-      </caption>
-      <xsl:next-match/>
+      <xsl:if test="self::dbk:table">
+        <label>
+          <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
+        </label>
+        <caption>
+          <title>
+            <xsl:apply-templates mode="#current"
+              select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
+          </title>
+        </caption>
+      </xsl:if>
+      <table>
+        <xsl:for-each select="self::dbk:informaltable">
+          <xsl:call-template name="css:other-atts"/>
+        </xsl:for-each>
+        <xsl:choose>
+          <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
+            <xsl:apply-templates select="* except dbk:title" mode="#current"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <HTMLTABLE_TODO/>
+            <xsl:apply-templates mode="#current"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </table>  
     </table-wrap>
-  </xsl:template>
-  
-  <xsl:template match="dbk:informaltable | dbk:table" mode="default">
-    <table>
-      <xsl:for-each select="self::dbk:informaltable">
-        <xsl:call-template name="css:other-atts"/>
-      </xsl:for-each>
-      <xsl:choose>
-        <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
-          <xsl:apply-templates select="* except dbk:title" mode="#current"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <HTMLTABLE_TODO/>
-          <xsl:apply-templates mode="#current"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </table>
   </xsl:template>
   
   <xsl:template match="dbk:colspec | @colname | @nameend" mode="default"/>
