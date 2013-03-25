@@ -279,6 +279,10 @@
   
   <!-- INLINE -->
   
+  <xsl:variable name="css:italic-elt-name" as="xs:string" select="'italic'"/>
+  <xsl:variable name="css:bold-elt-name" as="xs:string" select="'bold'"/>
+  <xsl:variable name="css:underline-elt-name" as="xs:string?" select="'underline'"/>
+  
   <xsl:template match="dbk:phrase" mode="default">
     <styled-content><xsl:call-template name="css:content"/></styled-content>
   </xsl:template>
@@ -532,9 +536,9 @@
         </caption>
       </xsl:if>
       <table>
-        <xsl:for-each select="self::dbk:informaltable">
+        <!--<xsl:for-each select="self::dbk:informaltable">
           <xsl:call-template name="css:other-atts"/>
-        </xsl:for-each>
+        </xsl:for-each>-->
         <xsl:choose>
           <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
             <xsl:apply-templates select="* except dbk:title" mode="#current"/>
