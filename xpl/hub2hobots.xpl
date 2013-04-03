@@ -49,6 +49,7 @@
     <p:input port="additional-inputs">
       <p:pipe port="result" step="models"/>
     </p:input>
+    <p:input port="options"><p:empty/></p:input>
   </bc:dynamic-transformation-pipeline>
 
   <letex:prepend-xml-model name="prepend-xml-model">
