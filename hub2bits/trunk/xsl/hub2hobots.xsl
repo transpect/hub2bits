@@ -26,7 +26,8 @@
     <xsl:copy copy-namespaces="no">
       <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
       <xsl:namespace name="xlink" select="'http://www.w3.org/1999/xlink'"/>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
@@ -42,8 +43,20 @@
 
   <xsl:template match="styled-content[. = '']" mode="clean-up" priority="2"/>
 
+  <!-- Dissolve styled content whose css atts all went to the attic.
+       Will lose srcpath attributes though. Solution: Adapt the srcpath message rendering mechanism 
+       so that it uses ancestor paths if it doesn’t find an immediate matching element. -->
+  <xsl:template match="styled-content[@style-type]
+                                     [every $att in @* satisfies (name($att) = ('style-type', 'xml:id', 'srcpath'))]
+                                     [every $att in key('jats:style-by-type', @style-type)/@* satisfies (name($att) = ('name', 'native-name', 'layout-type'))]"
+                mode="clean-up">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:key name="jats:style-by-type" match="css:rule" use="@name" />
+
   <xsl:template match="*" mode="default" priority="-1">
-    <xsl:message>hub2hobots: unhandled: <xsl:apply-templates select="." mode="css:unhandled"/>
+    <xsl:message>hub2hobots: unhandled in mode default: <xsl:apply-templates select="." mode="css:unhandled"/>
     </xsl:message>
     <xsl:copy copy-namespaces="no">
       <xsl:call-template name="css:content"/>
@@ -52,10 +65,32 @@
   
   <xsl:template match="@*" mode="default" priority="-1.5">
     <xsl:copy/>
-    <xsl:message>hub2hobots: unhandled attr: <xsl:apply-templates select="." mode="css:unhandled"/>
+    <xsl:message>hub2hobots: attr unhandled in mode default: <xsl:apply-templates select="." mode="css:unhandled"/>
     </xsl:message>
   </xsl:template>
+
+  <!-- MOVE WRAP ATTS (italic, bold, underline) TO CSS RULE ATTIC -->
   
+  <xsl:template match="css:rule[$css:wrap-content-with-elements-from-mappable-style-attributes]" mode="default">
+    <xsl:call-template name="css:move-to-attic">
+      <xsl:with-param name="atts" select="@*[css:map-att-to-elt(., key('css:styled-content', ../@name)[1])]"/>
+    </xsl:call-template>
+  </xsl:template>
+  
+  <xsl:template match="css:rule[$css:wrap-content-with-elements-from-mappable-style-attributes]
+                               [not(key('css:styled-content', @name))]" mode="default" priority="2">
+    <xsl:comment>css:rule
+    <xsl:for-each select="@*">
+      <xsl:sequence select="concat(name(), '=&quot;', ., '&quot;&#xa;')"/>
+    </xsl:for-each>
+    </xsl:comment>
+  </xsl:template>
+  
+  <xsl:template match="css:rules | css:rules/@* | dbk:tab | dbk:tab/@*" mode="default">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
 
   <!-- DEFAULT ATTRIBUTE HANDLING -->
 
@@ -73,7 +108,7 @@
 
   <xsl:template match="@remap" mode="default"/>
 
-  <xsl:template match="@css:*" mode="default">
+  <xsl:template match="@css:* | css:rule/@*" mode="default">
     <xsl:copy/>
   </xsl:template>
 
@@ -109,13 +144,15 @@
     <book>
       <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
       <xsl:namespace name="xlink" select="'http://www.w3.org/1999/xlink'"/>
+      <xsl:copy-of select="@css:version"/>
+      <xsl:attribute name="css:rule-selection-attribute" select="'content-type style-type'"/>
       <xsl:sequence select="$dtd-version-att"/>
       <book-meta>
         <book-title-group>
           <xsl:apply-templates select="dbk:info/dbk:title | dbk:title" mode="#current"/>
         </book-title-group>
         <custom-meta-group>
-          <xsl:copy-of select="dbk:info/css:rules"/>  
+          <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>  
         </custom-meta-group>
       </book-meta>
       <xsl:for-each-group select="*" group-adjacent="jats:matter(.)">
@@ -256,8 +293,19 @@
   <!-- BLOCK -->
   
   <xsl:template match="dbk:title" mode="default">
-    <title><xsl:call-template name="css:content"/></title>
+    <title>
+      <xsl:call-template name="css:content"/>
+    </title>
   </xsl:template>
+
+  <!-- Don’t wrap title content in a bold element -->
+  <xsl:template match="@css:font-weight[matches(., '^bold|[6-9]00$')]" mode="css:map-att-to-elt" as="xs:string?">
+    <xsl:param name="context" as="element(*)?"/>
+    <xsl:if test="not($context/local-name() = ('title'))">
+      <xsl:sequence select="$css:bold-elt-name"/>  
+    </xsl:if>
+  </xsl:template>
+  
 
   <xsl:template match="dbk:title[dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]]" mode="default">
     <label>
@@ -373,6 +421,31 @@
   
   <!-- LISTS -->
   
+  <xsl:template match="dbk:variablelist" mode="default">
+    <def-list>
+      <xsl:attribute name="id" select="generate-id()"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </def-list>
+  </xsl:template>
+  
+  <xsl:template match="dbk:varlistentry" mode="default">
+    <def-item>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </def-item>
+  </xsl:template>
+
+  <xsl:template match="dbk:varlistentry/dbk:term" mode="default">
+    <term>
+      <xsl:call-template name="css:content"/>
+    </term>
+  </xsl:template>
+  
+  <xsl:template match="dbk:varlistentry/dbk:listitem" mode="default">
+    <def>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </def>
+  </xsl:template>
+  
   <xsl:template match="dbk:orderedlist" mode="default">
     <list list-type="order">
       <xsl:attribute name="id" select="generate-id()"/>
@@ -422,7 +495,20 @@
   </xsl:template>
   
   <xsl:template match="dbk:itemizedlist/@mark" mode="default">
-    <xsl:attribute name="css:list-style-type" select="'dash'"/>
+    <xsl:variable name="type" as="xs:string?">
+      <xsl:choose>
+        <xsl:when test=". = '&#x25fd;'"><xsl:value-of select="'box'"/></xsl:when>
+        <xsl:when test=". = '&#x2713;'"><xsl:value-of select="'check'"/></xsl:when>
+        <xsl:when test=". = '&#x25e6;'"><xsl:value-of select="'circle'"/></xsl:when>
+        <xsl:when test=". = '&#x25c6;'"><xsl:value-of select="'diamond'"/></xsl:when>
+        <xsl:when test=". = '&#x2022;'"><xsl:value-of select="'disc'"/></xsl:when>
+        <xsl:when test=". = ('&#x2013;', '&#x2014;')"><xsl:value-of select="'dash'"/></xsl:when>
+        <xsl:when test=". = '&#x25fe;'"><xsl:value-of select="'square'"/></xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:if test="$type">
+      <xsl:attribute name="css:list-style-type" select="$type"/>  
+    </xsl:if>
   </xsl:template>
   
   <!-- BOXES -->
