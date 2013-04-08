@@ -43,6 +43,47 @@
 
   <xsl:template match="styled-content[. = '']" mode="clean-up" priority="2"/>
 
+  <xsl:template match="th/p[bold][every $n in node() satisfies ($n/self::bold)]" mode="clean-up">
+    <xsl:apply-templates select="bold/node()" mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="th[p][count(p) eq 1][not(p/bold)]" mode="clean-up">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:attribute name="css:font-weight" select="'normal'"/>
+      <xsl:apply-templates select="p/node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="table[count(thead) gt 1]" mode="clean-up">
+    <xsl:variable name="context" select="." as="element(table)"/>
+    <xsl:for-each-group select="*" group-starting-with="thead">
+      <xsl:for-each select="$context">
+        <xsl:copy>
+          <xsl:apply-templates select="@*, current-group()" mode="#current"/>
+        </xsl:copy>
+      </xsl:for-each>
+    </xsl:for-each-group>
+  </xsl:template>
+  
+
+  <xsl:template match="body[not(following-sibling::back)][ref-list]" mode="clean-up">
+    <xsl:next-match/>
+    <back>
+      <xsl:for-each select="ref-list">
+        <xsl:copy copy-namespaces="no">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </xsl:copy>
+      </xsl:for-each>
+    </back>
+  </xsl:template>
+  <xsl:template match="body[not(following-sibling::back)]/ref-list" mode="clean-up"/>
+  
+  <!-- not permitted by schema: -->
+  <xsl:template match="sub/@content-type | sup/@content-type" mode="clean-up"/>
+
+  <xsl:template match="dbk:tab | dbk:tabs" mode="clean-up"/>
+
   <!-- Dissolve styled content whose css atts all went to the attic.
        Will lose srcpath attributes though. Solution: Adapt the srcpath message rendering mechanism 
        so that it uses ancestor paths if it doesn’t find an immediate matching element. -->
@@ -86,7 +127,7 @@
     </xsl:comment>
   </xsl:template>
   
-  <xsl:template match="css:rules | css:rules/@* | dbk:tab | dbk:tab/@*" mode="default">
+  <xsl:template match="css:rules | css:rules/@* | dbk:tabs | dbk:tab | dbk:tab/@*" mode="default">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -357,13 +398,13 @@
   
   <xsl:template match="dbk:superscript" mode="default">
     <sup>
-      <xsl:next-match/>
+      <xsl:call-template name="css:content"/>
     </sup>
   </xsl:template>
   
   <xsl:template match="dbk:subscript" mode="default">
     <sub>
-      <xsl:next-match/>
+      <xsl:call-template name="css:content"/>
     </sub>
   </xsl:template>
   
@@ -527,6 +568,10 @@
 
   <xsl:template match="@*" mode="box-type"/>
   
+  <xsl:template match="dbk:sidebar[@remap eq 'Group']" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
   <!-- FIGURES -->
   
   <xsl:template match="dbk:figure" mode="default">
@@ -561,7 +606,7 @@
   
   <!-- todo: group with table footnotes -->
   
-  <xsl:template match="dbk:title[parent::table]" mode="default">
+  <xsl:template match="dbk:title[parent::dbk:table or parent::dbk:figure]" mode="default">
     <caption>
       <xsl:call-template name="css:content"/>
     </caption>
@@ -643,7 +688,9 @@
   <!-- BIBLIOGRAPHY -->
   
   <xsl:template match="dbk:bibliography" mode="default">
-    <ref-list><xsl:call-template name="css:content"/></ref-list>
+    <ref-list>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </ref-list>
   </xsl:template>
 
   <xsl:template match="dbk:biblioentry" mode="default">
