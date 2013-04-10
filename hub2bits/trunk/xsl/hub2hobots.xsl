@@ -147,7 +147,7 @@
     <xsl:attribute name="rid" select="."/>
   </xsl:template>
 
-  <xsl:template match="@remap" mode="default"/>
+  <xsl:template match="@remap | @annotations" mode="default"/>
 
   <xsl:template match="@css:* | css:rule/@*" mode="default">
     <xsl:copy/>
@@ -576,7 +576,17 @@
   
   <xsl:template match="dbk:figure" mode="default">
     <fig>
-      <xsl:call-template name="css:content"/>
+      <xsl:call-template name="css:other-atts"/>
+      <label>
+        <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
+      </label>
+      <caption>
+        <title>
+          <xsl:apply-templates mode="#current"
+            select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
+        </title>
+      </caption>
+      <xsl:apply-templates select="* except dbk:title" mode="#current"/>
     </fig>
   </xsl:template>
   
