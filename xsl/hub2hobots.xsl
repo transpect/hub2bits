@@ -577,6 +577,7 @@
   <xsl:template match="dbk:figure" mode="default">
     <fig>
       <xsl:call-template name="css:other-atts"/>
+      <xsl:apply-templates select="(.//dbk:anchor)[1]/@xml:id" mode="#current"/>
       <label>
         <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
       </label>
