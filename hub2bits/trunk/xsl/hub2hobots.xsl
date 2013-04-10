@@ -693,6 +693,10 @@
     </ref-list>
   </xsl:template>
 
+  <xsl:template match="dbk:biblioentry/@annotations" mode="default">
+    <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+
   <xsl:template match="dbk:biblioentry" mode="default">
     <ref><xsl:call-template name="css:content"/></ref>
   </xsl:template>
