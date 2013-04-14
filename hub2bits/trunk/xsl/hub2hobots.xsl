@@ -79,6 +79,10 @@
   </xsl:template>
   <xsl:template match="body[not(following-sibling::back)]/ref-list" mode="clean-up"/>
   
+  <xsl:template match="p[boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
   <!-- not permitted by schema: -->
   <xsl:template match="sub/@content-type | sup/@content-type" mode="clean-up"/>
 
@@ -658,7 +662,7 @@
   </xsl:template>
   
   <xsl:template match="dbk:entry/@morerows" mode="default">
-    <xsl:if test="xs:integer(.) gt 1">
+    <xsl:if test="xs:integer(.) ge 1">
       <xsl:attribute name="rowspan" select=". + 1"/>
     </xsl:if>
   </xsl:template>
