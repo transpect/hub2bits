@@ -12,7 +12,6 @@
   type="jats:hub2hobots"
   >
   
-  <p:option name="srcpaths" required="false" select="'no'"/>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   
@@ -40,7 +39,6 @@
   <p:sink/>
   
   <bc:dynamic-transformation-pipeline load="hub2hobots/hub2hobots">
-    <p:with-option name="srcpaths" select="$srcpaths"/>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:input port="source">
