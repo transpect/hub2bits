@@ -185,6 +185,11 @@
     </xsl:choose>
   </xsl:function>
 
+  <xsl:template match="/*" mode="default">
+    <nodoc>The document could not be converted because no template matched its top level element.
+      The top level element must match: dbk:book | dbk:hub[dbk:chapter] | dbk:hub[dbk:part]</nodoc>
+  </xsl:template>
+  
   <xsl:template match="dbk:book | dbk:hub[dbk:chapter] | dbk:hub[dbk:part]" mode="default">
     <book>
       <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
