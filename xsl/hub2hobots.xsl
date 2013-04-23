@@ -180,7 +180,7 @@
       <xsl:when test="$name = 'info'"><xsl:sequence select="''"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
-      <xsl:when test="$name = ('appendix')"><xsl:sequence select="'book-back'"/></xsl:when>
+      <xsl:when test="$name = ('appendix', 'index')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -190,7 +190,7 @@
       The top level element must match: dbk:book | dbk:hub[dbk:chapter] | dbk:hub[dbk:part]</nodoc>
   </xsl:template>
   
-  <xsl:template match="dbk:book | dbk:hub[dbk:chapter] | dbk:hub[dbk:part]" mode="default">
+  <xsl:template match="dbk:book | dbk:hub[dbk:chapter] | dbk:hub[dbk:part]" mode="default" priority="2">
     <book>
       <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
       <xsl:namespace name="xlink" select="'http://www.w3.org/1999/xlink'"/>
@@ -244,13 +244,22 @@
   <xsl:template match="dbk:appendix" mode="default">
     <app><xsl:call-template name="css:content"/></app>
   </xsl:template>
+
+  <xsl:template match="dbk:index" mode="default">
+    <index>
+      <xsl:apply-templates select="@*, dbk:title" mode="#current"/>
+      <!-- will be filled in clean-up -->
+    </index>
+  </xsl:template>
   
+
   <xsl:function name="jats:book-part" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:partintro"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface"><xsl:sequence select="'preface'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:index"><xsl:sequence select="'index'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'unknown-book-part'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -264,7 +273,7 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:partintro" mode="default">
+  <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:partintro | dbk:index" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
       <xsl:call-template name="css:other-atts"/>
@@ -292,6 +301,8 @@
     </xsl:element>
   </xsl:template>
 
+  <xsl:template match="@disp-level[not(parent::dbk:section)]" mode="default"/>
+    
   <xsl:template match="dbk:preface/@role" mode="default">
     <xsl:attribute name="book-part-type" select="."/>
   </xsl:template>
@@ -690,6 +701,8 @@
         <!--<xsl:for-each select="self::dbk:informaltable">
           <xsl:call-template name="css:other-atts"/>
         </xsl:for-each>-->
+        <!-- extra content-type attribute at the contained table (also process css here, only id above?): -->
+        <xsl:apply-templates select="@role" mode="#current"/>
         <xsl:choose>
           <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
             <xsl:apply-templates select="* except dbk:title" mode="#current"/>
