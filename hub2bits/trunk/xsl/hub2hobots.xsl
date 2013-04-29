@@ -197,6 +197,7 @@
       <xsl:copy-of select="@css:version"/>
       <xsl:attribute name="css:rule-selection-attribute" select="'content-type style-type'"/>
       <xsl:sequence select="$dtd-version-att"/>
+      <xsl:copy-of select="key('jats:style-by-type', 'NormalParagraphStyle')/@xml:lang, @xml:lang"/>
       <book-meta>
         <book-title-group>
           <xsl:apply-templates select="dbk:info/dbk:title | dbk:title" mode="#current"/>
@@ -276,7 +277,7 @@
   <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:partintro | dbk:index" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
-      <xsl:call-template name="css:other-atts"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:sequence select="$dtd-version-att"/>
       <xsl:if test="$elt-name eq 'book-part'">
         <xsl:attribute name="book-part-type" select="local-name()"/>
@@ -301,7 +302,7 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="@disp-level[not(parent::dbk:section)]" mode="default"/>
+  <xsl:template match="@renderas[not(parent::dbk:section)]" mode="default"/>
     
   <xsl:template match="dbk:preface/@role" mode="default">
     <xsl:attribute name="book-part-type" select="."/>
@@ -362,7 +363,11 @@
   <!-- Don’t wrap title content in a bold element -->
   <xsl:template match="@css:font-weight[matches(., '^bold|[6-9]00$')]" mode="css:map-att-to-elt" as="xs:string?">
     <xsl:param name="context" as="element(*)?"/>
-    <xsl:if test="not($context/local-name() = ('title'))">
+    <xsl:if test="not(
+                    $context/local-name() = ('title')
+                    or
+                    ($context/local-name() = ('phrase') and $context/../local-name() = ('title')) 
+                  )">
       <xsl:sequence select="$css:bold-elt-name"/>  
     </xsl:if>
   </xsl:template>
