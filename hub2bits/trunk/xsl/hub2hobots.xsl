@@ -11,6 +11,7 @@
   <xsl:import href="http://transpect.le-tex.de/hub2html/xsl/css-atts2wrap.xsl"/>
 
   <xsl:param name="srcpaths" select="'no'"/>
+  <xsl:param name="work-path"/>
 
   <xsl:variable name="dtd-version-att" as="attribute(dtd-version)">
     <xsl:attribute name="dtd-version" select="'0.2-variant Hogrefe Book Tag Set (hobots) 0.1'" />
@@ -627,15 +628,9 @@
     </graphic>
   </xsl:template>
   
+  <!-- Override in adaptions -->
   <xsl:template match="dbk:imagedata/@fileref" mode="default">
-    <!-- Keep just one directory level above the file name.
-        Replace extension with .png (preliminarily) --> 
-    <xsl:attribute name="xlink:href" 
-      select="replace(
-                replace(., '^.*?([^/]+/[^/]+)$', '$1'),
-                '\.[^.]+$',
-                '.png'
-              )"/>
+    <xsl:attribute name="xlink:href" select="."/>
   </xsl:template>
   
   <!-- TABLES -->
