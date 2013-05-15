@@ -721,7 +721,7 @@
   
   <!-- BIBLIOGRAPHY -->
   
-  <xsl:template match="dbk:bibliography" mode="default">
+  <xsl:template match="dbk:bibliography | dbk:bibliodiv" mode="default">
     <ref-list>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </ref-list>
