@@ -276,7 +276,7 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:foreword | dbk:partintro | dbk:index" mode="default">
+  <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:foreword | dbk:partintro" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -703,7 +703,7 @@
           <xsl:call-template name="css:other-atts"/>
         </xsl:for-each>-->
         <!-- extra content-type attribute at the contained table (also process css here, only id above?): -->
-        <xsl:apply-templates select="@role" mode="#current"/>
+        <xsl:apply-templates select="@role | @css:*" mode="#current"/>
         <xsl:choose>
           <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
             <xsl:apply-templates select="* except dbk:title" mode="#current"/>
