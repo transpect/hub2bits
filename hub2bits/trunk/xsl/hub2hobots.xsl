@@ -661,6 +661,17 @@
       <xsl:call-template name="css:content"/>
     </tbody>
   </xsl:template>
+
+  <xsl:template match="dbk:colspec[@colwidth]" mode="default">
+    <col>
+      <xsl:apply-templates select="@colwidth" mode="#current"/>
+    </col>
+  </xsl:template>
+  
+  <xsl:template match="dbk:colspec/@colwidth" mode="default">
+    <xsl:attribute name="width" select="."/>
+  </xsl:template>
+  
   
   <xsl:template match="dbk:thead" mode="default">
     <thead>
