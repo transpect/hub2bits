@@ -202,7 +202,11 @@
       <book-meta>
         <book-title-group>
           <xsl:apply-templates select="dbk:info/dbk:title | dbk:title" mode="#current"/>
+          <xsl:apply-templates select="dbk:info/dbk:subtitle | dbk:subtitle" mode="#current"/>
         </book-title-group>
+        <contrib-group>
+          <xsl:apply-templates select="dbk:info/dbk:authorgroup | dbk:authorgroup" mode="#current"/>
+        </contrib-group>        
         <custom-meta-group>
           <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>  
         </custom-meta-group>
@@ -217,6 +221,22 @@
     </book>
   </xsl:template>
   
+  <xsl:template match="dbk:authorgroup | dbk:org | dbk:orgname" mode="default" priority="2">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="dbk:affiliation" mode="default" priority="2">
+    <aff>
+      <xsl:apply-templates mode="#current"/>
+    </aff>
+  </xsl:template>
+  
+  <xsl:template match="dbk:personblurb" mode="default" priority="2">
+    <bio>
+      <xsl:apply-templates mode="#current"/>
+    </bio>
+  </xsl:template>
+ 
   <xsl:template match="dbk:toc" mode="default">
     <toc>
       <xsl:apply-templates select="." mode="toc-depth"/>
@@ -316,7 +336,7 @@
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
       <xsl:when test="$elt/self::dbk:title or $elt/self::dbk:subtitle"><xsl:sequence select="'title-group'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:author"><xsl:sequence select="'contrib-group'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:authorgroup"><xsl:sequence select="'contrib-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:abstract"><xsl:sequence select="'abstract'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="concat('unknown-meta_', $elt/name())"/></xsl:otherwise>
     </xsl:choose>
@@ -342,6 +362,18 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <xsl:template match="dbk:book/dbk:title" mode="default">
+    <book-title>
+      <xsl:call-template name="css:content"/>
+    </book-title>
+  </xsl:template> 
+  
+  <xsl:template match="dbk:subtitle" mode="default">
+    <subtitle>
+      <xsl:call-template name="css:content"/>
+    </subtitle>
+  </xsl:template>  
+  
   <xsl:template match="dbk:abstract" mode="default">
     <abstract><xsl:call-template name="css:content"/></abstract>
   </xsl:template>
@@ -356,11 +388,14 @@
   
   <!-- BLOCK -->
   
+ 
   <xsl:template match="dbk:title" mode="default">
     <title>
       <xsl:call-template name="css:content"/>
     </title>
   </xsl:template>
+
+
 
   <!-- Don’t wrap title content in a bold element -->
   <xsl:template match="@css:font-weight[matches(., '^bold|[6-9]00$')]" mode="css:map-att-to-elt" as="xs:string?">
