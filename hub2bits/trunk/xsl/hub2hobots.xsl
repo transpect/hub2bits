@@ -13,6 +13,8 @@
   <xsl:param name="srcpaths" select="'no'"/>
   <xsl:param name="work-path"/>
 
+  <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/> 
+  
   <xsl:variable name="dtd-version-att" as="attribute(dtd-version)">
     <xsl:attribute name="dtd-version" select="'0.2-variant Hogrefe Book Tag Set (hobots) 0.1'" />
   </xsl:variable>
@@ -179,7 +181,7 @@
     <xsl:variable name="name" select="$elt/local-name()" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$name = 'info'"><xsl:sequence select="''"/></xsl:when>
-      <xsl:when test="$name = ('toc', 'preface', 'partintro', 'foreword')"><xsl:sequence select="'front-matter'"/></xsl:when>
+      <xsl:when test="$name = ('toc', 'preface', 'partintro', 'foreword', 'acknowledgements')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
       <xsl:when test="$name = ('appendix', 'index')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
@@ -267,6 +269,11 @@
     <app><xsl:call-template name="css:content"/></app>
   </xsl:template>
 
+  <xsl:template match="dbk:acknowledgements" mode="default">
+    <ack><xsl:call-template name="css:content"/></ack>
+  </xsl:template>
+  
+
   <xsl:template match="dbk:index" mode="default">
     <index>
       <xsl:apply-templates select="@*, dbk:title" mode="#current"/>
@@ -281,7 +288,7 @@
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:partintro"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface"><xsl:sequence select="'preface'"/></xsl:when>
-	  <xsl:when test="$elt/self::dbk:foreword"><xsl:sequence select="'foreword'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:acknowledgements"><xsl:sequence select="'ack'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:index"><xsl:sequence select="'index'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'unknown-book-part'"/></xsl:otherwise>
     </xsl:choose>
