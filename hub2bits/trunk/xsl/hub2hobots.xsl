@@ -199,6 +199,7 @@
       <xsl:namespace name="xlink" select="'http://www.w3.org/1999/xlink'"/>
       <xsl:copy-of select="@css:version"/>
       <xsl:attribute name="css:rule-selection-attribute" select="'content-type style-type'"/>
+      <xsl:attribute name="source-dir-uri" select="dbk:info/dbk:keywordset[@role eq 'hub']/dbk:keyword[@role eq 'source-dir-uri']"/>      
       <xsl:sequence select="$dtd-version-att"/>
       <xsl:copy-of select="key('jats:style-by-type', 'NormalParagraphStyle')/@xml:lang, @xml:lang"/>
       <book-meta>
@@ -212,6 +213,7 @@
         <custom-meta-group>
           <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>  
         </custom-meta-group>
+        <!--<xsl:apply-templates select="dbk:info[dbk:keywordset[@role eq 'hub']]" mode="#current"/>-->
       </book-meta>
       <xsl:for-each-group select="*" group-adjacent="jats:matter(.)">
         <xsl:if test="current-grouping-key() ne ''">
@@ -221,6 +223,23 @@
         </xsl:if>
       </xsl:for-each-group>
     </book>
+  </xsl:template>
+  
+  <xsl:template match="dbk:keywordset" mode="default">
+    <custom-meta-group>
+      <xsl:apply-templates mode="#current"/>
+    </custom-meta-group>
+  </xsl:template>
+  
+  <xsl:template match="dbk:keyword" mode="default">
+    <custom-meta>
+      <meta-name>
+        <xsl:value-of select="@role"/>
+      </meta-name>
+      <meta-value>
+        <xsl:value-of select="."/>
+      </meta-value>
+    </custom-meta>
   </xsl:template>
   
   <xsl:template match="dbk:authorgroup | dbk:org | dbk:orgname" mode="default" priority="2">
