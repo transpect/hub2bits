@@ -390,7 +390,7 @@
 
   <xsl:template match="dbk:book/dbk:title" mode="default">
     <book-title>
-      <xsl:call-template name="css:content"/>
+      <xsl:apply-templates select="@srcpath, node()" mode="#current"/>
     </book-title>
   </xsl:template> 
   
