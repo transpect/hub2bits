@@ -180,7 +180,7 @@
     <xsl:param name="elt" as="element(*)"/>
     <xsl:variable name="name" select="$elt/local-name()" as="xs:string"/>
     <xsl:choose>
-      <xsl:when test="$name = 'info'"><xsl:sequence select="''"/></xsl:when>
+      <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro', 'foreword', 'acknowledgements')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
       <xsl:when test="$name = ('appendix', 'index')"><xsl:sequence select="'book-back'"/></xsl:when>
