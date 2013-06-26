@@ -147,7 +147,15 @@
   </xsl:template>
 
   <xsl:template match="@role" mode="default">
-    <xsl:attribute name="content-type" select="."/>
+    <xsl:param name="elt-name" as="xs:string?"/>
+    <xsl:choose>
+      <xsl:when test="$elt-name">
+        <xsl:attribute name="book-part-type" select="."/>    
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:attribute name="content-type" select="."/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="@linkend | @linkends" mode="default">
@@ -181,7 +189,8 @@
     <xsl:variable name="name" select="$elt/local-name()" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
-      <xsl:when test="$name = ('toc', 'preface', 'partintro', 'foreword', 'acknowledgements')"><xsl:sequence select="'front-matter'"/></xsl:when>
+      <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication')"><xsl:sequence select="'front-matter'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
       <xsl:when test="$name = ('appendix', 'index')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
@@ -291,7 +300,6 @@
   <xsl:template match="dbk:acknowledgements" mode="default">
     <ack><xsl:call-template name="css:content"/></ack>
   </xsl:template>
-  
 
   <xsl:template match="dbk:index" mode="default">
     <index>
@@ -305,8 +313,11 @@
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:partintro"><xsl:sequence select="'front-matter-part'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:partintro
+                      | $elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter-part'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:preface[matches(@role, 'foreword')]"><xsl:sequence select="'foreword'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface"><xsl:sequence select="'preface'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:dedication"><xsl:sequence select="'dedication'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:acknowledgements"><xsl:sequence select="'ack'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:index"><xsl:sequence select="'index'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'unknown-book-part'"/></xsl:otherwise>
@@ -317,35 +328,50 @@
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'body'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:preface or $elt/self::dbk:partintro or $elt/self::dbk:foreword"><xsl:sequence select="'named-book-part-body'"/></xsl:when>
+      <xsl:when test="local-name($elt) = ('preface', 'partintro', 'dedication', 'preface', 'colophon')"><xsl:sequence select="'named-book-part-body'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="concat('unknown-book-part-body_', $elt/name())"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+
+  <xsl:function name="jats:part-submatter" as="xs:string">
+    <xsl:param name="elt" as="element(*)"/>
+    <xsl:choose>
+      <xsl:when test="name($elt) = ('title', 'info')">
+        <xsl:sequence select="'book-part-meta'"/>
+      </xsl:when>
+      <xsl:when test="name($elt) = ('bibliography')">
+        <xsl:sequence select="'back'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="jats:book-part-body($elt/..)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
   
-  <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:foreword | dbk:partintro" mode="default">
+  <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
-      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current">
+        <xsl:with-param name="elt-name" select="$elt-name"/>
+      </xsl:apply-templates>
       <xsl:sequence select="$dtd-version-att"/>
       <xsl:if test="$elt-name eq 'book-part'">
         <xsl:attribute name="book-part-type" select="local-name()"/>
       </xsl:if>
       <xsl:variable name="context" select="." as="element(*)"/>
-      <xsl:for-each-group select="*" group-adjacent="boolean(self::dbk:title or self::dbk:info)">
-        <xsl:choose>
-          <xsl:when test="current-grouping-key()">
-              <book-part-meta>
-                <xsl:call-template name="title-info">
-                  <xsl:with-param name="elts" select="current-group()/(self::dbk:title union self::dbk:info/*)"/>
-                </xsl:call-template>
-              </book-part-meta>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="{jats:book-part-body($context)}">
+      <xsl:for-each-group select="*" group-adjacent="jats:part-submatter(.)">
+        <xsl:element name="{current-grouping-key()}">
+          <xsl:choose>
+            <xsl:when test="matches(current-grouping-key(), 'meta')">
+              <xsl:call-template name="title-info">
+                <xsl:with-param name="elts" select="current-group()/(self::dbk:title union self::dbk:info/*)"/>
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
               <xsl:apply-templates select="current-group()" mode="#current"/>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:element>
       </xsl:for-each-group>
     </xsl:element>
   </xsl:template>
@@ -684,10 +710,10 @@
   </xsl:template>
   
   <xsl:template match="dbk:imagedata" mode="default">
-    <graphic>
+    <xsl:element name="{if (name(../../..) = ('figure')) then 'graphic' else 'inline-graphic'}">
       <xsl:apply-templates select="ancestor::dbk:mediaobject[1]/@xml:id" mode="#current"/>
       <xsl:call-template name="css:content"/>
-    </graphic>
+    </xsl:element>
   </xsl:template>
   
   <!-- Override in adaptions -->
@@ -733,6 +759,9 @@
     <xsl:attribute name="width" select="."/>
   </xsl:template>
   
+  <xsl:template match="dbk:table/@css:width | dbk:informaltable/@css:width" mode="default">
+    <xsl:attribute name="{local-name()}" select="."/>
+  </xsl:template>
   
   <xsl:template match="dbk:thead" mode="default">
     <thead>
@@ -758,7 +787,7 @@
   
   <xsl:template match="dbk:informaltable | dbk:table" mode="default">
     <table-wrap>
-      <xsl:call-template name="css:other-atts"/>
+      <xsl:apply-templates select="@* except (@role | @css:*)" mode="#current"/>
       <xsl:if test="self::dbk:table">
         <label>
           <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
