@@ -786,20 +786,21 @@
     </xsl:if>
   </xsl:template>
   
+   <xsl:template match="dbk:table/dbk:title" name="dbk:table-title" mode="default">
+     <label>
+       <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
+     </label>
+     <caption>
+       <title>
+         <xsl:apply-templates mode="#current"
+           select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
+       </title>
+     </caption>
+   </xsl:template>
+  
   <xsl:template match="dbk:informaltable | dbk:table" mode="default">
     <table-wrap>
-      <xsl:apply-templates select="@* except (@role | @css:*)" mode="#current"/>
-      <xsl:if test="self::dbk:table">
-        <label>
-          <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
-        </label>
-        <caption>
-          <title>
-            <xsl:apply-templates mode="#current"
-              select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
-          </title>
-        </caption>
-      </xsl:if>
+      <xsl:apply-templates select="@* except (@role | @css:*), dbk:title" mode="#current"/>
       <table>
         <!--<xsl:for-each select="self::dbk:informaltable">
           <xsl:call-template name="css:other-atts"/>
