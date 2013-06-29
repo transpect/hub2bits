@@ -788,12 +788,12 @@
   
    <xsl:template match="dbk:table/dbk:title" name="dbk:table-title" mode="default">
      <label>
-       <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
+       <xsl:apply-templates mode="#current" select="dbk:phrase[@role eq 'hub:caption-number']"/>
      </label>
      <caption>
        <title>
          <xsl:apply-templates mode="#current"
-           select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
+           select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab)"/>
        </title>
      </caption>
    </xsl:template>
