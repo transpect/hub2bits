@@ -34,6 +34,8 @@
     </xsl:copy>
   </xsl:template>
 
+  
+
   <xsl:key name="by-id" match="*[@id]" use="@id"/>
 
   <!-- This anchor has already given its ID to someone else, but we've been
@@ -294,12 +296,16 @@
   </xsl:template>
 
   <xsl:template match="dbk:appendix" mode="default">
-    <app><xsl:call-template name="css:content"/></app>
+    <app>
+      <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+    </app>
   </xsl:template>
 
-  <xsl:template match="dbk:acknowledgements" mode="default">
+  <xsl:template match="dbk:acknowledgements | dbk:preface[@role = 'acknowledgements']" mode="default">
     <ack><xsl:call-template name="css:content"/></ack>
   </xsl:template>
+  
+  <xsl:template match="dbk:preface[@role = 'acknowledgements']/@role" mode="default" priority="2"/>
 
   <xsl:template match="dbk:index" mode="default">
     <index>
@@ -316,6 +322,7 @@
       <xsl:when test="$elt/self::dbk:partintro
                       | $elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'foreword')]"><xsl:sequence select="'foreword'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:preface[matches(@role, 'acknowledgements')]"><xsl:sequence select="'ack'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'praise')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface"><xsl:sequence select="'preface'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:dedication"><xsl:sequence select="'dedication'"/></xsl:when>
@@ -349,7 +356,8 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:template match="dbk:part | dbk:chapter | dbk:preface | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
+  <xsl:template match="  dbk:part | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
+                       | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
       <xsl:apply-templates select="@*" mode="#current">
@@ -702,17 +710,45 @@
             select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
         </title>
       </caption>
-      <xsl:apply-templates select="* except dbk:title" mode="#current"/>
+      <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
+      <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
     </fig>
   </xsl:template>
   
-  <xsl:template match="dbk:mediaobject | dbk:imageobject" mode="default">
+  <xsl:template match="dbk:figure/dbk:note" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  
+  <xsl:template match="dbk:info[count(*) eq 1][dbk:legalnotice[@role eq 'copyright']]" mode="default">
+    <permissions>
+      <xsl:apply-templates mode="#current"/>
+    </permissions>
+  </xsl:template>
+  
+  <xsl:template match="dbk:info[count(*) eq 1]/dbk:legalnotice[@role eq 'copyright']" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:info[count(*) eq 1]/dbk:legalnotice[@role eq 'copyright']/dbk:para" mode="default">
+    <copyright-statement>
+      <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
+    </copyright-statement>
+  </xsl:template>
+  
+  <xsl:template match="dbk:mediaobject | dbk:inlinemediaobject | dbk:imageobject" mode="default">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:imagedata" mode="default">
-    <xsl:element name="{if (name(../../..) = ('figure')) then 'graphic' else 'inline-graphic'}">
-      <xsl:apply-templates select="ancestor::dbk:mediaobject[1]/@xml:id" mode="#current"/>
+    <xsl:element name="{if (
+                              not(name(../../..) = ('figure'))
+                              or
+                              name(../..) = 'inlinemediaobject'
+                              ) 
+                        then 'inline-graphic' 
+                        else 'graphic'}">
+      <xsl:apply-templates select="(ancestor::dbk:mediaobject | ancestor::dbk:inlinemediaobject)[1]/@xml:id" mode="#current"/>
       <xsl:call-template name="css:content"/>
     </xsl:element>
   </xsl:template>
@@ -725,13 +761,7 @@
   <!-- TABLES -->
   
   <!-- todo: group with table footnotes -->
-  
-  <xsl:template match="dbk:title[parent::dbk:table or parent::dbk:figure]" mode="default">
-    <caption>
-      <xsl:call-template name="css:content"/>
-    </caption>
-  </xsl:template>
-  
+    
   <xsl:template match="dbk:row" mode="default">
     <tr>
       <xsl:call-template name="css:content"/>
@@ -786,7 +816,7 @@
     </xsl:if>
   </xsl:template>
   
-   <xsl:template match="dbk:table/dbk:title" name="dbk:table-title" mode="default">
+   <xsl:template match="dbk:table/dbk:title" name="dbk:table-title" mode="default" priority="2">
      <label>
        <xsl:apply-templates mode="#current" select="dbk:phrase[@role eq 'hub:caption-number']"/>
      </label>
