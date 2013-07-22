@@ -839,7 +839,8 @@
         <xsl:apply-templates select="@role | @css:*" mode="#current"/>
         <xsl:choose>
           <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
-            <xsl:apply-templates select="* except dbk:title" mode="#current"/>
+            <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
+            <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
           </xsl:when>
           <xsl:otherwise>
             <HTMLTABLE_TODO/>
