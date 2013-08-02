@@ -193,6 +193,7 @@
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
       <xsl:when test="$name = ('appendix', 'index')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
@@ -318,6 +319,7 @@
   <xsl:function name="jats:book-part" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
+      <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'app-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:partintro
                       | $elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter-part'"/></xsl:when>
@@ -330,6 +332,11 @@
       <xsl:when test="$elt/self::dbk:index"><xsl:sequence select="'index'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'unknown-book-part'"/></xsl:otherwise>
     </xsl:choose>
+  </xsl:function>
+
+  <xsl:function name="jats:is-appendix-part" as="xs:boolean">
+    <xsl:param name="elt" as="element(dbk:part)"/>
+    <xsl:sequence select="every $c in $elt/* satisfies $c/name() = ('appendix', 'index', 'bibliography', 'title', 'subtitle', 'info')"/>
   </xsl:function>
 
   <xsl:function name="jats:book-part-body" as="xs:string">
@@ -355,6 +362,12 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
+  <xsl:template match="dbk:part[jats:is-appendix-part(.)]" mode="default">
+    <app-group>
+      <xsl:call-template name="css:content"/>
+    </app-group>
+  </xsl:template>
   
   <xsl:template match="  dbk:part | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
                        | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
@@ -510,6 +523,8 @@
   <xsl:template match="dbk:link[@xlink:href]" mode="default">
     <ext-link><xsl:call-template name="css:content"/></ext-link>
   </xsl:template>
+
+  <xsl:template match="dbk:link[@xlink:href]/@role" mode="default"/>
 
   <xsl:template match="dbk:anchor" mode="default">
     <target><xsl:call-template name="css:content"/></target>
@@ -742,7 +757,7 @@
   
   <xsl:template match="dbk:imagedata" mode="default">
     <xsl:element name="{if (
-                              not(name(../../..) = ('figure'))
+                              not(name(../../..) = ('figure', 'entry'))
                               or
                               name(../..) = 'inlinemediaobject'
                               ) 
@@ -852,6 +867,13 @@
   </xsl:template>
   
   <xsl:template match="dbk:colspec | @colname | @nameend" mode="default"/>
+  
+  
+  <!-- EPUB conditional content -->
+  
+  <xsl:template match="@condition" mode="default">
+    <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
   
   <!-- BIBLIOGRAPHY -->
   
