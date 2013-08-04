@@ -277,7 +277,7 @@
     </toc>
   </xsl:template>
 
-  <xsl:template match="dbk:toc/dbk:title" mode="default" priority="2">
+  <xsl:template match="dbk:toc/dbk:title | dbk:index/dbk:title" mode="default" priority="2">
     <title-group>
       <xsl:next-match/>
     </title-group>
@@ -368,6 +368,14 @@
       <xsl:call-template name="css:content"/>
     </app-group>
   </xsl:template>
+  
+  <xsl:template match="app-group" mode="clean-up">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*, node() except (ref-list | index)" mode="#current"/>
+    </xsl:copy>
+    <xsl:apply-templates select="ref-list | index" mode="#current"/>
+  </xsl:template>
+  
   
   <xsl:template match="  dbk:part | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
                        | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
@@ -710,6 +718,19 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
+  <!-- POETRY -->
+  
+  <xsl:template match="dbk:poetry | dbk:poetry/dbk:linegroup" mode="default">
+    <verse-group>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </verse-group>
+  </xsl:template>
+  
+  <xsl:template match="dbk:poetry/dbk:linegroup/dbk:line" mode="default">
+    <verse-line>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </verse-line>
+  </xsl:template>
   <!-- FIGURES -->
   
   <xsl:template match="dbk:figure" mode="default">
