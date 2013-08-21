@@ -104,7 +104,7 @@
   </xsl:template>
 
   <xsl:key name="jats:style-by-type" match="css:rule" use="@name" />
-
+  
   <xsl:template match="*" mode="default" priority="-1">
     <xsl:message>hub2hobots: unhandled in mode default: <xsl:apply-templates select="." mode="css:unhandled"/>
     </xsl:message>
