@@ -195,7 +195,7 @@
       <xsl:when test="$elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
-      <xsl:when test="$name = ('appendix', 'index')"><xsl:sequence select="'book-back'"/></xsl:when>
+      <xsl:when test="$name = ('appendix', 'index', 'glossary')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -308,6 +308,12 @@
   
   <xsl:template match="dbk:preface[@role = 'acknowledgements']/@role" mode="default" priority="2"/>
 
+  <xsl:template match="dbk:glossary" mode="default">
+    <glossary>
+      <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+    </glossary>
+  </xsl:template>
+  
   <xsl:template match="dbk:index" mode="default">
     <index>
       <xsl:apply-templates select="@*, dbk:title" mode="#current"/>
@@ -329,6 +335,7 @@
       <xsl:when test="$elt/self::dbk:preface"><xsl:sequence select="'preface'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:dedication"><xsl:sequence select="'dedication'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:acknowledgements"><xsl:sequence select="'ack'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:glossary"><xsl:sequence select="'glossary'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:index"><xsl:sequence select="'index'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'unknown-book-part'"/></xsl:otherwise>
     </xsl:choose>
@@ -336,7 +343,7 @@
 
   <xsl:function name="jats:is-appendix-part" as="xs:boolean">
     <xsl:param name="elt" as="element(dbk:part)"/>
-    <xsl:sequence select="every $c in $elt/* satisfies $c/name() = ('appendix', 'index', 'bibliography', 'title', 'subtitle', 'info')"/>
+    <xsl:sequence select="every $c in $elt/* satisfies $c/name() = ('appendix', 'index', 'bibliography', 'glossary', 'title', 'subtitle', 'info')"/>
   </xsl:function>
 
   <xsl:function name="jats:book-part-body" as="xs:string">
@@ -354,7 +361,7 @@
       <xsl:when test="name($elt) = ('title', 'info')">
         <xsl:sequence select="'book-part-meta'"/>
       </xsl:when>
-      <xsl:when test="name($elt) = ('bibliography')">
+      <xsl:when test="name($elt) = ('bibliography', 'glossary', 'appendix')">
         <xsl:sequence select="'back'"/>
       </xsl:when>
       <xsl:otherwise>
