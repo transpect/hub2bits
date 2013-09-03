@@ -4,12 +4,13 @@
   xmlns:dbk="http://docbook.org/ns/docbook"
   xmlns:jats="http://jats.nlm.nih.gov"
   xmlns:css="http://www.w3.org/1996/css"
+  xmlns:functx="http://www.functx.com" 
   xmlns:xlink="http://www.w3.org/1999/xlink"
-  exclude-result-prefixes="css dbk jats xs xlink"
+  exclude-result-prefixes="css dbk functx jats xs xlink"
   version="2.0">
 
   <xsl:import href="http://transpect.le-tex.de/hub2html/xsl/css-atts2wrap.xsl"/>
-
+  
   <xsl:param name="srcpaths" select="'no'"/>
   <xsl:param name="work-path"/>
 
@@ -160,9 +161,58 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="@linkend | @linkends" mode="default">
+  <xsl:key name="by-id" match="*[@id]" use="@id"/>
+
+  <xsl:template match="@linkend | @linkends" mode="clean-up">
+    <xsl:variable name="targets" select="key('by-id', tokenize(., '\s+'))" as="element(*)*"/>
+    <xsl:variable name="types" select="jats:ref-types($targets)" as="xs:string*"/>
+    <xsl:if test="count($types) eq 1">
+      <xsl:attribute name="ref-type" select="$types[1]"/>
+    </xsl:if>
     <xsl:attribute name="rid" select="."/>
   </xsl:template>
+
+  <xsl:function name="jats:ref-types" as="xs:string*">
+    <xsl:param name="targets" as="element(*)*"/>
+    <xsl:variable name="names" select="distinct-values($targets/local-name())" as="xs:string*"/>
+    <xsl:sequence select="for $n in $names return jats:ref-type($n)"/>
+  </xsl:function>
+  
+  <xsl:function name="jats:ref-type" as="xs:string?">
+    <xsl:param name="elt-name" as="xs:string"/>
+    <xsl:choose>
+      <xsl:when test="$elt-name eq 'app'">
+        <xsl:sequence select="'app'"/>
+      </xsl:when>
+      <xsl:when test="$elt-name = ('ref', 'mixed-citation')">
+        <xsl:sequence select="'bibr'"/>
+      </xsl:when>
+      <xsl:when test="$elt-name eq 'boxed-text'">
+        <xsl:sequence select="'boxed-text'"/>
+      </xsl:when>
+      <xsl:when test="$elt-name eq 'disp-formula'">
+        <xsl:sequence select="'disp-formula'"/>
+      </xsl:when>
+      <xsl:when test="$elt-name eq 'fig'">
+        <xsl:sequence select="'fig'"/>
+      </xsl:when>
+      <xsl:when test="$elt-name eq 'fn'">
+        <xsl:sequence select="'fn'"/>
+      </xsl:when>
+      <xsl:when test="$elt-name eq 'sec'">
+        <xsl:sequence select="'sec'"/>
+      </xsl:when>
+      <xsl:when test="$elt-name eq 'table-wrap'">
+        <xsl:sequence select="'table'"/>
+      </xsl:when>
+      <xsl:when test="$elt-name = ('book-part')">
+        <xsl:sequence select="'book-part'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message>hub2hobots: unknown ref-type for <xsl:value-of select="$elt-name"/></xsl:message>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
 
   <xsl:template match="@remap | @annotations" mode="default"/>
 
@@ -893,6 +943,12 @@
         </xsl:choose>
       </table>  
     </table-wrap>
+  </xsl:template>
+  
+  <xsl:template match="dbk:informaltable" mode="default">
+    <array>
+      <xsl:call-template name="css:content"/>
+    </array>  
   </xsl:template>
   
   <xsl:template match="dbk:colspec | @colname | @nameend" mode="default"/>
