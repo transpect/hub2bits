@@ -945,7 +945,7 @@
     </table-wrap>
   </xsl:template>
   
-  <xsl:template match="dbk:informaltable" mode="default">
+  <xsl:template match="dbk:informaltable" mode="default_DISABLED">
     <array>
       <xsl:call-template name="css:content"/>
     </array>  
