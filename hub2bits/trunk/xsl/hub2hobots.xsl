@@ -263,7 +263,16 @@
       <xsl:attribute name="css:rule-selection-attribute" select="'content-type style-type'"/>
       <xsl:attribute name="source-dir-uri" select="dbk:info/dbk:keywordset[@role eq 'hub']/dbk:keyword[@role eq 'source-dir-uri']"/>      
       <xsl:sequence select="$dtd-version-att"/>
-      <xsl:copy-of select="key('jats:style-by-type', 'NormalParagraphStyle')/@xml:lang, @xml:lang"/>
+      <xsl:choose>
+        <xsl:when test="@xml:lang">
+          <xsl:copy-of select="@xml:lang"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:if test="key('jats:style-by-type', 'NormalParagraphStyle')[@xml:lang ne '']">
+            <xsl:copy-of select="key('jats:style-by-type', 'NormalParagraphStyle')/@xml:lang, @xml:lang"/>
+          </xsl:if>
+        </xsl:otherwise>
+      </xsl:choose>
       <book-meta>
         <book-title-group>
           <xsl:apply-templates select="dbk:info/dbk:title | dbk:title" mode="#current"/>
