@@ -26,7 +26,7 @@
     <p:input port="source">
       <p:inline>
         <c:models>
-          <c:model href="http://hobots.hogrefe.com/schema/hobots.rng" type="application/xml"
+          <c:model href="https://hobots.hogrefe.com/schema/hobots.rng" type="application/xml"
             schematypens="http://relaxng.org/ns/structure/1.0" />
         </c:models>
       </p:inline>
