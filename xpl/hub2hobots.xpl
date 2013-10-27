@@ -21,6 +21,23 @@
   
   <p:import href="http://transpect.le-tex.de/book-conversion/converter/xpl/dynamic-transformation-pipeline.xpl"/>
   <p:import href="http://transpect.le-tex.de/xproc-util/xml-model/prepend-xml-model.xpl" />
+  <p:import href="http://transpect.le-tex.de/book-conversion/converter/xpl/simple-progress-msg.xpl"/>
+  
+  <p:variable name="status-dir-uri" select="concat($debug-dir-uri, '/status')"/>
+  
+  <letex:simple-progress-msg name="start-msg" file="hub2jats-start.txt">
+    <p:input port="msgs">
+      <p:inline>
+        <c:messages>
+          <c:message xml:lang="en">Starting Hub to JATS/BITS/HoBoTS XML conversion</c:message>
+          <c:message xml:lang="de">Beginne Konvertierung von Hub nach JATS/BITS/HoBoTS XML</c:message>
+        </c:messages>
+      </p:inline>
+    </p:input>
+    <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+  </letex:simple-progress-msg>
+  
+  <p:sink/>
   
   <p:identity name="schema">
     <p:input port="source">
@@ -56,4 +73,15 @@
     </p:input>
   </letex:prepend-xml-model>
 
+  <letex:simple-progress-msg name="success-msg" file="hub2jats-success.txt">
+    <p:input port="msgs">
+      <p:inline>
+        <c:messages>
+          <c:message xml:lang="en">Successfully finished Hub to JATS/BITS/HoBoTS XML conversion</c:message>
+          <c:message xml:lang="de">Konvertierung von Hub nach JATS/BITS/HoBoTS XML erfolgreich abgeschlossen</c:message>
+        </c:messages>
+      </p:inline>
+    </p:input>
+    <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+  </letex:simple-progress-msg>
 </p:declare-step>
