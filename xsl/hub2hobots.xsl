@@ -249,13 +249,8 @@
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
-
-  <xsl:template match="/*" mode="default">
-    <nodoc>The document could not be converted because no template matched its top level element.
-      The top level element must match: dbk:book | dbk:hub[dbk:chapter] | dbk:hub[dbk:part]</nodoc>
-  </xsl:template>
   
-  <xsl:template match="dbk:book | dbk:hub[dbk:chapter] | dbk:hub[dbk:part]" mode="default" priority="2">
+  <xsl:template match="dbk:book | dbk:hub" mode="default" priority="2">
     <book>
       <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
       <xsl:namespace name="xlink" select="'http://www.w3.org/1999/xlink'"/>
