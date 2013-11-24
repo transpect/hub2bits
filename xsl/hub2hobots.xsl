@@ -20,7 +20,7 @@
     <xsl:attribute name="dtd-version" select="'0.2-variant Hogrefe Book Tag Set (hobots) 0.1'" />
   </xsl:variable>
 
-  <xsl:template match="* | @*" mode="clean-up">
+  <xsl:template match="* | @*" mode="clean-up ref1">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -273,9 +273,11 @@
           <xsl:apply-templates select="dbk:info/dbk:title | dbk:title" mode="#current"/>
           <xsl:apply-templates select="dbk:info/dbk:subtitle | dbk:subtitle" mode="#current"/>
         </book-title-group>
+        <xsl:if test="dbk:info/dbk:authorgroup or dbk:authorgroup">
         <contrib-group>
           <xsl:apply-templates select="dbk:info/dbk:authorgroup | dbk:authorgroup" mode="#current"/>
-        </contrib-group>        
+        </contrib-group>
+        </xsl:if>
         <custom-meta-group>
           <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>  
         </custom-meta-group>
