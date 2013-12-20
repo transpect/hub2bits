@@ -245,7 +245,7 @@
       <xsl:when test="$elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
-      <xsl:when test="$name = ('appendix', 'index', 'glossary')"><xsl:sequence select="'book-back'"/></xsl:when>
+      <xsl:when test="$name = ('appendix', 'index', 'glossary', 'bibliography')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
