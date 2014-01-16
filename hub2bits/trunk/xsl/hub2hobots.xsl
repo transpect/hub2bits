@@ -17,7 +17,7 @@
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/> 
   
   <xsl:variable name="dtd-version-att" as="attribute(dtd-version)">
-    <xsl:attribute name="dtd-version" select="'0.2-variant Hogrefe Book Tag Set (hobots) 0.1'" />
+    <xsl:attribute name="dtd-version" select="'1.0-variant Hogrefe Book Tag Set (hobots) 1.0'" />
   </xsl:variable>
 
   <xsl:template match="* | @*" mode="clean-up ref1">
@@ -447,7 +447,6 @@
       <xsl:apply-templates select="@*" mode="#current">
         <xsl:with-param name="elt-name" select="$elt-name"/>
       </xsl:apply-templates>
-      <xsl:sequence select="$dtd-version-att"/>
       <xsl:if test="$elt-name eq 'book-part'">
         <xsl:attribute name="book-part-type" select="local-name()"/>
       </xsl:if>
