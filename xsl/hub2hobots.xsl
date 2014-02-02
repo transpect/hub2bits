@@ -98,10 +98,21 @@
        Will lose srcpath attributes though. Solution: Adapt the srcpath message rendering mechanism 
        so that it uses ancestor paths if it doesn’t find an immediate matching element. -->
   <xsl:template match="styled-content[@style-type]
-                                     [every $att in @* satisfies (name($att) = ('style-type', 'xml:id', 'srcpath'))]
-                                     [every $att in key('jats:style-by-type', @style-type)/@* satisfies (name($att) = ('name', 'native-name', 'layout-type'))]"
+                                     [every $att in @* satisfies (name($att) = ('style-type', 'xml:id', 'srcpath'))]"
                 mode="clean-up">
-    <xsl:apply-templates mode="#current"/>
+    <xsl:param name="root" as="document-node(element(*))" select="root()" tunnel="yes"/>
+    <xsl:choose>
+      <!-- This condition would usually have appeared as a predicate of the matching pattern.
+           Since we might process temporary trees in the adaptions, we need to be able to
+           explicitly pass a root node to the key function. -->
+      <xsl:when test="every $att in key('jats:style-by-type', @style-type, $root)/@* 
+                      satisfies (name($att) = ('name', 'native-name', 'layout-type'))">
+        <xsl:apply-templates mode="#current"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:key name="jats:style-by-type" match="css:rule" use="@name" />
@@ -161,10 +172,15 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:key name="by-id" match="*[@id]" use="@id"/>
-
+  <xsl:key name="by-id" match="*[@id | @xml:id]" use="@id | @xml:id"/>
+  
+  <xsl:template match="@linkend | @linkends" mode="default">
+    <xsl:copy/>
+  </xsl:template>
+  
   <xsl:template match="@linkend | @linkends" mode="clean-up">
-    <xsl:variable name="targets" select="key('by-id', tokenize(., '\s+'))" as="element(*)*"/>
+    <xsl:param name="root" select="root()" as="document-node(element(*))" tunnel="yes"/>
+    <xsl:variable name="targets" select="key('by-id', tokenize(., '\s+'), $root)" as="element(*)*"/>
     <xsl:variable name="types" select="jats:ref-types($targets)" as="xs:string*"/>
     <xsl:if test="count($types) eq 1">
       <xsl:attribute name="ref-type" select="$types[1]"/>
@@ -594,7 +610,7 @@
     <ext-link><xsl:call-template name="css:content"/></ext-link>
   </xsl:template>
 
-  <xsl:template match="dbk:link[@xlink:href]/@role" mode="default"/>
+  <xsl:template match="dbk:link[@xlink:href]/@role" mode="default "/>
 
   <xsl:template match="dbk:anchor" mode="default">
     <target><xsl:call-template name="css:content"/></target>
@@ -982,8 +998,16 @@
   </xsl:template>
   
   <xsl:template match="dbk:bibliomisc" mode="default">
-    <mixed-citation><xsl:call-template name="css:content"/></mixed-citation>
+    <mixed-citation>
+      <xsl:if test="../@xml:id">
+        <xsl:attribute name="id" select="../@xml:id"/>  
+      </xsl:if>
+      <xsl:call-template name="css:content"/>
+    </mixed-citation>
   </xsl:template>
   
-
+  <xsl:template match="dbk:biblioentry/@xml:id" mode="default"/>
+  
+  <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
+  
 </xsl:stylesheet>
