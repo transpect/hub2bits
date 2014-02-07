@@ -20,7 +20,7 @@
     <xsl:attribute name="dtd-version" select="'1.0-variant Hogrefe Book Tag Set (hobots) 1.0'" />
   </xsl:variable>
 
-  <xsl:template match="* | @*" mode="clean-up ref1">
+  <xsl:template match="* | @*" mode="clean-up">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
