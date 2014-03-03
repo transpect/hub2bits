@@ -381,9 +381,21 @@
   <xsl:template match="dbk:preface[@role = 'acknowledgements']/@role" mode="default" priority="2"/>
 
   <xsl:template match="dbk:glossary" mode="default">
-    <glossary>
-      <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
-    </glossary>
+    <xsl:choose>
+      <xsl:when test="ancestor::*/self::dbk:part[jats:is-appendix-part(.)]">
+        <app>
+          <glossary>
+            <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+          </glossary>
+        </app>
+      </xsl:when>
+      <xsl:otherwise>
+        <glossary>
+          <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+        </glossary>
+      </xsl:otherwise>
+    </xsl:choose>
+
   </xsl:template>
   
   <xsl:template match="dbk:index" mode="default">
