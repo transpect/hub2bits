@@ -546,6 +546,12 @@
     </subtitle>
   </xsl:template>  
   
+  <xsl:template match="dbk:subtitle/dbk:date" mode="default">
+    <named-content content-type="edition">
+      <xsl:call-template name="css:content"/>
+    </named-content>
+  </xsl:template> 
+  
   <xsl:template match="dbk:abstract" mode="default">
     <abstract><xsl:call-template name="css:content"/></abstract>
   </xsl:template>
@@ -952,8 +958,14 @@
          <xsl:apply-templates mode="#current"
            select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab)"/>
        </title>
+       <xsl:if test="../dbk:caption">
+         <xsl:apply-templates select="../dbk:caption/dbk:para" mode="#current"/>
+       </xsl:if>
      </caption>
    </xsl:template>
+  
+  <xsl:template match="dbk:caption" mode="clean-up"/>
+  
   
   <xsl:template match="dbk:informaltable | dbk:table" mode="default">
     <table-wrap>
