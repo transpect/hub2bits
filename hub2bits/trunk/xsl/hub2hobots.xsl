@@ -959,13 +959,18 @@
            select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab)"/>
        </title>
        <xsl:if test="../dbk:caption">
-         <xsl:apply-templates select="../dbk:caption/dbk:para" mode="#current"/>
+         <xsl:apply-templates select="../dbk:caption/dbk:note/dbk:para, ../dbk:caption/dbk:para" mode="#current"/>
        </xsl:if>
      </caption>
    </xsl:template>
   
-  <xsl:template match="dbk:caption" mode="clean-up"/>
+  <xsl:template match="dbk:textobject | dbk:caption | dbk:note" mode="default"/>
   
+  <xsl:template match="dbk:caption//dbk:para | dbk:textobject/dbk:para" mode="default">
+    <p>
+      <xsl:call-template name="css:content"/>
+    </p>
+  </xsl:template>  
   
   <xsl:template match="dbk:informaltable | dbk:table" mode="default">
     <table-wrap>
@@ -986,7 +991,12 @@
             <xsl:apply-templates mode="#current"/>
           </xsl:otherwise>
         </xsl:choose>
-      </table>  
+      </table>
+      <xsl:if test="dbk:textobject">
+        <table-wrap-foot>
+            <xsl:apply-templates select="dbk:textobject/dbk:para" mode="#current"/>
+        </table-wrap-foot>
+      </xsl:if>
     </table-wrap>
   </xsl:template>
   
