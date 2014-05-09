@@ -65,6 +65,12 @@
       <p:pipe port="result" step="models"/>
     </p:input>
     <p:input port="options"><p:empty/></p:input>
+    <p:pipeinfo>
+      <examples xmlns="http://www.le-tex.de/namespace/transpect"> 
+        <collection dir-uri="http://customers.le-tex.de/generic/book-conversion/adaptions/" file="hub2hobots/hub2hobots.xpl"/>
+        <generator-collection dir-uri="http://customers.le-tex.de/generic/book-conversion/adaptions/" file="hub2hobots/hub2hobots.xpl.xsl"/>
+      </examples>
+    </p:pipeinfo>  
   </bc:dynamic-transformation-pipeline>
 
   <letex:prepend-xml-model name="prepend-xml-model">
