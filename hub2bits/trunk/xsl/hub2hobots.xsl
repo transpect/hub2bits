@@ -144,14 +144,14 @@
   <!-- MOVE WRAP ATTS (italic, bold, underline) TO CSS RULE ATTIC -->
   
   <xsl:template match="css:rule[$css:wrap-content-with-elements-from-mappable-style-attributes]" mode="default">
-    <xsl:call-template name="css:move-to-attic">
-      <xsl:with-param name="atts" select="@*[css:map-att-to-elt(., key('css:styled-content', ../@name)[1])]"/>
+     <xsl:call-template name="css:move-to-attic">
+       <xsl:with-param name="atts" select="@*[css:map-att-to-elt(., key('css:styled-content', ../@name)[1])]"/>
     </xsl:call-template>
   </xsl:template>
   
   <xsl:template match="css:rule[$css:wrap-content-with-elements-from-mappable-style-attributes]
                                [not(key('css:styled-content', @name))]" mode="default" priority="2">
-    <xsl:comment>css:rule
+    <xsl:comment>
     <xsl:for-each select="@*">
       <xsl:sequence select="concat(name(), '=&quot;', ., '&quot;&#xa;')"/>
     </xsl:for-each>
