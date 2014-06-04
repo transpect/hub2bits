@@ -92,8 +92,18 @@
   <!-- not permitted by schema: -->
   <xsl:template match="sub/@content-type | sup/@content-type" mode="clean-up"/>
 
-  <xsl:template match="dbk:tab | dbk:tabs" mode="clean-up"/>
+  <xsl:template match="dbk:tabs" mode="clean-up"/>
 
+  <xsl:template match="dbk:tab" mode="clean-up">
+    <xsl:choose>
+      <xsl:when test="(preceding-sibling::node()[1][self::text()][matches(., '\S$')] and following-sibling::node()[1][self::text()][matches(., '^\S')]) or
+                      (preceding-sibling::node()[1][matches(text(), '\S$')] and following-sibling::node()[1][matches(., '^\S')])">
+        <xsl:text> </xsl:text>
+      </xsl:when>
+      <xsl:otherwise/>
+    </xsl:choose>
+  </xsl:template>
+  
   <!-- Dissolve styled content whose css atts all went to the attic.
        Will lose srcpath attributes though. Solution: Adapt the srcpath message rendering mechanism 
        so that it uses ancestor paths if it doesn’t find an immediate matching element. -->
@@ -841,11 +851,15 @@
           <xsl:apply-templates mode="#current"
             select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
         </title>
+        <xsl:if test="dbk:note">
+          <xsl:apply-templates select="dbk:caption/dbk:note/dbk:para, dbk:caption/dbk:para" mode="#current"/>
+        </xsl:if>
       </caption>
       <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
       <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
     </fig>
   </xsl:template>
+
   
   <xsl:template match="dbk:figure/dbk:note" mode="default">
     <xsl:apply-templates mode="#current"/>
@@ -901,7 +915,17 @@
   </xsl:template>
   
   <xsl:template match="dbk:tgroup" mode="default">
-    <xsl:call-template name="css:content"/>
+    <xsl:choose>
+      <xsl:when test="dbk:colspec">
+        <colgroup>
+          <xsl:apply-templates select="dbk:colspec" mode="#current"/>
+        </colgroup>
+        <xsl:apply-templates select="node() except dbk:colspec" mode="#current"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="css:content"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="dbk:tgroup/@cols" mode="default"/>
