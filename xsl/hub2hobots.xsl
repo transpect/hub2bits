@@ -852,10 +852,10 @@
             select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
         </title>
         <xsl:if test="dbk:note">
-          <xsl:apply-templates select="dbk:caption/dbk:note/dbk:para, dbk:caption/dbk:para" mode="#current"/>
+          <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
         </xsl:if>
       </caption>
-      <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
+      <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']] | dbk:note)" mode="#current"/>
       <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
     </fig>
   </xsl:template>
