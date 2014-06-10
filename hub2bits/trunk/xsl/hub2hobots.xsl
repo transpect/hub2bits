@@ -92,15 +92,20 @@
   <!-- not permitted by schema: -->
   <xsl:template match="sub/@content-type | sup/@content-type" mode="clean-up"/>
 
-  <xsl:template match="dbk:tabs" mode="clean-up"/>
+  <xsl:template match="dbk:tabs" mode="clean-up">
+    <xsl:apply-templates select="*" mode="#current"/>
+  </xsl:template>
 
+  <!-- Preventing tabs to be eliminated without a space between -->
   <xsl:template match="dbk:tab" mode="clean-up">
     <xsl:choose>
       <xsl:when test="(preceding-sibling::node()[1][self::text()][matches(., '\S$')] and following-sibling::node()[1][self::text()][matches(., '^\S')]) or
-                      (preceding-sibling::node()[1][matches(text(), '\S$')] and following-sibling::node()[1][matches(., '^\S')])">
+                      (preceding-sibling::node()[1][matches(string-join(.//text(), ''), '\S$')] and following-sibling::node()[1][matches(string-join(.//text(), ''), '^\S')])">
         <xsl:text> </xsl:text>
       </xsl:when>
-      <xsl:otherwise/>
+      <xsl:otherwise>
+        <xsl:apply-templates/>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
   
