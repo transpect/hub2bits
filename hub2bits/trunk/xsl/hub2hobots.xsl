@@ -49,6 +49,7 @@
 
   <xsl:template match="styled-content[. = '']" mode="clean-up" priority="2"/>
 
+  <!-- no more breaks if several paras are in head! -->
   <xsl:template match="th/p[bold][every $n in node() satisfies ($n/self::bold)]" mode="clean-up">
     <xsl:apply-templates select="bold/node()" mode="#current"/>
   </xsl:template>
@@ -305,9 +306,28 @@
           <xsl:apply-templates select="dbk:info/dbk:subtitle | dbk:subtitle" mode="#current"/>
         </book-title-group>
         <xsl:if test="dbk:info/dbk:authorgroup or dbk:authorgroup">
-        <contrib-group>
-          <xsl:apply-templates select="dbk:info/dbk:authorgroup | dbk:authorgroup" mode="#current"/>
-        </contrib-group>
+          <contrib-group>
+            <xsl:apply-templates select="dbk:info/dbk:authorgroup | dbk:authorgroup" mode="#current"/>
+          </contrib-group>
+        </xsl:if>
+        <xsl:if test="dbk:info/dbk:seriesvolnums">
+          <book-volume-number>
+            <xsl:value-of select="dbk:info/dbk:seriesvolnums"/>
+          </book-volume-number>
+        </xsl:if>
+        <xsl:if test="dbk:info/dbk:publisher">
+          <publisher>
+            <xsl:if test="dbk:info/dbk:publisher/dbk:publishername">
+              <publisher-name>
+                <xsl:value-of select="dbk:info/dbk:publisher/dbk:publishername"/>
+              </publisher-name>
+              <xsl:if test="dbk:info/dbk:publisher/dbk:publishername/dbk:address">
+              <publisher-loc>
+                <xsl:value-of select="dbk:info/dbk:publisher/dbk:address"/>
+              </publisher-loc>
+              </xsl:if>
+            </xsl:if>
+         </publisher>
         </xsl:if>
         <custom-meta-group>
           <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>  
@@ -457,7 +477,7 @@
   <xsl:function name="jats:part-submatter" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
-      <xsl:when test="name($elt) = ('title', 'info')">
+      <xsl:when test="name($elt) = ('title', 'info', 'subtitle')">
         <xsl:sequence select="'book-part-meta'"/>
       </xsl:when>
       <xsl:when test="name($elt) = ('bibliography', 'glossary', 'appendix')">
@@ -499,7 +519,7 @@
           <xsl:choose>
             <xsl:when test="matches(current-grouping-key(), 'meta')">
               <xsl:call-template name="title-info">
-                <xsl:with-param name="elts" select="current-group()/(self::dbk:title union self::dbk:info/*)"/>
+                <xsl:with-param name="elts" select="current-group()/(self::dbk:title union self::dbk:info/* union self::dbk:subtitle)"/>
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
@@ -572,7 +592,9 @@
   </xsl:template>
 
   <xsl:template match="dbk:author" mode="default">
-    <contrib contrib-type="{local-name()}"><xsl:call-template name="css:content"/></contrib>
+    <contrib contrib-type="{local-name()}">
+      <xsl:call-template name="css:content"/>
+    </contrib>
   </xsl:template>
   
   <xsl:template match="dbk:personname" mode="default">
