@@ -47,6 +47,20 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <xsl:template match="styled-content[break]" mode="clean-up">
+    <xsl:if test="break/following-sibling::node()[1][self::text()[matches(., '\S')]]">
+      <xsl:apply-templates select="break" mode="#current"/>
+    </xsl:if>
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates select="node() except break" mode="#current"/>
+    </xsl:copy>
+    <xsl:if test="break/preceding-sibling::node()[1][self::text()[matches(., '\S')]]">
+      <xsl:apply-templates select="break" mode="#current"/>
+    </xsl:if>
+    <xsl:message select="'WARNING: PULLED break out of styled-content'"/>
+  </xsl:template>
+  
   <xsl:template match="styled-content[. = '']" mode="clean-up" priority="2"/>
 
   <!-- no more breaks if several paras are in head! -->
