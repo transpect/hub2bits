@@ -751,7 +751,9 @@
             </speech>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:apply-templates select="*" mode="#current"/>
+            <xsl:for-each select="current-group()">
+              <xsl:apply-templates select="." mode="#current"/>
+            </xsl:for-each>
           </xsl:otherwise>
         </xsl:choose>
         </xsl:for-each-group>
