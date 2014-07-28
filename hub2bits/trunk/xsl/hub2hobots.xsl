@@ -701,6 +701,80 @@
     </sub>
   </xsl:template>
   
+  <xsl:variable name="jats:speech-para-regex" as="xs:string" select="'letex_speech'"/>
+  <xsl:variable name="jats:speaker-regex" as="xs:string" select="'letex_speaker'"/>
+  
+  <xsl:template match="dbk:para[matches(@role, $jats:speech-para-regex)]" mode="default" priority="4">
+    <speech>
+      <xsl:if test="exists(dbk:phrase) or matches(., ':.*\S+')">
+      <speaker>
+        <xsl:choose>
+          <xsl:when test="dbk:phrase[matches(@role, $jats:speaker-regex)]">
+            <xsl:apply-templates select="dbk:phrase[matches(@role, $jats:speaker-regex)]/@* except dbk:phrase[matches(@role, $jats:speaker-regex)]/@role, dbk:phrase[matches(@role, $jats:speaker-regex)]/node()" mode="#current"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="replace(., '^(.+:)(.+)$', '$1', 's')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </speaker>
+      </xsl:if>
+      <p>
+        <xsl:apply-templates select="@*" mode="#current"/>
+        <xsl:choose>
+          <xsl:when test="exists(dbk:phrase) and dbk:phrase[matches(@role, $jats:speaker-regex)]">
+            <xsl:apply-templates select="node() except dbk:phrase[matches(@role, $jats:speaker-regex)]" mode="#current"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <!-- the speaker has to be eliminated in next mode -->
+            <xsl:apply-templates select="node()" mode="#current"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </p>
+    </speech>  
+  </xsl:template>
+  
+  <xsl:template match="text()[ancestor::*[1][self::p]][../preceding-sibling::*[1][self::speaker]][matches(., '^.+:', 's')]" mode="clean-up">
+    <xsl:if test="../preceding-sibling::*[1][self::speaker[matches(., '^.+:', 's')]]">
+      <xsl:value-of select="replace(., '^(.+:)(.+)$', '$2', 's')"/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="*[speech]" mode="clean-up">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:for-each-group select="*" group-starting-with="speech[speaker]">
+        <xsl:for-each-group select="current-group()" group-ending-with="speech[jats:is-speech(.)]">
+        <xsl:choose>
+          <xsl:when test="current-group()[self::speech]">
+            <speech>
+              <xsl:apply-templates select="current-group()/node()" mode="#current"/>
+            </speech>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="*" mode="#current"/>
+          </xsl:otherwise>
+        </xsl:choose>
+        </xsl:for-each-group>
+      </xsl:for-each-group>
+    </xsl:copy>
+  </xsl:template>
+    
+    <xsl:function name="jats:is-speech" as="xs:boolean">
+      <xsl:param name="context" as="element(*)*"/>
+      <xsl:choose>
+        <xsl:when test="$context[self::speech[not(speaker)]][preceding-sibling::*[1][self::speech]]">
+          <xsl:sequence select="true()"/>
+        </xsl:when>
+        <xsl:when test="$context[self::speech][following-sibling::*[1][not(self::speech)]]">
+          <xsl:sequence select="true()"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="false()"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:function>
+  
+  
   <!-- INDEXTERMS -->
   
   <xsl:template match="dbk:indexterm" mode="default">
