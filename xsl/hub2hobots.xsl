@@ -941,6 +941,13 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
+  
+  <xsl:template match="dbk:sidebar" mode="default">
+    <boxed-text>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </boxed-text>
+  </xsl:template>
+  
   <!-- POETRY -->
   
   <xsl:template match="dbk:poetry | dbk:poetry/dbk:linegroup" mode="default">
