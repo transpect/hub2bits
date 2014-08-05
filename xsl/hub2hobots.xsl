@@ -41,7 +41,9 @@
 
   <!-- This anchor has already given its ID to someone else, but we've been
     too lazy to remove this anchor in the first run. -->
+  <!-- if called in mixed-citations an error occurs, becuase no context/document node is visible -->
   <xsl:template match="target[key('by-id', @id)/local-name() != 'target']" mode="clean-up"/>
+  
 
   <xsl:template match="styled-content[every $att in @* satisfies $att/self::attribute(srcpath)]" mode="clean-up">
     <xsl:apply-templates mode="#current"/>
