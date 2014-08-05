@@ -282,19 +282,21 @@
   
   <!-- STRUCTURE -->
   
+  
   <xsl:function name="jats:matter" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:variable name="name" select="$elt/local-name()" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication')"><xsl:sequence select="'front-matter'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib')]"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
       <xsl:when test="$name = ('appendix', 'index', 'glossary', 'bibliography')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
   
   <xsl:template match="dbk:book | dbk:hub" mode="default" priority="2">
     <book>
@@ -461,7 +463,7 @@
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'app-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:partintro
-                      | $elt/self::dbk:colophon[@role eq 'front-matter-blurb']"><xsl:sequence select="'front-matter-part'"/></xsl:when>
+                      | $elt/self::dbk:colophon[@role = ('front-matter-blurb', 'title-page', 'copyright-page', 'frontispiz', 'about-contrib')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'foreword')]"><xsl:sequence select="'foreword'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'acknowledgements')]"><xsl:sequence select="'ack'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'praise')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
