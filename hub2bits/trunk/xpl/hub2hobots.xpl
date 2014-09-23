@@ -66,7 +66,11 @@
     </p:input>
     <p:input port="options"><p:empty/></p:input>
     <p:pipeinfo>
-      <examples xmlns="http://www.le-tex.de/namespace/transpect"> 
+      <examples xmlns="http://www.le-tex.de/namespace/transpect" 
+        eval-pipeline-input-uri="http://transpect.le-tex.de/book-conversion/converter/xpl/dynamic-transformation-pipeline.xpl#eval-pipeline"
+        option-uri="http://transpect.le-tex.de/book-conversion/converter/xpl/dynamic-transformation-pipeline.xpl#load"
+        option-value="hub2hobots/hub2hobots.xpl">
+        <file href="http://customers.le-tex.de/generic/book-conversion/adaptions/common/hub2hobots/hub2hobots.xpl"/>
         <collection dir-uri="http://customers.le-tex.de/generic/book-conversion/adaptions/" file="hub2hobots/hub2hobots.xpl"/>
         <generator-collection dir-uri="http://customers.le-tex.de/generic/book-conversion/adaptions/" file="hub2hobots/hub2hobots.xpl.xsl"/>
       </examples>
