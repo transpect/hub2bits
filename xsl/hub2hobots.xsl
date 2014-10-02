@@ -791,6 +791,7 @@
   </xsl:template>
   
   <xsl:template match="dbk:primary" mode="default">
+    <xsl:apply-templates select="@sortas" mode="#current"/>
     <term>
       <xsl:call-template name="css:content"/>
     </term>
@@ -799,6 +800,7 @@
   
   <xsl:template match="dbk:secondary" mode="default">
     <index-term>
+      <xsl:apply-templates select="@sortas" mode="#current"/>
       <term>
         <xsl:call-template name="css:content"/>
       </term>
@@ -808,6 +810,7 @@
   
   <xsl:template match="dbk:tertiary" mode="default">
     <index-term>
+      <xsl:apply-templates select="@sortas" mode="#current"/>
       <term>
         <xsl:call-template name="css:content"/>
       </term>
@@ -826,7 +829,11 @@
       <xsl:call-template name="css:content"/>
     </see-also>
   </xsl:template>
-  
+
+  <xsl:template match="@sortas" mode="default">
+    <xsl:attribute name="sort-key" select="."/>
+  </xsl:template>
+
   <!-- FOOTNOTES -->
   
   <xsl:template match="dbk:footnote" mode="default">
