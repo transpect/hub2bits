@@ -131,7 +131,7 @@
        so that it uses ancestor paths if it doesn’t find an immediate matching element. -->
   <xsl:template match="styled-content[@style-type]
                                      [every $att in @* satisfies (name($att) = ('style-type', 'xml:id', 'srcpath'))]"
-                mode="clean-up">
+                mode="clean-up" priority="2"><!-- there was a priority conflict with styled-content[break] -->
     <xsl:param name="root" as="document-node(element(*))" select="root()" tunnel="yes"/>
     <xsl:choose>
       <!-- This condition would usually have appeared as a predicate of the matching pattern.
