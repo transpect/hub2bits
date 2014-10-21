@@ -1022,11 +1022,11 @@
   </xsl:template>
   
   <xsl:template match="dbk:imagedata" mode="default">
-    <xsl:element name="{if (
-                              not(name(../../..) = ('figure', 'entry'))
-                              or
-                              name(../..) = 'inlinemediaobject'
-                              ) 
+    <xsl:element name="{if ( 
+                             not(name(../../..) = ('figure', 'entry', 'colophon'))
+                             or
+                             name(../..) = 'inlinemediaobject' 
+                             )
                         then 'inline-graphic' 
                         else 'graphic'}">
       <xsl:apply-templates select="(ancestor::dbk:mediaobject | ancestor::dbk:inlinemediaobject)[1]/@xml:id" mode="#current"/>
