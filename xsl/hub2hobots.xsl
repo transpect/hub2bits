@@ -790,6 +790,9 @@
     </index-term>
   </xsl:template>
   
+  <!-- not supported in JATS -->
+  <xsl:template match="dbk:indexterm/@pagenum" mode="default"/>
+    
   <xsl:template match="dbk:primary" mode="default">
     <xsl:apply-templates select="@sortas" mode="#current"/>
     <term>
