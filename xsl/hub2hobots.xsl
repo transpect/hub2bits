@@ -102,6 +102,10 @@
   </xsl:template>
   <xsl:template match="body[not(following-sibling::back)]/ref-list" mode="clean-up"/>
   
+  <xsl:template match="dbk:phrase[dbk:informaltable][every $n in node() satisfies ($n/self::dbk:informaltable)]" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
   <xsl:template match="p[boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
@@ -347,10 +351,10 @@
             </xsl:if>
          </publisher>
         </xsl:if>
+        <xsl:apply-templates select="dbk:info/dbk:keywordset[@role eq 'hub']" mode="#current"/>
         <custom-meta-group>
           <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>  
         </custom-meta-group>
-        <!--<xsl:apply-templates select="dbk:info[dbk:keywordset[@role eq 'hub']]" mode="#current"/>-->
       </book-meta>
       <xsl:for-each-group select="*" group-adjacent="jats:matter(.)">
         <xsl:if test="current-grouping-key() ne ''">
