@@ -12,7 +12,6 @@
   <xsl:import href="http://transpect.le-tex.de/hub2html/xsl/css-atts2wrap.xsl"/>
   
   <xsl:param name="srcpaths" select="'no'"/>
-  <xsl:param name="work-path"/>
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/> 
   
@@ -809,7 +808,7 @@
     <index-term>
       <xsl:apply-templates select="@sortas" mode="#current"/>
       <term>
-        <xsl:call-template name="css:content"/>
+        <xsl:apply-templates select="node() except ( dbk:see, dbk:seealso)" mode="#current"/>
       </term>
       <xsl:apply-templates select="if(../dbk:tertiary) then ../dbk:tertiary else ( dbk:see | dbk:seealso)" mode="#current"/>
     </index-term>
