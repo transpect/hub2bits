@@ -14,6 +14,7 @@
   
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
+  <p:option name="status-dir-uri" required="false" select="resolve-uri('status')"/>
   
   <p:input port="source" primary="true" />
   <p:input port="paths" kind="parameter" primary="true"/>
@@ -22,8 +23,6 @@
   <p:import href="http://transpect.le-tex.de/book-conversion/converter/xpl/dynamic-transformation-pipeline.xpl"/>
   <p:import href="http://transpect.le-tex.de/xproc-util/xml-model/prepend-xml-model.xpl" />
   <p:import href="http://transpect.le-tex.de/book-conversion/converter/xpl/simple-progress-msg.xpl"/>
-  
-  <p:variable name="status-dir-uri" select="concat($debug-dir-uri, '/status')"/>
   
   <letex:simple-progress-msg name="start-msg" file="hub2jats-start.txt">
     <p:input port="msgs">
@@ -55,7 +54,7 @@
   
   <p:sink/>
   
-  <bc:dynamic-transformation-pipeline load="hub2hobots/hub2hobots">
+  <transpect:dynamic-transformation-pipeline load="hub2hobots/hub2hobots">
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:input port="source">
@@ -75,7 +74,7 @@
         <generator-collection dir-uri="http://customers.le-tex.de/generic/book-conversion/adaptions/" file="hub2hobots/hub2hobots.xpl.xsl"/>
       </examples>
     </p:pipeinfo>  
-  </bc:dynamic-transformation-pipeline>
+  </transpect:dynamic-transformation-pipeline>
 
   <letex:prepend-xml-model name="prepend-xml-model">
     <p:input port="models">
