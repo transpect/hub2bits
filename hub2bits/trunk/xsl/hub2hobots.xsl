@@ -983,14 +983,17 @@
   <xsl:template match="dbk:figure" mode="default">
     <fig>
       <xsl:call-template name="css:other-atts"/>
-      <xsl:apply-templates select="(.//dbk:anchor)[1]/@xml:id" mode="#current"/>
+      <xsl:apply-templates select=".//*:anchor[matches(@xml:id, '^page_')]" mode="#current">
+        <xsl:with-param name="no-discard" select="true()" as="xs:boolean" tunnel="yes"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="(.//dbk:anchor[not(matches(@xml:id, '^page_'))])[1]/@xml:id" mode="#current"/>
       <label>
         <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
       </label>
       <caption>
         <title>
           <xsl:apply-templates mode="#current"
-            select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab))"/>
+            select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^page_')]))"/>
         </title>
         <xsl:if test="dbk:note">
           <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
@@ -1116,18 +1119,28 @@
   
    <xsl:template match="dbk:table/dbk:title" name="dbk:table-title" mode="default" priority="2">
      <label>
+       <xsl:apply-templates select="*:anchor[matches(@xml:id, '^page_')]" mode="#current">
+         <xsl:with-param name="no-discard" select="true()" as="xs:boolean" tunnel="yes"/>
+       </xsl:apply-templates>
        <xsl:apply-templates mode="#current" select="dbk:phrase[@role eq 'hub:caption-number']"/>
      </label>
      <caption>
        <title>
          <xsl:apply-templates mode="#current"
-           select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab)"/>
+           select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^page_')])"/>
        </title>
        <xsl:if test="../dbk:caption">
          <xsl:apply-templates select="../dbk:caption/dbk:note/dbk:para, ../dbk:caption/dbk:para" mode="#current"/>
        </xsl:if>
      </caption>
    </xsl:template>
+  
+   <xsl:template match="*:anchor[matches(@xml:id, '^page_')]" mode="default">
+    <xsl:param name="no-discard" tunnel="yes"/>
+    <xsl:if test="$no-discard">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
   
   <xsl:template match="dbk:textobject | dbk:caption | dbk:note" mode="default"/>
   
