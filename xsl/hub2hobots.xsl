@@ -652,7 +652,7 @@
     </label>
     <title>
       <xsl:apply-templates mode="#current"
-        select="node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')] | dbk:tab)"/>
+        select="@srcpath, node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')] | dbk:tab)"/>
     </title>
   </xsl:template>
 
