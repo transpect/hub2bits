@@ -1032,7 +1032,7 @@
   
   <xsl:template match="dbk:imagedata" mode="default">
     <xsl:element name="{if ( 
-                             not(name(../../..) = ('figure', 'entry', 'colophon'))
+                             not(name(../../..) = ('figure', 'entry', 'colophon', 'table'))
                              or
                              name(../..) = 'inlinemediaobject' 
                              )
@@ -1153,26 +1153,33 @@
   <xsl:template match="dbk:informaltable | dbk:table" mode="default">
     <table-wrap>
       <xsl:apply-templates select="@* except (@role | @css:*), dbk:title" mode="#current"/>
-      <table>
-        <!--<xsl:for-each select="self::dbk:informaltable">
-          <xsl:call-template name="css:other-atts"/>
-        </xsl:for-each>-->
-        <!-- extra content-type attribute at the contained table (also process css here, only id above?): -->
-        <xsl:apply-templates select="@role | @css:*" mode="#current"/>
-        <xsl:choose>
-          <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
+      <xsl:choose>
+        <xsl:when test="exists(dbk:mediaobject) and not(dbk:tgroup)">
+          <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
+          <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
+        </xsl:when>
+        <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
+          <table>
+            <xsl:apply-templates select="@role | @css:*" mode="#current"/>
             <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
             <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
-          </xsl:when>
-          <xsl:otherwise>
+          </table>
+        </xsl:when>
+        <xsl:otherwise>
+          <table>
+            <xsl:apply-templates select="@role | @css:*" mode="#current"/>
             <HTMLTABLE_TODO/>
             <xsl:apply-templates mode="#current"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </table>
+          </table>
+        </xsl:otherwise>
+      </xsl:choose>
+      <!--<xsl:for-each select="self::dbk:informaltable">
+        <xsl:call-template name="css:other-atts"/>
+        </xsl:for-each>-->
+      <!-- extra content-type attribute at the contained table (also process css here, only id above?): -->
       <xsl:if test="dbk:textobject">
         <table-wrap-foot>
-            <xsl:apply-templates select="dbk:textobject/dbk:para" mode="#current"/>
+          <xsl:apply-templates select="dbk:textobject/dbk:para" mode="#current"/>
         </table-wrap-foot>
       </xsl:if>
     </table-wrap>
