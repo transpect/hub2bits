@@ -1032,7 +1032,7 @@
   
   <xsl:template match="dbk:imagedata" mode="default">
     <xsl:element name="{if ( 
-                             not(name(../../..) = ('figure', 'entry', 'colophon', 'table'))
+                             not(name(../../..) = ('figure', 'entry', 'colophon', 'table', 'alt'))
                              or
                              name(../..) = 'inlinemediaobject' 
                              )
@@ -1159,9 +1159,11 @@
           <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
         </xsl:when>
         <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
+          <!-- if there is an alternative image (additional to the real table) -->
+          <xsl:apply-templates select="dbk:alt" mode="#current"/>
           <table>
             <xsl:apply-templates select="@role | @css:*" mode="#current"/>
-            <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
+            <xsl:apply-templates select="* except (dbk:alt | dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
             <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
           </table>
         </xsl:when>
@@ -1183,6 +1185,12 @@
         </table-wrap-foot>
       </xsl:if>
     </table-wrap>
+  </xsl:template>
+  
+  <xsl:template match="dbk:informaltable/dbk:alt | dbk:table/dbk:alt" mode="default">
+    <alternatives>
+      <graphic xlink:href="{dbk:inlinemediaobject/dbk:imageobject/dbk:imagedata/@fileref}"/>
+    </alternatives>
   </xsl:template>
   
   <xsl:template match="dbk:informaltable" mode="default_DISABLED">
