@@ -1136,8 +1136,8 @@
    </xsl:template>
   
    <xsl:template match="*:anchor[matches(@xml:id, '^page_')]" mode="default">
-    <xsl:param name="no-discard" tunnel="yes"/>
-    <xsl:if test="$no-discard">
+    <xsl:param name="no-discard" tunnel="yes" as="xs:boolean?"/>
+    <xsl:if test="not($no-discard)">
       <xsl:next-match/>
     </xsl:if>
   </xsl:template>
