@@ -1090,7 +1090,7 @@
     <xsl:attribute name="width" select="."/>
   </xsl:template>
   
-  <xsl:template match="dbk:table/@css:width | dbk:informaltable/@css:width" mode="default">
+  <xsl:template match="dbk:table/@css:width | dbk:informaltable/@css:width" mode="default" priority="2">
     <xsl:attribute name="{local-name()}" select="."/>
     <xsl:copy/>
   </xsl:template>
