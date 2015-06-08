@@ -5,8 +5,10 @@
   xmlns:jats="http://jats.nlm.nih.gov"
   xmlns:css="http://www.w3.org/1996/css"
   xmlns:functx="http://www.functx.com" 
+  xmlns:hub="http://www.le-tex.de/namespace/hub"
   xmlns:xlink="http://www.w3.org/1999/xlink"
-  exclude-result-prefixes="css dbk functx jats xs xlink"
+  
+  exclude-result-prefixes="css dbk functx jats xs xlink hub"
   version="2.0">
 
   <xsl:import href="http://transpect.le-tex.de/hub2html/xsl/css-atts2wrap.xsl"/>
@@ -70,7 +72,7 @@
   </xsl:template>
 
   <xsl:template match="th[p][count(p) eq 1][not(p/bold)]" mode="clean-up">
-    <xsl:copy>
+    <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:attribute name="css:font-weight" select="'normal'"/>
       <xsl:apply-templates select="p/node()" mode="#current"/>
@@ -81,7 +83,7 @@
     <xsl:variable name="context" select="." as="element(table)"/>
     <xsl:for-each-group select="*" group-starting-with="thead">
       <xsl:for-each select="$context">
-        <xsl:copy>
+        <xsl:copy copy-namespaces="no">
           <xsl:apply-templates select="@*, current-group()" mode="#current"/>
         </xsl:copy>
       </xsl:for-each>
@@ -1236,5 +1238,9 @@
   <xsl:template match="dbk:biblioentry/@xml:id" mode="default"/>
   
   <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
+  
+  <!-- not useful at this stadium. perhaps if the attribute usage is improved. Then it could become a styled-content element with style-type in a label -->
+  <xsl:template match="p/@hub:numbering-inline-stylename" mode="clean-up"/>
+  
   
 </xsl:stylesheet>
