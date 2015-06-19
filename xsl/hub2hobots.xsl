@@ -1191,7 +1191,9 @@
   
   <xsl:template match="dbk:informaltable/dbk:alt | dbk:table/dbk:alt" mode="default">
     <alternatives>
-      <graphic xlink:href="{dbk:inlinemediaobject/dbk:imageobject/dbk:imagedata/@fileref}"/>
+      <xsl:for-each select="dbk:inlinemediaobject/dbk:imageobject/dbk:imagedata/@fileref">
+        <graphic xlink:href="{.}"/>
+      </xsl:for-each>
     </alternatives>
   </xsl:template>
   
