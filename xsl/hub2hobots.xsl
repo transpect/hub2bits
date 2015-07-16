@@ -71,6 +71,11 @@
     <xsl:apply-templates select="bold/node()" mode="#current"/>
   </xsl:template>
 
+  <xsl:template match="*[self::bold or self::italic][every $n in node() satisfies ($n/self::table-wrap or $n/self::target)]" mode="clean-up">
+    <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+  
+  
   <xsl:template match="th[p][count(p) eq 1][not(p/bold)]" mode="clean-up">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -107,7 +112,7 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="p[boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
+  <xsl:template match="p[not(parent::list-item)][boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
