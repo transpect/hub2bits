@@ -112,7 +112,7 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="p[not(parent::list-item)][boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
+  <xsl:template match="p[not(parent::*[self::list-item] or self::term)][boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
@@ -405,6 +405,7 @@
     </bio>
   </xsl:template>
  
+  
   <xsl:template match="dbk:toc" mode="default">
     <toc>
       <xsl:apply-templates select="." mode="toc-depth"/>
