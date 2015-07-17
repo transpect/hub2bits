@@ -1159,6 +1159,9 @@
   </xsl:template>  
   
   <xsl:template match="dbk:informaltable | dbk:table" mode="default">
+    <xsl:if test="dbk:textobject[every $elt in node() satisfies $elt/self::dbk:sidebar]">
+      <xsl:apply-templates select="dbk:textobject/node()" mode="#current"/>
+    </xsl:if>
     <table-wrap>
       <xsl:apply-templates select="@* except (@role | @css:*), dbk:title" mode="#current"/>
       <xsl:choose>
@@ -1187,7 +1190,7 @@
         <xsl:call-template name="css:other-atts"/>
         </xsl:for-each>-->
       <!-- extra content-type attribute at the contained table (also process css here, only id above?): -->
-      <xsl:if test="dbk:textobject">
+      <xsl:if test="dbk:textobject[not(every $elt in node() satisfies $elt/self::dbk:sidebar)]">
         <table-wrap-foot>
           <xsl:apply-templates select="dbk:textobject/dbk:para" mode="#current"/>
         </table-wrap-foot>
