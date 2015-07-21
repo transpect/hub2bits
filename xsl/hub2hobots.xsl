@@ -1035,6 +1035,9 @@
   </xsl:template>
   
   <xsl:template match="dbk:mediaobject | dbk:inlinemediaobject | dbk:imageobject" mode="default">
+    <xsl:if test="matches(@xml:id, '^(cell)?page_')">
+      <target id="{@xml:id}"/>
+    </xsl:if>
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
