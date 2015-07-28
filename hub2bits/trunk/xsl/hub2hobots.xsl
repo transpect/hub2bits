@@ -656,11 +656,12 @@
 
   <xsl:template match="dbk:title[dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]]" mode="default">
     <label>
+      <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
       <xsl:apply-templates mode="#current" select="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]/node()"/>
     </label>
     <title>
       <xsl:apply-templates mode="#current"
-        select="@srcpath, node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')] | dbk:tab)"/>
+        select="@srcpath, node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
     </title>
   </xsl:template>
 
