@@ -6,6 +6,7 @@
   xmlns:css="http://www.w3.org/1996/css"
   xmlns:functx="http://www.functx.com" 
   xmlns:hub="http://www.le-tex.de/namespace/hub"
+  xmlns:hub2htm="http://www.le-tex.de/namespace/hub2htm" 
   xmlns:xlink="http://www.w3.org/1999/xlink"
   
   exclude-result-prefixes="css dbk functx jats xs xlink hub"
@@ -16,6 +17,18 @@
   <xsl:param name="srcpaths" select="'no'"/>
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/> 
+  
+  <xsl:template name="css:remaining-atts">
+    <xsl:param name="remaining-atts" as="attribute(*)*"/>
+    <xsl:apply-templates select="$remaining-atts" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="@*" mode="hub2htm:css-style-overrides">
+    <xsl:copy/>
+  </xsl:template>
+  
+  <xsl:template match="*" mode="class-att"/>
+
   
   <xsl:variable name="dtd-version-att" as="attribute(dtd-version)">
     <xsl:attribute name="dtd-version" select="'1.0-variant Hogrefe Book Tag Set (hobots) 1.0'" />
