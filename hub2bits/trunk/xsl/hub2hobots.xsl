@@ -9,7 +9,7 @@
   xmlns:hub2htm="http://www.le-tex.de/namespace/hub2htm" 
   xmlns:xlink="http://www.w3.org/1999/xlink"
   
-  exclude-result-prefixes="css dbk functx jats xs xlink hub"
+  exclude-result-prefixes="css dbk functx jats xs xlink hub hub2htm"
   version="2.0">
 
   <xsl:import href="http://transpect.le-tex.de/hub2html/xsl/css-atts2wrap.xsl"/>
@@ -989,17 +989,19 @@
   
   <!-- POETRY -->
   
-  <xsl:template match="dbk:poetry | dbk:poetry/dbk:linegroup" mode="default">
+  <xsl:template match="dbk:poetry | dbk:poetry/dbk:linegroup | dbk:linegroup[not(parent::dbk:poetry)] " mode="default">
     <verse-group>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </verse-group>
   </xsl:template>
   
-  <xsl:template match="dbk:poetry/dbk:linegroup/dbk:line" mode="default">
+  <xsl:template match="dbk:linegroup/dbk:line" mode="default">
     <verse-line>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </verse-line>
   </xsl:template>
+  
+  
   <!-- FIGURES -->
   
   <xsl:template match="dbk:figure" mode="default">
