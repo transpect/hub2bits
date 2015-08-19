@@ -669,6 +669,7 @@
 
   <xsl:template match="dbk:title[dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]]" mode="default">
     <label>
+      <!--<xsl:message select="'-\-\-\-\-\-\-', dbk:anchor[matches(@xml:id, '^(cell)?page_')][1], '||||', dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]"/>-->
       <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
       <xsl:apply-templates mode="#current" select="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]/node()"/>
     </label>
@@ -1007,17 +1008,15 @@
   <xsl:template match="dbk:figure" mode="default">
     <fig>
       <xsl:call-template name="css:other-atts"/>
-      <xsl:apply-templates select=".//*:anchor[matches(@xml:id, '^(cell)?page_')]" mode="#current">
-        <xsl:with-param name="no-discard" select="true()" as="xs:boolean" tunnel="yes"/>
-      </xsl:apply-templates>
       <xsl:apply-templates select="(.//dbk:anchor[not(matches(@xml:id, '^(cell)?page_'))])[1]/@xml:id" mode="#current"/>
       <label>
+        <xsl:apply-templates select=".//*:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
         <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
       </label>
       <caption>
         <title>
           <xsl:apply-templates mode="#current"
-            select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')]))"/>
+            select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')][1]))"/>
         </title>
         <xsl:if test="dbk:note">
           <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
@@ -1028,6 +1027,31 @@
     </fig>
   </xsl:template>
 
+  
+  <xsl:template match="fig[target]" mode="clean-up">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:if test="not(@id)">
+        <xsl:attribute name="id" select="target/@id"/>
+      </xsl:if>
+      <xsl:apply-templates select="node()" mode="#current">
+          <xsl:with-param name="move-floating-target-in-fig-to-caption" select="if (@id) then true() else false()" as="xs:boolean" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="fig/target" mode="clean-up"/>
+  
+  <xsl:template match="fig/label" mode="clean-up">
+    <xsl:param name="move-floating-target-in-fig-to-caption" as="xs:boolean?" tunnel="yes"/>
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:if test="$move-floating-target-in-fig-to-caption">
+        <xsl:copy-of select="../target"/>
+      </xsl:if>
+        <xsl:apply-templates select="node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
   
   <xsl:template match="dbk:figure/dbk:note" mode="default">
     <xsl:apply-templates mode="#current"/>
@@ -1146,28 +1170,19 @@
   
    <xsl:template match="dbk:table/dbk:title" name="dbk:table-title" mode="default" priority="2">
      <label>
-       <xsl:apply-templates select="*:anchor[matches(@xml:id, '^(cell)?page_')]" mode="#current">
-         <xsl:with-param name="no-discard" select="true()" as="xs:boolean" tunnel="yes"/>
-       </xsl:apply-templates>
+       <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
        <xsl:apply-templates mode="#current" select="dbk:phrase[@role eq 'hub:caption-number']"/>
      </label>
      <caption>
        <title>
          <xsl:apply-templates mode="#current"
-           select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')])"/>
+           select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
        </title>
        <xsl:if test="../dbk:caption">
          <xsl:apply-templates select="../dbk:caption/dbk:note/dbk:para, ../dbk:caption/dbk:para" mode="#current"/>
        </xsl:if>
      </caption>
    </xsl:template>
-  
-   <xsl:template match="*:anchor[matches(@xml:id, '^(cell)?page_')]" mode="default">
-    <xsl:param name="no-discard" tunnel="yes" as="xs:boolean?"/>
-    <xsl:if test="not($no-discard)">
-      <xsl:next-match/>
-    </xsl:if>
-  </xsl:template>
   
   <xsl:template match="dbk:textobject | dbk:caption | dbk:note" mode="default"/>
   
