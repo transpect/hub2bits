@@ -322,7 +322,6 @@
     </xsl:choose>
   </xsl:function>
   
-  
   <xsl:template match="dbk:book | dbk:hub" mode="default" priority="2">
     <book>
       <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
@@ -525,11 +524,16 @@
       <xsl:when test="name($elt) = ('bibliography', 'glossary', 'appendix')">
         <xsl:sequence select="'back'"/>
       </xsl:when>
+      <xsl:when test="name($elt) = 'section' and $elt[matches(dbk:title/@role, $jats:additional-backmatter-parts-title-role-regex)]">
+        <xsl:sequence select="'back'"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:sequence select="jats:book-part-body($elt/..)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
+  <xsl:variable name="jats:additional-backmatter-parts-title-role-regex" as="xs:string" select="'(p_h_sec[12]_back)'"/>
   
   <xsl:template match="dbk:part[jats:is-appendix-part(.)]" mode="default">
     <app-group>
