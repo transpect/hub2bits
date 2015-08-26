@@ -369,7 +369,11 @@
             </xsl:if>
          </publisher>
         </xsl:if>
-        <xsl:apply-templates select="dbk:info/dbk:keywordset[@role eq 'hub']" mode="#current"/>
+        <xsl:if test="dbk:info/dbk:edition">
+          <edition>
+            <xsl:value-of select="dbk:info/dbk:edition"/>
+          </edition>
+        </xsl:if>
         <custom-meta-group>
           <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>  
         </custom-meta-group>
@@ -619,6 +623,10 @@
     <book-title>
       <xsl:apply-templates select="@srcpath, node()" mode="#current"/>
     </book-title>
+  </xsl:template> 
+  
+  <xsl:template match="dbk:book/dbk:title/dbk:phrase" mode="default">
+      <xsl:apply-templates  mode="#current"/>
   </xsl:template> 
   
   <xsl:template match="dbk:subtitle" mode="default">
