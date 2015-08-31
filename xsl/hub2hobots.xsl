@@ -55,14 +55,16 @@
 
   <!-- This anchor has already given its ID to someone else, but we've been
     too lazy to remove this anchor in the first run. -->
-  <!-- if called in mixed-citations an error occurs, becuase no context/document node is visible -->
-  <xsl:template match="target[key('by-id', @id)/local-name() != 'target']" mode="clean-up"/>
+  <xsl:template match="target[if (exists(root(.)/*))
+                              then key('by-id', @id)/local-name() != 'target'
+                              else false()
+                             ]" mode="clean-up"/>
   
 
   <xsl:template match="styled-content[every $att in @* satisfies $att/self::attribute(srcpath)]" mode="clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
-
+  
   <xsl:template match="styled-content[break]" mode="clean-up">
     <xsl:if test="break/following-sibling::node()[1][self::text()[matches(., '\S')]]">
       <xsl:apply-templates select="break" mode="#current"/>
@@ -149,27 +151,134 @@
     </xsl:choose>
   </xsl:template>
   
+  <xsl:template match="p[bold | italic | underline] | title[bold | italic | underline]" mode="clean-up" priority="5">
+    <xsl:variable name="p-atts" as="attribute(*)*" select="@*[matches(name(), '^(css:|xml:lang$)')]"/>
+    <xsl:variable name="p-class-atts" as="attribute(*)*" 
+      select="key(
+                 'jats:style-by-type', 
+                 (@style-type|@content-type), 
+                 root(current())
+              )/(css:attic | .)/@*[matches(name(), '^(css:|xml:lang$)')]"/>
+    <xsl:next-match>
+      <xsl:with-param name="p-atts" tunnel="yes" as="attribute(*)*">
+        <xsl:sequence select="$p-atts, $p-class-atts[not(name() = $p-atts/name())]"/>
+      </xsl:with-param>
+    </xsl:next-match>
+  </xsl:template>
+  
   <!-- Dissolve styled content whose css atts all went to the attic.
        Will lose srcpath attributes though. Solution: Adapt the srcpath message rendering mechanism 
        so that it uses ancestor paths if it doesn’t find an immediate matching element. -->
   <xsl:template match="styled-content[@style-type]
                                      [every $att in @* satisfies (name($att) = ('style-type', 'xml:id', 'srcpath'))]"
-                mode="clean-up" priority="2"><!-- there was a priority conflict with styled-content[break] -->
+                mode="clean-up" priority="2">
+    <xsl:param name="p-atts" as="attribute(*)*" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test="exists($p-atts)">
+        <xsl:variable name="style-atts" as="attribute(*)*"
+          select="key('jats:style-by-type', @style-type, root(.))/(css:attic | .)/@*[matches(name(), '^(css:|xml:lang$)')]"/>
+        <xsl:choose>
+          <!-- Don’t dissolve spans if they override some para property (e.g., they make
+               bold to normal by means of their style: -->
+          <xsl:when test="some $a in $style-atts
+                             satisfies (
+                                some $b in $p-atts[name() = name($a)] 
+                                satisfies ($b != $a)
+                             )">
+            <xsl:next-match/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates mode="#current">
+              <xsl:with-param name="srcpath" select="@srcpath" tunnel="yes"/>
+            </xsl:apply-templates>    
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates mode="#current">
+          <xsl:with-param name="srcpath" select="@srcpath" tunnel="yes"/>
+        </xsl:apply-templates>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="styled-content[matches(@style-type, $jats:cstyle-whitelist-x, 'x')]" 
+    mode="clean-up" priority="4">
+    <xsl:copy copy-namespaces="no">
+      <xsl:copy-of select="@style-type"/>
+      <xsl:apply-templates select="@* except @style-type, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:variable name="jats:cstyle-whitelist-x" as="xs:string"
+    select="'(^Lit$|ch_blockade)'"/>    
+  
+  <xsl:template match="styled-content"
+                mode="clean-up" priority="3">
     <xsl:param name="root" as="document-node(element(*))" select="root()" tunnel="yes"/>
+    <xsl:variable name="p" select="ancestor::*[name() = ('p', 'title')][1]" as="element(*)?"/>
     <xsl:choose>
       <!-- This condition would usually have appeared as a predicate of the matching pattern.
            Since we might process temporary trees in the adaptions, we need to be able to
            explicitly pass a root node to the key function. -->
-      <xsl:when test="every $att in key('jats:style-by-type', @style-type, $root)/@* 
-                      satisfies (name($att) = ('name', 'native-name', 'layout-type'))">
-        <xsl:apply-templates mode="#current"/>
+      <xsl:when test="every $att in (key('jats:style-by-type', @style-type, $root)/(css:attic | .)/@*, @*) 
+                      satisfies (
+                                  name($att) = ('name', 'native-name', 'layout-type', 'srcpath', 'style-type')
+                                  or 
+                                  (@*[name() = name($att)], $att)[1]  = (
+                                            $p/@*[name() = name($att)], 
+                                            key('jats:style-by-type', $p/(@style-type|@content-type), $root)
+                                              /(css:attic | .)/@*[name() = name($att)]
+                                         )[1]
+                                )">
+        <xsl:apply-templates mode="#current">
+          <xsl:with-param name="srcpath" select="@srcpath" tunnel="yes"/>
+        </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
+        <!--<xsl:copy>
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </xsl:copy>-->
         <xsl:next-match/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  
+  <xsl:template match="styled-content/@*[matches(name(), '^(css:|xml:lang$)')]" mode="clean-up" priority="6">
+    <xsl:variable name="p-att" as="attribute(*)?" select="../ancestor::*[name() = ('p', 'title')][1]/@*[name() = name(current())]"/>
+    <xsl:variable name="p-style-att" as="attribute(*)?">
+      <xsl:if test="exists(root(..)/*)">
+        <xsl:sequence select="key(
+                                  'jats:style-by-type', 
+                                  ../ancestor::*[name() = ('p', 'title')][1]/(@style-type|@content-type), 
+                                  root(..)
+                              )/(css:attic | .)/@*[name() = name(current())]"/>
+      </xsl:if>
+    </xsl:variable>
+    <xsl:if test="not(($p-att, $p-style-att)[1] = .)">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
 
+  <xsl:template match="*[name() = ('italic', 'bold', 'underline')]
+                        [empty(@srcpath)]
+                        [empty(*[name() = ('italic', 'bold', 'underline')])]" mode="clean-up" priority="4">
+    <xsl:param name="srcpath" as="attribute(srcpath)?" tunnel="yes"/>
+    <xsl:copy>
+      <xsl:copy-of select="$srcpath"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="italic[@css:font-style = 'normal']" mode="clean-up" priority="5">
+      <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="bold[@css:font-weight = 'normal']" mode="clean-up" priority="5">
+      <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  
   <xsl:key name="jats:style-by-type" match="css:rule" use="@name" />
   
   <xsl:template match="*" mode="default" priority="-1">
