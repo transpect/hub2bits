@@ -55,7 +55,7 @@
 
   <!-- This anchor has already given its ID to someone else, but we've been
     too lazy to remove this anchor in the first run. -->
-  <xsl:template match="target[if (exists(root(.)/*))
+  <xsl:template match="target[if (count(root(.)/*) = 1)
                               then key('by-id', @id)/local-name() != 'target'
                               else false()
                              ]" mode="clean-up"/>
@@ -247,7 +247,7 @@
   <xsl:template match="styled-content/@*[matches(name(), '^(css:|xml:lang$)')]" mode="clean-up" priority="6">
     <xsl:variable name="p-att" as="attribute(*)?" select="../ancestor::*[name() = ('p', 'title')][1]/@*[name() = name(current())]"/>
     <xsl:variable name="p-style-att" as="attribute(*)?">
-      <xsl:if test="exists(root(..)/*)">
+      <xsl:if test="count(root(..)/*) = 1">
         <xsl:sequence select="key(
                                   'jats:style-by-type', 
                                   ../ancestor::*[name() = ('p', 'title')][1]/(@style-type|@content-type), 
