@@ -86,7 +86,7 @@
     <xsl:apply-templates select="bold/node()" mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="*[self::bold or self::italic][every $n in node() satisfies ($n/self::table-wrap or $n/self::target or $n/self::boxed-text)]" mode="clean-up">
+  <xsl:template match="*[self::bold or self::italic][every $n in node() satisfies ($n/self::table-wrap or $n/self::target or $n/self::boxed-text)]" mode="clean-up" priority="6">
     <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
   
