@@ -992,6 +992,19 @@
   
   <!-- LISTS -->
   
+  <xsl:template match="dbk:orderedlist" mode="default">
+    <list list-type="order">
+      <xsl:attribute name="id" select="generate-id()"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </list>
+  </xsl:template>
+  
+  <xsl:template match="dbk:itemizedlist" mode="default">
+    <list list-type="bullet">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </list>
+  </xsl:template>
+  
   <xsl:template match="dbk:variablelist" mode="default">
     <def-list>
       <xsl:attribute name="id" select="generate-id()"/>
@@ -1011,23 +1024,32 @@
     </term>
   </xsl:template>
   
+  <xsl:template match="dbk:itemizedlist[ancestor::*[self::dbk:variablelist]] | dbk:orderedlist[ancestor::*[self::dbk:variablelist]]" mode="default" priority="5">
+    <!-- special case: ordered or itemized lists in definition lists have to become also a def-list otherwise it is invalid hobots-->
+    <p specific-use="{name()}">
+      <def-list>
+        <xsl:attribute name="id" select="generate-id()"/>
+        <xsl:apply-templates select="@*, node()" mode="#current"/>
+      </def-list>
+    </p>
+  </xsl:template>
+  
+  <xsl:template match="dbk:orderedlist[ancestor::*[self::dbk:variablelist]]/dbk:listitem | dbk:itemizedlist[ancestor::*[self::dbk:variablelist]]/dbk:listitem" mode="default" priority="5">
+    <def-item>
+      <xsl:apply-templates select="@* except(@override)" mode="#current"/>
+      <xsl:element name="term">
+        <xsl:value-of select="if (@override) then @override else ../@mark"/>
+      </xsl:element>
+      <def>
+        <xsl:apply-templates select="node()" mode="#current"/>
+      </def>
+    </def-item>
+  </xsl:template>
+   
   <xsl:template match="dbk:varlistentry/dbk:listitem" mode="default">
     <def>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </def>
-  </xsl:template>
-  
-  <xsl:template match="dbk:orderedlist" mode="default">
-    <list list-type="order">
-      <xsl:attribute name="id" select="generate-id()"/>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </list>
-  </xsl:template>
-  
-  <xsl:template match="dbk:itemizedlist" mode="default">
-    <list list-type="bullet">
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </list>
   </xsl:template>
   
   <xsl:template match="@numeration" mode="default">
@@ -1063,6 +1085,12 @@
     <label>
       <xsl:value-of select="."/>
     </label>
+  </xsl:template>
+  
+  <xsl:template match="dbk:listitem/dbk:figure" mode="default">
+    <p>
+      <xsl:next-match/>
+    </p>
   </xsl:template>
   
   <xsl:template match="dbk:itemizedlist/@mark" mode="default">
