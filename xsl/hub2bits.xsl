@@ -408,7 +408,7 @@
     <xsl:copy/>
   </xsl:template>  
   
-  <xsl:template match="@srcpath[$srcpaths = 'yes']" mode="default">
+  <xsl:template match="@srcpath[$srcpaths = 'yes']" mode="default" priority="2">
     <xsl:copy/>
   </xsl:template>  
 
@@ -483,20 +483,33 @@
             <xsl:value-of select="dbk:info/dbk:edition"/>
           </edition>
         </xsl:if>
-        <custom-meta-group>
-          <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>  
-        </custom-meta-group>
+        <xsl:call-template name="custom-meta-group"/>
       </book-meta>
-      <xsl:for-each-group select="*" group-adjacent="jats:matter(.)">
-        <xsl:if test="current-grouping-key() ne ''">
+      <xsl:call-template name="matter"/>
+    </book>
+  </xsl:template>
+
+  <xsl:template name="matter">
+    <xsl:for-each-group select="*" group-adjacent="jats:matter(.)">
+      <xsl:choose>
+        <xsl:when test="current-grouping-key() ne ''">
           <xsl:element name="{current-grouping-key()}">
             <xsl:apply-templates select="current-group()" mode="#current"/>
           </xsl:element>
-        </xsl:if>
-      </xsl:for-each-group>
-    </book>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="current-group()" mode="#current"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each-group>
   </xsl:template>
-  
+
+  <xsl:template name="custom-meta-group">
+    <custom-meta-group>
+      <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>
+    </custom-meta-group>
+  </xsl:template>
+
   <xsl:template match="dbk:keywordset" mode="default">
     <custom-meta-group>
       <xsl:apply-templates mode="#current"/>
