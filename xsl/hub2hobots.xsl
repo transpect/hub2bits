@@ -4,15 +4,15 @@
   xmlns:dbk="http://docbook.org/ns/docbook"
   xmlns:jats="http://jats.nlm.nih.gov"
   xmlns:css="http://www.w3.org/1996/css"
-  xmlns:functx="http://www.functx.com" 
-  xmlns:hub="http://www.le-tex.de/namespace/hub"
-  xmlns:hub2htm="http://www.le-tex.de/namespace/hub2htm" 
+  xmlns:functx="http://www.functx.com"
+  xmlns:hub2htm="http://transpect.io/hub2htm"
+  xmlns:hub="http://transpect.io/hub"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   
   exclude-result-prefixes="css dbk functx jats xs xlink hub hub2htm"
   version="2.0">
 
-  <xsl:import href="http://transpect.le-tex.de/hub2html/xsl/css-atts2wrap.xsl"/>
+  <xsl:import href="http://transpect.io/hub2html/xsl/css-atts2wrap.xsl"/>
   
   <xsl:param name="srcpaths" select="'no'"/>
 
