@@ -97,7 +97,15 @@
 
   <xsl:function name="jats:matter" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
-    <xsl:sequence select="''"/>
+    <xsl:variable name="name" select="$elt/local-name()" as="xs:string"/>
+    <xsl:choose>
+      <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
+      <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication', 'abstract')"><xsl:sequence select="'front'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib')]"><xsl:sequence select="'front'"/></xsl:when>
+      <xsl:when test="$name = ('section')"><xsl:sequence select="'body'"/></xsl:when>
+      <xsl:when test="$name = ('appendix', 'index', 'glossary', 'bibliography')"><xsl:sequence select="'back'"/></xsl:when>
+      <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
 
 </xsl:stylesheet>
