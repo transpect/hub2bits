@@ -211,7 +211,7 @@
   </xsl:template>
   
   <xsl:variable name="jats:cstyle-whitelist-x" as="xs:string"
-    select="'(^Lit$|ch_blockade)'"/>    
+    select="'(^Lit$|ch_blockade|ch_[uU]nderline)'"/>    
   
   <xsl:template match="styled-content"
                 mode="clean-up" priority="3">
@@ -247,7 +247,7 @@
   <xsl:template match="styled-content/@*[matches(name(), '^(css:|xml:lang$)')]" mode="clean-up" priority="6">
     <xsl:variable name="p-att" as="attribute(*)?" select="../ancestor::*[name() = ('p', 'title')][1]/@*[name() = name(current())]"/>
     <xsl:variable name="p-style-att" as="attribute(*)?">
-      <xsl:if test="count(root(..)/*) = 1">
+      <xsl:if test="count(root(..)/node()) = 1 and count(root(..)/*) = 1">
         <xsl:sequence select="key(
                                   'jats:style-by-type', 
                                   ../ancestor::*[name() = ('p', 'title')][1]/(@style-type|@content-type), 
@@ -423,7 +423,7 @@
     <xsl:choose>
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication')"><xsl:sequence select="'front-matter'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib')]"><xsl:sequence select="'front-matter'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib', 'contrib-biographies')]"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
       <xsl:when test="$name = ('appendix', 'index', 'glossary', 'bibliography')"><xsl:sequence select="'book-back'"/></xsl:when>
@@ -614,7 +614,7 @@
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'app-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:partintro
-                      | $elt/self::dbk:colophon[@role = ('front-matter-blurb', 'title-page', 'copyright-page', 'frontispiz', 'about-contrib')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
+                    | $elt/self::dbk:colophon[@role = ('front-matter-blurb', 'title-page', 'copyright-page', 'frontispiz', 'about-contrib', 'contrib-biographies')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'foreword')]"><xsl:sequence select="'foreword'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'acknowledgements')]"><xsl:sequence select="'ack'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'praise')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
@@ -743,11 +743,11 @@
 
   <xsl:template match="dbk:book/dbk:title" mode="default">
     <book-title>
-      <xsl:apply-templates select="@srcpath, node()" mode="#current"/>
+      <xsl:apply-templates select="node()" mode="#current"/>
     </book-title>
   </xsl:template> 
   
-  <xsl:template match="dbk:book/dbk:title/dbk:phrase" mode="default">
+  <xsl:template match="dbk:book/dbk:title/*[self::dbk:phrase | self::dbk:superscript | self::dbk:subscript]" mode="default">
       <xsl:apply-templates  mode="#current"/>
   </xsl:template> 
   
@@ -1331,19 +1331,25 @@
   </xsl:template>
   
    <xsl:template match="dbk:table/dbk:title" name="dbk:table-title" mode="default" priority="2">
-     <label>
-       <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
-       <xsl:apply-templates mode="#current" select="dbk:phrase[@role eq 'hub:caption-number']"/>
-     </label>
-     <caption>
-       <title>
-         <xsl:apply-templates mode="#current"
-           select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
-       </title>
-       <xsl:if test="../dbk:caption">
-         <xsl:apply-templates select="../dbk:caption/dbk:note/dbk:para, ../dbk:caption/dbk:para" mode="#current"/>
+     <xsl:if test="dbk:phrase[@role eq 'hub:caption-number']">
+       <label>
+         <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
+         <xsl:apply-templates mode="#current" select="dbk:phrase[@role eq 'hub:caption-number']"/>
+       </label>
        </xsl:if>
-     </caption>
+     <xsl:if test=".//text() or ../dbk:caption">
+       <caption>
+         <xsl:if test=".//text()">
+         <title>
+           <xsl:apply-templates mode="#current"
+             select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
+         </title>
+         </xsl:if>
+       <xsl:if test="../dbk:caption">
+           <xsl:apply-templates select="../dbk:caption/dbk:note/dbk:para, ../dbk:caption/dbk:para" mode="#current"/>
+         </xsl:if>
+       </caption>
+       </xsl:if>
    </xsl:template>
   
   <xsl:template match="dbk:textobject | dbk:caption | dbk:note" mode="default"/>
@@ -1368,11 +1374,14 @@
         <xsl:when test="exists(dbk:tgroup/*/dbk:row)">
           <!-- if there is an alternative image (additional to the real table) -->
           <xsl:apply-templates select="dbk:alt" mode="#current"/>
-          <table>
-            <xsl:apply-templates select="@role | @css:*" mode="#current"/>
-            <xsl:apply-templates select="* except (dbk:alt | dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
-            <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
-          </table>
+          <xsl:for-each select="dbk:tgroup">
+            <table>
+              <xsl:apply-templates select="../@role | ../@css:*" mode="#current"/>
+              <xsl:apply-templates select="." mode="#current"/>
+              <!--<xsl:apply-templates select="* except (dbk:alt | dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>-->
+              <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
+            </table>
+            </xsl:for-each>
         </xsl:when>
         <xsl:otherwise>
           <table>
