@@ -58,16 +58,16 @@
       </xsl:if>
       <title-group>
         <xsl:apply-templates select="dbk:title" mode="#current">
-          <xsl:with-param name="processed" select="true()" as="xs:boolean?"/>
+          <xsl:with-param name="process" select="true()" as="xs:boolean?"/>
         </xsl:apply-templates>
         <xsl:apply-templates select="dbk:subtitle" mode="#current">
-          <xsl:with-param name="processed" select="true()" as="xs:boolean?"/>
+          <xsl:with-param name="process" select="true()" as="xs:boolean?"/>
         </xsl:apply-templates>
       </title-group>
       <xsl:if test="dbk:authorgroup">
         <contrib-group>
           <xsl:apply-templates select="dbk:authorgroup" mode="#current">
-            <xsl:with-param name="processed" select="true()" as="xs:boolean"></xsl:with-param>
+            <xsl:with-param name="process" select="true()" as="xs:boolean"></xsl:with-param>
           </xsl:apply-templates>
         </contrib-group>
       </xsl:if>
@@ -100,7 +100,7 @@
       <xsl:call-template name="custom-meta-group"/>
       <xsl:apply-templates select="dbk:info[dbk:keywordset[@role eq 'hub']]/dbk:keywordset[@role eq 'hub']" mode="#current"/>
       <xsl:apply-templates select="dbk:abstract" mode="#current">
-        <xsl:with-param name="processed" select="true()" as="xs:boolean"/>
+        <xsl:with-param name="process" select="true()" as="xs:boolean"/>
       </xsl:apply-templates>
     </article-meta>
   </xsl:template>
