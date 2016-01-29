@@ -41,8 +41,13 @@
         <xsl:value-of select="replace($source-basename, '(^\w+)(_\d+_\d+)' , '$1')"/>
       </journal-id>
       <journal-title-group>
+      <xsl:if test="matches(replace($source-basename, '(^\w+)(_\d+_\d+)' , '$1'), 'CSMI')">
         <journal-title>Clinical Sports Medicine International</journal-title>
+      </xsl:if>
       </journal-title-group>
+      <xsl:if test="matches(replace($source-basename, '(^\w+)(_\d+_\d+)' , '$1'), 'CSMI')">
+        <issn pub-type="ppub">1617-9870</issn>
+      </xsl:if>
     </journal-meta>
     <article-meta>
       <xsl:apply-templates select="dbk:abstract/dbk:section[dbk:title[matches(text(),'[kK]ey\s?[wW]ords')]]" mode="#current">
