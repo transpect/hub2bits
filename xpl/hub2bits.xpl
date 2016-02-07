@@ -72,13 +72,13 @@
     </p:input>
     <p:input port="options"><p:empty/></p:input>
     <p:pipeinfo>
-      <examples xmlns="http://www.le-tex.de/namespace/transpect" 
+      <examples xmlns="http://transpect.io" 
         eval-pipeline-input-uri="http://transpect.io/cascade/xpl/dynamic-transformation-pipeline.xpl#eval-pipeline"
         option-uri="http://transpect.io/cascade/xpl/dynamic-transformation-pipeline.xpl#load"
         option-value="hub2bits/hub2bits.xpl">
-        <file href="http://customers.le-tex.de/generic/book-conversion/adaptions/common/hub2bits/hub2bits.xpl"/>
-        <collection dir-uri="http://customers.le-tex.de/generic/book-conversion/adaptions/" file="hub2bits/hub2bits.xpl"/>
-        <generator-collection dir-uri="http://customers.le-tex.de/generic/book-conversion/adaptions/" file="hub2bits/hub2bits.xpl.xsl"/>
+<!--        <file href="http://this.transpect.io/a9s/common/hub2bits/hub2bits.xpl"/>-->
+        <collection dir-uri="http://this.transpect.io/a9s/" file="hub2bits/hub2bits.xpl"/>
+        <generator-collection dir-uri="http://this.transpect.io/a9s/" file="hub2bits/hub2bits.xpl.xsl"/>
       </examples>
     </p:pipeinfo>  
   </tr:dynamic-transformation-pipeline>
