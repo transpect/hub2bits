@@ -849,6 +849,13 @@
     <target><xsl:call-template name="css:content"/></target>
   </xsl:template>
 
+  <xsl:template match="boxed-text/target | boxed-text/sec/target | boxed-text/sec/sec/target" mode="clean-up">
+    <p>
+      <xsl:next-match/>
+    </p>
+  </xsl:template>
+  
+  
   <xsl:template match="dbk:br" mode="default">
     <break/>
   </xsl:template>
