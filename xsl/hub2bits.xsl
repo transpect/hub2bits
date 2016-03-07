@@ -151,7 +151,7 @@
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template match="p[bold | italic | underline] | title[bold | italic | underline]" mode="clean-up" priority="5">
+  <xsl:template match="p | title" mode="clean-up" priority="5">
     <xsl:variable name="p-atts" as="attribute(*)*" select="@*[matches(name(), '^(css:|xml:lang$)')]"/>
     <xsl:variable name="p-class-atts" as="attribute(*)*" 
       select="key(
@@ -177,14 +177,20 @@
       <xsl:when test="exists($p-atts)">
         <xsl:variable name="style-atts" as="attribute(*)*"
           select="key('jats:style-by-type', @style-type, root(.))/(css:attic | .)/@*[matches(name(), '^(css:|xml:lang$)')]"/>
-        <xsl:choose>
+<!--        <xsl:if test="@srcpath = 'Stories/Story_u1645c.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[36]/CharacterStyleRange[2]'">
+          <xsl:message select="'00 -\-\-\-\-\-\-\-\-\-\-\-', $child-element"></xsl:message>
+          <xsl:message select="'22 -\-\-\-\-\-\-\-\-\-\-\-', $style-atts"></xsl:message>
+        </xsl:if>-->
+        <xsl:variable name="differing-attributes" select="for $a 
+                                                           in $style-atts
+                                                       return $a[
+                                                                  some $b in $p-atts[name() = name($a)] satisfies ($b != $a)
+                                                                  ]" as="attribute(*)*"/>
+         <xsl:choose>
           <!-- Don’t dissolve spans if they override some para property (e.g., they make
                bold to normal by means of their style: -->
-          <xsl:when test="some $a in $style-atts
-                             satisfies (
-                                some $b in $p-atts[name() = name($a)] 
-                                satisfies ($b != $a)
-                             )">
+           <xsl:when test="exists($differing-attributes) and 
+                           (every $child in node() satisfies name($child) != $differing-attributes)">
             <xsl:next-match/>
           </xsl:when>
           <xsl:otherwise>
@@ -236,9 +242,6 @@
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
-        <!--<xsl:copy>
-          <xsl:apply-templates select="@*, node()" mode="#current"/>
-        </xsl:copy>-->
         <xsl:next-match/>
       </xsl:otherwise>
     </xsl:choose>
