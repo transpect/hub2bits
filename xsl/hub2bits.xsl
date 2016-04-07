@@ -560,7 +560,6 @@
     </title-group>
   </xsl:template>
   
-
   <xsl:template match="dbk:toc" mode="toc-depth">
     <xsl:attribute name="depth" select="'3'"/>
   </xsl:template>
@@ -1124,7 +1123,7 @@
         <xsl:when test=". = '&#x25e6;'"><xsl:value-of select="'circle'"/></xsl:when>
         <xsl:when test=". = '&#x25c6;'"><xsl:value-of select="'diamond'"/></xsl:when>
         <xsl:when test=". = '&#x2022;'"><xsl:value-of select="'disc'"/></xsl:when>
-        <xsl:when test=". = ('&#x2013;', '&#x2014;')"><xsl:value-of select="'dash'"/></xsl:when>
+        <xsl:when test=". = ('&#x2013;', '&#x2014;')"><xsl:value-of select="'hyphen'"/></xsl:when>
         <xsl:when test=". = '&#x25fe;'"><xsl:value-of select="'square'"/></xsl:when>
       </xsl:choose>
     </xsl:variable>
