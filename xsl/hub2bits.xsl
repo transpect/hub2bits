@@ -17,7 +17,12 @@
   <xsl:param name="srcpaths" select="'no'"/>
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/> 
-  
+
+  <xsl:function name="css:other-atts" as="attribute(*)*">
+    <xsl:param name="context" as="element(*)"/>
+    <xsl:sequence select="$context/@*[not(css:map-att-to-elt(., ..))]"/> 
+  </xsl:function>
+
   <xsl:template name="css:remaining-atts">
     <xsl:param name="remaining-atts" as="attribute(*)*"/>
     <xsl:apply-templates select="$remaining-atts" mode="#current"/>
