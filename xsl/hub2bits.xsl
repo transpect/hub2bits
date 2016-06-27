@@ -887,8 +887,8 @@
       <xsl:if test="exists(dbk:phrase) or matches(., ':.*\S+')">
       <speaker>
         <xsl:choose>
-          <xsl:when test="dbk:phrase[matches(@role, $jats:speaker-regex)]">
-            <xsl:apply-templates select="dbk:phrase[matches(@role, $jats:speaker-regex)]/@* except dbk:phrase[matches(@role, $jats:speaker-regex)]/@role, dbk:phrase[matches(@role, $jats:speaker-regex)]/node()" mode="#current"/>
+          <xsl:when test="dbk:phrase[matches(@role, $jats:speaker-regex)] or dbk:phrase/dbk:phrase[matches(@role, $jats:speaker-regex)]">
+            <xsl:apply-templates select="descendant::dbk:phrase[matches(@role, $jats:speaker-regex)]/@* except descendant::dbk:phrase[matches(@role, $jats:speaker-regex)]/@role, (dbk:phrase[matches(@role, $jats:speaker-regex)]/node(), dbk:phrase[dbk:phrase[matches(@role, $jats:speaker-regex)]])[1]" mode="#current"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="replace(., '^(.+:)(.+)$', '$1', 's')"/>
@@ -899,21 +899,31 @@
       <p>
         <xsl:apply-templates select="@*" mode="#current"/>
         <xsl:choose>
-          <xsl:when test="exists(dbk:phrase) and dbk:phrase[matches(@role, $jats:speaker-regex)]">
-            <xsl:apply-templates select="node() except dbk:phrase[matches(@role, $jats:speaker-regex)]" mode="#current"/>
+          <xsl:when test="exists(dbk:phrase) and descendant::dbk:phrase[matches(@role, $jats:speaker-regex)]">
+            <xsl:apply-templates select="node() except (dbk:phrase[matches(@role, $jats:speaker-regex)], dbk:phrase[dbk:phrase[matches(@role, $jats:speaker-regex)]], dbk:tab)" mode="#current"/>
           </xsl:when>
           <xsl:otherwise>
             <!-- the speaker has to be eliminated in next mode -->
-            <xsl:apply-templates select="node()" mode="#current"/>
+            <xsl:apply-templates select="node()" mode="#current">
+              <xsl:with-param name="discard" as="xs:boolean" tunnel="yes" select="true()"/>
+            </xsl:apply-templates>
           </xsl:otherwise>
         </xsl:choose>
       </p>
     </speech>  
   </xsl:template>
   
-  <xsl:template match="text()[ancestor::*[1][self::p]][../preceding-sibling::*[1][self::speaker]][matches(., '^.+:', 's')]" mode="clean-up">
-    <xsl:if test="../preceding-sibling::*[1][self::speaker[matches(., '^.+:', 's')]]">
-      <xsl:value-of select="replace(., '^(.+:)(.+)$', '$2', 's')"/>
+  <xsl:template match="dbk:phrase[matches(@role, $jats:speaker-regex)]" mode="default">
+    <xsl:param name="discard" tunnel="yes" as="xs:boolean?"/>
+    <xsl:if test="not($discard)">
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </xsl:if>
+  </xsl:template>
+  
+  
+  <xsl:template match="text()[(ancestor::*[self::p])[1]/preceding-sibling::*[1][self::speaker]][matches(., '^.+:', 's')]" mode="clean-up">
+    <xsl:if test="(ancestor::*[self::p])[1]/preceding-sibling::*[1][self::speaker[matches(., '^.+:', 's')]]">
+      <xsl:value-of select="replace(., '^(.+:)\p{Zs}*(.+)$', '$2', 's')"/>
     </xsl:if>
   </xsl:template>
   
