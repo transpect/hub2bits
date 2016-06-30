@@ -420,7 +420,7 @@
     <xsl:copy/>
   </xsl:template>  
 
-  <xsl:template match="@srcpath[not($srcpaths = 'yes')]" mode="default"/>
+  <xsl:template match="@srcpath[not($srcpaths = 'yes')]" mode="default" priority="2"/>
   
   <!-- STRUCTURE -->
   
@@ -816,7 +816,7 @@
     </label>
     <title>
       <xsl:apply-templates mode="#current"
-        select="@srcpath, node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
+        select="@xml:id, @srcpath, node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
     </title>
   </xsl:template>
 
@@ -1202,7 +1202,7 @@
       <caption>
         <title>
           <xsl:apply-templates mode="#current"
-            select="dbk:title/(node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')][1]))"/>
+            select="dbk:title/(@* | node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')][1]))"/>
         </title>
         <xsl:if test="dbk:note">
           <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
@@ -1366,7 +1366,7 @@
          <xsl:if test=".//text()">
          <title>
            <xsl:apply-templates mode="#current"
-             select="node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
+             select="@* | node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
          </title>
          </xsl:if>
        <xsl:if test="../dbk:caption">
