@@ -884,7 +884,7 @@
   
   <xsl:template match="dbk:para[matches(@role, $jats:speech-para-regex)]" mode="default" priority="4">
     <speech>
-      <xsl:if test="exists(dbk:phrase) or matches(., ':.*\S+')">
+      <xsl:if test="exists(descendant::dbk:phrase[matches(@role,  $jats:speaker-regex)]) or matches(., ':.*\S+')">
       <speaker>
         <xsl:choose>
           <xsl:when test="dbk:phrase[matches(@role, $jats:speaker-regex)] or dbk:phrase/dbk:phrase[matches(@role, $jats:speaker-regex)]">
@@ -899,7 +899,7 @@
       <p>
         <xsl:apply-templates select="@*" mode="#current"/>
         <xsl:choose>
-          <xsl:when test="exists(dbk:phrase) and descendant::dbk:phrase[matches(@role, $jats:speaker-regex)]">
+          <xsl:when test="exists(descendant::dbk:phrase[matches(@role,  $jats:speaker-regex)])">
             <xsl:apply-templates select="node() except (dbk:phrase[matches(@role, $jats:speaker-regex)], dbk:phrase[dbk:phrase[matches(@role, $jats:speaker-regex)]], dbk:tab)" mode="#current"/>
           </xsl:when>
           <xsl:otherwise>
