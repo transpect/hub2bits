@@ -654,7 +654,7 @@
       <xsl:when test="name($elt) = ('title', 'info', 'subtitle')">
         <xsl:sequence select="'book-part-meta'"/>
       </xsl:when>
-      <xsl:when test="name($elt) = ('bibliography', 'glossary', 'appendix')">
+      <xsl:when test="name($elt) = ('bibliography', 'glossary', 'appendix', 'index')">
         <xsl:sequence select="'back'"/>
       </xsl:when>
       <xsl:when test="name($elt) = 'section' and $elt[matches(dbk:title/@role, $jats:additional-backmatter-parts-title-role-regex)]">
