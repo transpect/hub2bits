@@ -84,7 +84,7 @@
     <xsl:message select="'WARNING: PULLED break out of styled-content'"/>
   </xsl:template>
   
-  <xsl:template match="styled-content[. = '']" mode="clean-up" priority="2"/>
+  <xsl:template match="styled-content[not(node())]" mode="clean-up" priority="2"/>
 
   <!-- no more breaks if several paras are in head! -->
   <xsl:template match="th/p[bold][every $n in node() satisfies ($n/self::bold)]" mode="clean-up">
