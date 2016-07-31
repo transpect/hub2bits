@@ -736,7 +736,7 @@
           <xsl:apply-templates select="current-group()" mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:element name="{current-grouping-key()}">
+          <xsl:element name="{current-grouping-key()}" namespace="">
             <xsl:apply-templates select="current-group()" mode="#current"/>
           </xsl:element>
         </xsl:otherwise>
