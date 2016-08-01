@@ -1061,7 +1061,7 @@
     </term>
   </xsl:template>
   
-  <xsl:template match="dbk:itemizedlist[ancestor::*[self::dbk:variablelist]] | dbk:orderedlist[ancestor::*[self::dbk:variablelist]]" mode="default" priority="5">
+	<xsl:template match="dbk:variablelist[ancestor::*[self::dbk:variablelist]] | dbk:itemizedlist[ancestor::*[self::dbk:variablelist]] | dbk:orderedlist[ancestor::*[self::dbk:variablelist]]" mode="default" priority="5">
     <!-- special case: ordered or itemized lists in definition lists have to become also a def-list otherwise it is invalid hobots-->
     <p specific-use="{name()}">
       <def-list>
