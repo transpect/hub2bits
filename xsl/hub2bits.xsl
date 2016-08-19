@@ -254,7 +254,7 @@
   
   <xsl:template match="styled-content/@*[matches(name(), '^(css:|xml:lang$)')]" mode="clean-up" priority="6">
     <xsl:variable name="p-att" as="attribute(*)?" select="../ancestor::*[name() = ('p', 'title')][1]/@*[name() = name(current())]"/>
-    <xsl:variable name="p-style-att" as="attribute(*)?">
+    <xsl:variable name="p-style-att" as="attribute(*)*">
       <xsl:if test="count(root(..)/node()) = 1 and count(root(..)/*) = 1">
         <xsl:sequence select="key(
                                   'jats:style-by-type', 
@@ -263,6 +263,13 @@
                               )/(css:attic | .)/@*[name() = name(current())]"/>
       </xsl:if>
     </xsl:variable>
+    <xsl:if test="count($p-style-att) gt 1">
+      <xsl:message select="'More than one style with the same name (must not happen!) ', key(
+                                  'jats:style-by-type', 
+                                  ../ancestor::*[name() = ('p', 'title')][1]/(@style-type|@content-type), 
+                                  root(..)
+                              ), $p-style-att"/>
+    </xsl:if>
     <xsl:if test="not(($p-att, $p-style-att)[1] = .)">
       <xsl:next-match/>
     </xsl:if>
