@@ -16,11 +16,15 @@
   <p:input port="parameters" kind="parameter" primary="true"/>
   <p:input port="stylesheet"/>
   <p:output port="result" primary="true"/>
+  <p:output port="report" sequence="true">
+    <p:pipe port="report" step="default"/>
+    <p:pipe port="report" step="clean-up"/>
+  </p:output>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
   <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
   
-  <tr:xslt-mode prefix="hub2bits/05" mode="default">
+  <tr:xslt-mode prefix="hub2bits/05" mode="default" name="default">
     <p:input port="source">
       <p:pipe step="hub2bits" port="source"/>
     </p:input>
@@ -30,7 +34,7 @@
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
   </tr:xslt-mode>
   
-  <tr:xslt-mode prefix="hub2bits/20" mode="clean-up">
+  <tr:xslt-mode prefix="hub2bits/20" mode="clean-up" name="clean-up">
     <p:input port="models">
       <p:pipe step="hub2bits" port="models"/>
     </p:input>

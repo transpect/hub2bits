@@ -30,6 +30,9 @@
   </p:input>
 
   <p:output port="result" primary="true" />
+  <p:output port="report" sequence="true">
+    <p:pipe port="report" step="dtp"/>
+  </p:output>
   
   <p:import href="http://transpect.io/cascade/xpl/dynamic-transformation-pipeline.xpl"/>
   <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-xml-model.xpl" />
@@ -58,7 +61,7 @@
   
   <p:sink/>
   
-  <tr:dynamic-transformation-pipeline>
+  <tr:dynamic-transformation-pipeline name="dtp">
     <p:with-option name="load" select="$load"/>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
