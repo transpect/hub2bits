@@ -8,8 +8,9 @@
   xmlns:hub2htm="http://transpect.io/hub2htm"
   xmlns:hub="http://transpect.io/hub"
   xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:mml="http://www.w3.org/1998/Math/MathML"
   
-  exclude-result-prefixes="css dbk functx jats xs xlink hub hub2htm"
+  exclude-result-prefixes="css dbk functx jats xs xlink hub hub2htm mml"
   version="2.0">
 
   <xsl:import href="http://transpect.io/hub2html/xsl/css-atts2wrap.xsl"/>
@@ -310,6 +311,10 @@
     </xsl:message>
   </xsl:template>
 
+  <xsl:template match="mml:*/@* | @xml:space" mode="default">
+    <xsl:copy/>
+  </xsl:template>
+
   <!-- MOVE WRAP ATTS (italic, bold, underline) TO CSS RULE ATTIC -->
   
   <xsl:template match="css:rule[$css:wrap-content-with-elements-from-mappable-style-attributes]" mode="default">
@@ -327,7 +332,7 @@
     </xsl:comment>
   </xsl:template>
   
-  <xsl:template match="css:rules | css:rules/@* | dbk:tabs | dbk:tab | dbk:tab/@*" mode="default">
+  <xsl:template match="css:rules | css:rules/@* | dbk:tabs | dbk:tab | dbk:tab/@* | dbk:linked-style | dbk:linked-style/@*" mode="default">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
