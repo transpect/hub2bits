@@ -896,14 +896,18 @@
   
   <xsl:template match="dbk:para[matches(@role, $jats:speech-para-regex)]" mode="default" priority="4">
     <speech>
-      <xsl:if test="exists(descendant::dbk:phrase[matches(@role,  $jats:speaker-regex)]) or matches(., ':.*\S+')">
+      <xsl:if test="exists(descendant::dbk:phrase[matches(@role,  $jats:speaker-regex)]) or matches(., '^[\S]+?:.*\S+')">
       <speaker>
         <xsl:choose>
           <xsl:when test="dbk:phrase[matches(@role, $jats:speaker-regex)] or dbk:phrase/dbk:phrase[matches(@role, $jats:speaker-regex)]">
-            <xsl:apply-templates select="descendant::dbk:phrase[matches(@role, $jats:speaker-regex)]/@* except descendant::dbk:phrase[matches(@role, $jats:speaker-regex)]/@role, (dbk:phrase[matches(@role, $jats:speaker-regex)]/node(), dbk:phrase[dbk:phrase[matches(@role, $jats:speaker-regex)]])[1]" mode="#current"/>
+            <xsl:apply-templates select="descendant::dbk:phrase[@role][matches(@role, $jats:speaker-regex)]/@* except descendant::dbk:phrase[matches(@role, $jats:speaker-regex)]/@role" mode="#current"/>
+            <xsl:if test="descendant::dbk:phrase[@role][matches(@role, $jats:speaker-regex)]">
+              <xsl:attribute name="content-type" select="descendant::dbk:phrase[@role][matches(@role, $jats:speaker-regex)]/@role"/>
+            </xsl:if>
+            <xsl:apply-templates select="(dbk:phrase[@role][matches(@role, $jats:speaker-regex)], dbk:phrase[dbk:phrase[@role][matches(@role, $jats:speaker-regex)]])[1]/node()" mode="#current"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="replace(., '^(.+:)(.+)$', '$1', 's')"/>
+            <xsl:value-of select="replace(., '^([\S]+?:)(.+)$', '$1', 's')"/>
           </xsl:otherwise>
         </xsl:choose>
       </speaker>
@@ -932,10 +936,11 @@
     </xsl:if>
   </xsl:template>
   
+  <xsl:template match="speaker/@content-type" mode="clean-up" priority="2"/>
   
-  <xsl:template match="text()[(ancestor::*[self::p])[1]/preceding-sibling::*[1][self::speaker]][matches(., '^.+:', 's')]" mode="clean-up">
-    <xsl:if test="(ancestor::*[self::p])[1]/preceding-sibling::*[1][self::speaker[matches(., '^.+:', 's')]]">
-      <xsl:value-of select="replace(., '^(.+:)\p{Zs}*(.+)$', '$2', 's')"/>
+  <xsl:template match="text()[(ancestor::*[self::p])[1]/preceding-sibling::*[1][self::speaker[not(@content-type)]]][matches(., '^[\S]+?:', 's')]" mode="clean-up">
+    <xsl:if test="(ancestor::*[self::p])[1]/preceding-sibling::*[1][self::speaker[matches(., '^[\S]+?:', 's')]]">
+      <xsl:value-of select="replace(., '^([\S]+?:)\p{Zs}*(.+)$', '$2', 's')"/>
     </xsl:if>
   </xsl:template>
   
