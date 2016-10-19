@@ -944,34 +944,39 @@
     </xsl:if>
   </xsl:template>
   
-  <xsl:template match="*[speech]" mode="clean-up">
-    <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:for-each-group select="*" group-starting-with="speech[speaker]">
-        <xsl:for-each-group select="current-group()" group-ending-with="speech[jats:is-speech(.)]">
-        <xsl:choose>
-          <xsl:when test="current-group()[self::speech]">
-            <speech>
-              <xsl:apply-templates select="current-group()/node()" mode="#current"/>
-            </speech>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:for-each select="current-group()">
-              <xsl:apply-templates select="." mode="#current"/>
-            </xsl:for-each>
-          </xsl:otherwise>
-        </xsl:choose>
-        </xsl:for-each-group>
-      </xsl:for-each-group>
-    </xsl:copy>
-  </xsl:template>
+	<xsl:template match="*[speech]" mode="clean-up">
+		<xsl:copy copy-namespaces="no">
+			<xsl:apply-templates select="@*" mode="#current"/>
+			<xsl:for-each-group select="*" group-starting-with="speech[speaker]">
+				<xsl:variable name="context" select="current-group()"/>
+				<xsl:choose>
+					<xsl:when test="current-group()[self::speech]">
+						<xsl:for-each-group select="current-group()" group-ending-with="speech[jats:is-speech-end(.)]">
+							<xsl:choose>
+								<xsl:when test="current-group()[self::speech]">
+									<speech>
+										<xsl:apply-templates select="current-group()/node()" mode="#current"/>
+									</speech>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:for-each select="current-group()">
+										<xsl:apply-templates select="." mode="#current"/>
+									</xsl:for-each>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:for-each-group>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:apply-templates select="current-group()" mode="#current"/>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each-group>
+		</xsl:copy>
+	</xsl:template>
     
-    <xsl:function name="jats:is-speech" as="xs:boolean">
+    <xsl:function name="jats:is-speech-end" as="xs:boolean">
       <xsl:param name="context" as="element(*)*"/>
       <xsl:choose>
-        <xsl:when test="$context[self::speech[not(speaker)]][preceding-sibling::*[1][self::speech]]">
-          <xsl:sequence select="true()"/>
-        </xsl:when>
         <xsl:when test="$context[self::speech][following-sibling::*[1][not(self::speech)]]">
           <xsl:sequence select="true()"/>
         </xsl:when>
