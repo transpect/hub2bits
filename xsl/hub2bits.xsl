@@ -735,6 +735,7 @@
     <xsl:choose>
       <xsl:when test="$elt/self::dbk:title or $elt/self::dbk:subtitle"><xsl:sequence select="'title-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:authorgroup"><xsl:sequence select="'contrib-group'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:author"><xsl:sequence select="'contrib-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:abstract"><xsl:sequence select="'abstract'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="concat('unknown-meta_', $elt/name())"/></xsl:otherwise>
     </xsl:choose>
@@ -760,6 +761,19 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
+  <xsl:template match="dbk:section/dbk:info[dbk:title][count(*) gt 1]" mode="default" priority="2">
+    <sec-meta>
+      <xsl:apply-templates select="dbk:authorgroup, dbk:author" mode="#current"/>
+    </sec-meta>
+    <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:alt-title" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:section/dbk:info/dbk:author" mode="default" priority="3">
+    <contrib-group>
+      <xsl:next-match/>
+    </contrib-group>
+  </xsl:template>
+  
   <xsl:template match="dbk:book/dbk:title" mode="default">
     <book-title>
       <xsl:apply-templates select="node()" mode="#current"/>
