@@ -835,14 +835,14 @@
   
 
   <xsl:template match="dbk:title[dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]]" mode="default">
+    <xsl:variable name="identifier" select="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1]" as="element(dbk:phrase)"/>
     <label>
-      <!--<xsl:message select="'-\-\-\-\-\-\-', dbk:anchor[matches(@xml:id, '^(cell)?page_')][1], '||||', dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]"/>-->
-      <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
-      <xsl:apply-templates mode="#current" select="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]/node()"/>
+      <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier]" mode="#current"/>
+      <xsl:apply-templates mode="#current" select="$identifier/node()"/>
     </label>
     <title>
       <xsl:apply-templates mode="#current"
-        select="@xml:id, @srcpath, node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
+        select="@xml:id, @srcpath, node() except ($identifier | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier])"/>
     </title>
   </xsl:template>
 
