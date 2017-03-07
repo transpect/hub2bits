@@ -18,7 +18,8 @@
   <xsl:param name="srcpaths" select="'no'"/>
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/> 
-
+  <xsl:variable name="jats:appendix-to-bookpart" as="xs:boolean" select="false()"/>
+  
   <xsl:function name="css:other-atts" as="attribute(*)*">
     <xsl:param name="context" as="element(*)"/>
     <xsl:sequence select="$context/@*[not(css:map-att-to-elt(., ..))]"/> 
@@ -625,7 +626,6 @@
       <!-- will be filled in clean-up -->
     </index>
   </xsl:template>
-  
 
   <xsl:function name="jats:book-part" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
@@ -648,7 +648,7 @@
 
   <xsl:function name="jats:is-appendix-part" as="xs:boolean">
     <xsl:param name="elt" as="element(dbk:part)"/>
-    <xsl:sequence select="every $c in $elt/* satisfies $c/name() = ('appendix', 'index', 'bibliography', 'glossary', 'title', 'subtitle', 'info')"/>
+    <xsl:sequence select="if ($jats:appendix-to-bookpart) then false() else (every $c in $elt/* satisfies $c/name() = ('appendix', 'index', 'bibliography', 'glossary', 'title', 'subtitle', 'info'))"/>
   </xsl:function>
 
   <xsl:function name="jats:book-part-body" as="xs:string">
