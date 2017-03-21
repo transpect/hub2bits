@@ -1240,11 +1240,14 @@
           <xsl:apply-templates mode="#current"
             select="dbk:title/(@* | node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')][1]))"/>
         </title>
+         <xsl:if test="dbk:caption">
+          <xsl:apply-templates select="dbk:caption/dbk:para" mode="#current"/>
+        </xsl:if>
         <xsl:if test="dbk:note">
           <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
         </xsl:if>
       </caption>
-      <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']] | dbk:note)" mode="#current"/>
+      <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']] | dbk:note | dbk:caption)" mode="#current"/>
       <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
     </fig>
   </xsl:template>
