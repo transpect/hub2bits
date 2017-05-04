@@ -141,16 +141,16 @@
   <!-- not permitted by schema: -->
   <xsl:template match="sub/@content-type | sup/@content-type" mode="clean-up"/>
 
-  <xsl:template match="dbk:tabs" mode="clean-up">
+  <xsl:template match="*:tabs" mode="clean-up">
     <xsl:apply-templates select="*" mode="#current"/>
   </xsl:template>
 
   <!-- Preventing tabs to be eliminated without a space between -->
-  <xsl:template match="dbk:tab" mode="clean-up">
+  <xsl:template match="*:tab" mode="clean-up">
     <xsl:choose>
       <xsl:when test="(preceding-sibling::node()[1][self::text()][matches(., '\S$')] and following-sibling::node()[1][self::text()][matches(., '^\S')]) or
-                      (preceding-sibling::node()[1][matches(string-join(.//text(), ''), '\S$')] and following-sibling::node()[1][matches(string-join(.//text(), ''), '^\S')])">
-        <xsl:text> </xsl:text>
+                      (preceding-sibling::node()[1][matches(string-join(descendant-or-self::text(), ''), '\S$')] and following-sibling::node()[1][matches(string-join(descendant-or-self::text(), ''), '^\S')])">
+        <xsl:text>&#160;</xsl:text>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
@@ -958,35 +958,35 @@
     </xsl:if>
   </xsl:template>
   
-	<xsl:template match="*[speech]" mode="clean-up">
-		<xsl:copy copy-namespaces="no">
-			<xsl:apply-templates select="@*" mode="#current"/>
-			<xsl:for-each-group select="*" group-starting-with="speech[speaker]">
-				<xsl:variable name="context" select="current-group()"/>
-				<xsl:choose>
-					<xsl:when test="current-group()[self::speech]">
-						<xsl:for-each-group select="current-group()" group-ending-with="speech[jats:is-speech-end(.)]">
-							<xsl:choose>
-								<xsl:when test="current-group()[self::speech]">
-									<speech>
-										<xsl:apply-templates select="current-group()/node()" mode="#current"/>
-									</speech>
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:for-each select="current-group()">
-										<xsl:apply-templates select="." mode="#current"/>
-									</xsl:for-each>
-								</xsl:otherwise>
-							</xsl:choose>
-						</xsl:for-each-group>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:apply-templates select="current-group()" mode="#current"/>
-					</xsl:otherwise>
-				</xsl:choose>
-			</xsl:for-each-group>
-		</xsl:copy>
-	</xsl:template>
+  <xsl:template match="*[speech]" mode="clean-up">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:for-each-group select="*" group-starting-with="speech[speaker]">
+        <xsl:variable name="context" select="current-group()"/>
+        <xsl:choose>
+          <xsl:when test="current-group()[self::speech]">
+            <xsl:for-each-group select="current-group()" group-ending-with="speech[jats:is-speech-end(.)]">
+              <xsl:choose>
+                <xsl:when test="current-group()[self::speech]">
+                  <speech>
+                    <xsl:apply-templates select="current-group()/node()" mode="#current"/>
+                  </speech>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:for-each select="current-group()">
+                    <xsl:apply-templates select="." mode="#current"/>
+                  </xsl:for-each>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:for-each-group>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="current-group()" mode="#current"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each-group>
+    </xsl:copy>
+  </xsl:template>
     
     <xsl:function name="jats:is-speech-end" as="xs:boolean">
       <xsl:param name="context" as="element(*)*"/>
