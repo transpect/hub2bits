@@ -666,6 +666,9 @@
       <xsl:when test="name($elt) = ('title', 'info', 'subtitle')">
         <xsl:sequence select="'book-part-meta'"/>
       </xsl:when>
+      <xsl:when test="name($elt) = ('toc')">
+        <xsl:sequence select="'front-matter'"/>
+      </xsl:when>
       <xsl:when test="name($elt) = ('bibliography', 'glossary', 'appendix', 'index')">
         <xsl:sequence select="'back'"/>
       </xsl:when>
@@ -737,6 +740,7 @@
       <xsl:when test="$elt/self::dbk:authorgroup"><xsl:sequence select="'contrib-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:author"><xsl:sequence select="'contrib-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:abstract"><xsl:sequence select="'abstract'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:legalnotice[@role = 'copyright']"><xsl:sequence select="'permissions'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="concat('unknown-meta_', $elt/name())"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -1283,17 +1287,17 @@
   </xsl:template>
   
   
-  <xsl:template match="dbk:info[count(*) eq 1][dbk:legalnotice[@role eq 'copyright']]" mode="default">
+<!--  <xsl:template match="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="default">
     <permissions>
       <xsl:apply-templates mode="#current"/>
     </permissions>
+  </xsl:template>-->
+  
+  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']" mode="default">
+      <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="dbk:info[count(*) eq 1]/dbk:legalnotice[@role eq 'copyright']" mode="default">
-    <xsl:apply-templates mode="#current"/>
-  </xsl:template>
-  
-  <xsl:template match="dbk:info[count(*) eq 1]/dbk:legalnotice[@role eq 'copyright']/dbk:para" mode="default">
+  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']/dbk:para" mode="default">
     <copyright-statement>
       <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
     </copyright-statement>
