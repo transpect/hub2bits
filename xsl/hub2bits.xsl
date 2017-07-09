@@ -67,7 +67,11 @@
                               else false()
                              ]" mode="clean-up"/>
   
-
+  <xsl:template match="sup[fn][every $c in node() satisfies $c/self::fn]" mode="clean-up">
+    <!-- This has been necessitated by https://github.com/transpect/hub2html/commit/f2f09c (and parent commit). -->
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+ 
   <xsl:template match="styled-content[every $att in @* satisfies $att/self::attribute(srcpath)]" mode="clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
