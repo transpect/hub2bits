@@ -596,6 +596,7 @@
 
   <xsl:template match="dbk:appendix" mode="default">
     <app>
+      <!-- why is that done???-->
       <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
     </app>
   </xsl:template>
