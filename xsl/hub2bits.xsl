@@ -851,7 +851,7 @@
     </label>
     <title>
       <xsl:apply-templates mode="#current"
-        select="@xml:id, @srcpath, node() except ($identifier | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier])"/>
+        select="@*, node() except ($identifier | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier])"/>
     </title>
   </xsl:template>
 
