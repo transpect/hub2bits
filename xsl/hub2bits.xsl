@@ -1527,6 +1527,19 @@
   
   <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
   
+  <!-- equations -->
+  
+  <xsl:template match="dbk:equation" mode="default">
+    <disp-formula>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </disp-formula>
+  </xsl:template>
+  
+  <xsl:template match="dbk:inline-equation" mode="default">
+    <inline-formula>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </inline-formula>
+  </xsl:template>
 
   <xsl:function name="jats:is-page-anchor" as="xs:boolean">
     <xsl:param name="anchor" as="element(dbk:anchor)"/>

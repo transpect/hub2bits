@@ -23,8 +23,7 @@
   <p:input port="models">
     <p:inline>
       <c:models>
-        <c:model href="https://hobots.hogrefe.com/schema/hobots.rng" type="application/xml"
-          schematypens="http://relaxng.org/ns/structure/1.0"/>
+        <c:model href="https://this.transpect.io/schema/rng/bits.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"/>
       </c:models>
     </p:inline>
   </p:input>
