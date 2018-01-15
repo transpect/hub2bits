@@ -468,11 +468,9 @@
         <xsl:when test="@xml:lang">
           <xsl:copy-of select="@xml:lang"/>
         </xsl:when>
-        <xsl:otherwise>
-          <xsl:if test="key('jats:style-by-type', 'NormalParagraphStyle')[@xml:lang ne '']">
-            <xsl:copy-of select="key('jats:style-by-type', 'NormalParagraphStyle')/@xml:lang, @xml:lang"/>
-          </xsl:if>
-        </xsl:otherwise>
+        <xsl:when test="key('jats:style-by-type', 'NormalParagraphStyle')[@xml:lang ne '']">
+          <xsl:copy-of select="key('jats:style-by-type', 'NormalParagraphStyle')/@xml:lang, @xml:lang"/>
+        </xsl:when>
       </xsl:choose>
       <book-meta>
         <book-title-group>
