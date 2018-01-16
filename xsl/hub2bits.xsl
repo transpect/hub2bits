@@ -17,7 +17,10 @@
   
   <xsl:param name="srcpaths" select="'no'"/>
 
-  <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/> 
+  <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/>
+  
+  <xsl:param name="dtd-version" as="xs:string" select="'2.0'" />
+  
   <xsl:variable name="jats:appendix-to-bookpart" as="xs:boolean" select="false()"/>
   
   <xsl:function name="css:other-atts" as="attribute(*)*">
@@ -37,7 +40,7 @@
   <xsl:template match="*" mode="class-att"/>
   
   <xsl:variable name="dtd-version-att" as="attribute(dtd-version)">
-    <xsl:attribute name="dtd-version" select="'1.0-variant Hogrefe Book Tag Set (hobots) 1.0'" />
+    <xsl:attribute name="dtd-version" select="$dtd-version"/>
   </xsl:variable>
 
   <xsl:template match="* | @*" mode="clean-up">
@@ -54,8 +57,6 @@
       <xsl:apply-templates mode="#current"/>
     </xsl:copy>
   </xsl:template>
-
-  
 
   <xsl:key name="by-id" match="*[@id]" use="@id"/>
 
@@ -456,9 +457,7 @@
   </xsl:function>
   
   <xsl:template match="dbk:book|dbk:hub" mode="default" priority="2">
-    <book>
-      <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
-      <xsl:namespace name="xlink" select="'http://www.w3.org/1999/xlink'"/>
+    <book xmlns:css="http://www.w3.org/1996/css" xmlns:xlink="http://www.w3.org/1999/xlink">
       <xsl:copy-of select="@css:version"/>
       <xsl:attribute name="css:rule-selection-attribute" select="'content-type style-type'"/>
       <xsl:attribute name="source-dir-uri" select="dbk:info/dbk:keywordset[@role eq 'hub']/dbk:keyword[@role eq 'source-dir-uri']"/>      
@@ -471,7 +470,6 @@
           <xsl:copy-of select="key('jats:style-by-type', 'NormalParagraphStyle')/@xml:lang, @xml:lang"/>
         </xsl:when>
       </xsl:choose>
-      <xsl:apply-templates select="dbk:info" mode="#current"/>
       <xsl:call-template name="matter"/>
     </book>
   </xsl:template>
@@ -491,12 +489,13 @@
     </xsl:for-each-group>
   </xsl:template>
   
-  <xsl:template match="dbk:hub/dbk:info|dbk:book/dbk:info" mode="default">
+  <xsl:template match="dbk:hub/dbk:info
+                      |dbk:book/dbk:info" mode="default">
     <xsl:variable name="context" select="parent::*/local-name()" as="xs:string"/>
     <xsl:variable name="elts-for-grouping" 
-                  select="dbk:title, parent::*/dbk:title, dbk:subtitle, 
-                          parent::*/dbk:subtitle, dbk:authorgroup, 
-                          dbk:author, dbk:editor, dbk:copyright|dbk:legalnotice"/>
+                  select="dbk:title, parent::*/dbk:title, 
+                          dbk:subtitle, parent::*/dbk:subtitle, 
+                          dbk:authorgroup, dbk:author, dbk:editor, (dbk:copyright|dbk:legalnotice)"/>
     <book-meta>
       <xsl:call-template name="title-info">
         <xsl:with-param name="elts" select="$elts-for-grouping"/>
@@ -510,7 +509,9 @@
   <!-- bring metadata elements in a valid order -->
   
   <xsl:template match="book-meta|book-part-meta|sec-meta|collection-meta" mode="clean-up">
-    <xsl:sequence select="jats:order-meta(.)"/>
+    <xsl:copy>
+      <xsl:sequence select="jats:order-meta(*)"/>
+    </xsl:copy>
   </xsl:template>
 
   <xsl:template name="custom-meta-group">
@@ -521,13 +522,13 @@
   
   <xsl:template match="dbk:book/dbk:title|dbk:book/dbk:info/dbk:title" mode="default">
     <book-title>
-      <xsl:call-template name="css:content"/>
+      <xsl:apply-templates mode="#current"/>
     </book-title>
   </xsl:template>
   
-  <xsl:template match="dbk:biblioid">
+  <xsl:template match="dbk:biblioid" mode="default">
     <book-id>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@class, @role, node()" mode="#current"/>
     </book-id>
   </xsl:template>
 
@@ -941,7 +942,7 @@
   
   <xsl:template match="dbk:subtitle" mode="default">
     <subtitle>
-      <xsl:call-template name="css:content"/>
+      <xsl:apply-templates  mode="#current"/>
     </subtitle>
   </xsl:template>  
   
