@@ -756,6 +756,7 @@
             <xsl:when test="matches(current-grouping-key(), 'meta')">
               <xsl:call-template name="title-info">
                 <xsl:with-param name="elts" select="current-group()/(self::dbk:title union self::dbk:info/* union self::dbk:subtitle)"/>
+                <xsl:with-param name="context" select="parent::*"/>
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
@@ -775,21 +776,24 @@
   
   <!-- METADATA -->
 
-  <xsl:function name="jats:meta-component" as="xs:string">
+  <xsl:function name="jats:meta-component" as="xs:string+">
     <xsl:param name="elt" as="element(*)"/>
-    <xsl:choose>
-      <xsl:when test="$elt/self::dbk:title or $elt/self::dbk:subtitle"><xsl:sequence select="'title-group'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:authorgroup"><xsl:sequence select="'contrib-group'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:author"><xsl:sequence select="'contrib-group'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:abstract"><xsl:sequence select="'abstract'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:legalnotice[@role = 'copyright']"><xsl:sequence select="'permissions'"/></xsl:when>
-      <xsl:otherwise><xsl:sequence select="concat('unknown-meta_', $elt/name())"/></xsl:otherwise>
-    </xsl:choose>
+    <xsl:param name="context" as="element()?"/>
+    <xsl:value-of select="if($elt/self::dbk:title or $elt/self::dbk:subtitle)
+                            then (if($context/self::dbk:book or $context/self::dbk:hub) then 'book-title-group' else 'title-group')
+                     else if($elt/self::dbk:authorgroup or $elt/self::dbk:author or $elt/self::dbk:editor)
+                            then 'contrib-group'
+                     else if($elt/self::dbk:abstract)
+                            then 'abstract'
+                     else if($elt/self::dbk:legalnotice or $elt/self::dbk:copyright)
+                            then 'permissions'
+                     else        concat('unknown-meta_', $elt/name())"/>
   </xsl:function>
 
   <xsl:template name="title-info" as="element(*)+">
     <xsl:param name="elts" as="element(*)+"/>
-    <xsl:for-each-group select="$elts" group-by="jats:meta-component(.)">
+    <xsl:param name="context" as="element()?"/>
+    <xsl:for-each-group select="$elts" group-by="jats:meta-component(., $context)">
       <xsl:choose>
         <xsl:when test="current-grouping-key() = 'abstract'">
           <xsl:apply-templates select="current-group()" mode="#current"/>
