@@ -456,7 +456,7 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:template match="dbk:book | dbk:hub" mode="default" priority="2">
+  <xsl:template match="dbk:book|dbk:hub" mode="default" priority="2">
     <book>
       <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
       <xsl:namespace name="xlink" select="'http://www.w3.org/1999/xlink'"/>
@@ -472,42 +472,7 @@
           <xsl:copy-of select="key('jats:style-by-type', 'NormalParagraphStyle')/@xml:lang, @xml:lang"/>
         </xsl:when>
       </xsl:choose>
-      <book-meta>
-        <book-title-group>
-          <xsl:apply-templates select="dbk:info/dbk:title | dbk:title" mode="#current"/>
-          <xsl:apply-templates select="dbk:info/dbk:subtitle | dbk:subtitle" mode="#current"/>
-        </book-title-group>
-        <xsl:if test="dbk:info/dbk:authorgroup or dbk:authorgroup">
-          <contrib-group>
-            <xsl:apply-templates select="dbk:info/dbk:authorgroup | dbk:authorgroup" mode="#current"/>
-          </contrib-group>
-        </xsl:if>
-        <xsl:if test="dbk:info/dbk:seriesvolnums">
-          <book-volume-number>
-            <xsl:value-of select="dbk:info/dbk:seriesvolnums"/>
-          </book-volume-number>
-        </xsl:if>
-        <xsl:if test="dbk:info/dbk:publisher">
-          <publisher>
-            <xsl:if test="dbk:info/dbk:publisher/dbk:publishername">
-              <publisher-name>
-                <xsl:value-of select="dbk:info/dbk:publisher/dbk:publishername"/>
-              </publisher-name>
-              <xsl:if test="dbk:info/dbk:publisher/dbk:publishername/dbk:address">
-              <publisher-loc>
-                <xsl:value-of select="dbk:info/dbk:publisher/dbk:address"/>
-              </publisher-loc>
-              </xsl:if>
-            </xsl:if>
-         </publisher>
-        </xsl:if>
-        <xsl:if test="dbk:info/dbk:edition">
-          <edition>
-            <xsl:value-of select="dbk:info/dbk:edition"/>
-          </edition>
-        </xsl:if>
-        <xsl:call-template name="custom-meta-group"/>
-      </book-meta>
+      <xsl:apply-templates select="dbk:info" mode="#current"/>
       <xsl:call-template name="matter"/>
     </book>
   </xsl:template>
@@ -525,6 +490,22 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each-group>
+  </xsl:template>
+  
+  <xsl:template match="dbk:hub/dbk:info|dbk:book/dbk:info" mode="default">
+    <xsl:variable name="context" select="parent::*/local-name()" as="xs:string"/>
+    <xsl:variable name="elts-for-grouping" 
+                  select="dbk:title, parent::*/dbk:title, dbk:subtitle, 
+                          parent::*/dbk:subtitle, dbk:authorgroup, 
+                          dbk:author, dbk:editor, dbk:copyright|dbk:legalnotice"/>
+    <book-meta>
+      <xsl:call-template name="title-info">
+        <xsl:with-param name="elts" select="$elts-for-grouping"/>
+        <xsl:with-param name="context" select="parent::*"/>
+      </xsl:call-template>
+      <xsl:apply-templates select="* except $elts-for-grouping" mode="#current"/>
+      <xsl:call-template name="custom-meta-group"/>
+    </book-meta>
   </xsl:template>
 
   <xsl:template name="custom-meta-group">
@@ -550,10 +531,107 @@
     </custom-meta>
   </xsl:template>
   
-  <xsl:template match="dbk:authorgroup | dbk:org | dbk:orgname" mode="default" priority="2">
+  <xsl:template match="dbk:authorgroup" mode="default">
+    <contrib-group>
+      <xsl:apply-templates mode="#current"/>
+    </contrib-group>
+  </xsl:template>
+  
+  <xsl:template match="dbk:author|dbk:editor" mode="default">
+    <contrib contrib-type="{local-name()}">
+      <xsl:call-template name="css:content"/>
+    </contrib>
+  </xsl:template>
+  
+  <xsl:template match="dbk:personname" mode="default">
+    <xsl:choose>
+      <xsl:when test="dbk:firstname|dbk:surname">
+        <name>
+          <xsl:call-template name="css:content"/>  
+        </name>    
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="css:content"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="dbk:firstname" mode="default">
+    <given-names>
+      <xsl:call-template name="css:content"/>  
+    </given-names>
+  </xsl:template>
+  
+  <xsl:template match="dbk:othername" mode="default">
+    <string-name>
+      <xsl:apply-templates select="text()" mode="#current"/>  
+    </string-name>
+  </xsl:template>
+  
+  <xsl:template match="dbk:volumenum" mode="default">
+    <book-volume-number>
+      <xsl:apply-templates mode="#current"/>
+    </book-volume-number>
+  </xsl:template>
+  
+  <xsl:template match="dbk:biblioid[matches(@role, 'issn', 'i')]" mode="default">
+    <issn>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </issn>
+  </xsl:template>
+  
+  <xsl:template match="dbk:biblioid[matches(@role, 'isbn', 'i')]" mode="default">
+    <issn>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </issn>
+  </xsl:template>
+  
+  <xsl:template match="dbk:publisher|dbk:edition|dbk:surname" mode="default">
+    <xsl:element name="{local-name()}">
+      <xsl:apply-templates mode="#current"/>
+    </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="dbk:publishername" mode="default">
+    <publisher-name>
+      <xsl:apply-templates mode="#current"/>
+    </publisher-name>
+  </xsl:template>
+  
+  <xsl:template match="dbk:publisher/dbk:address" mode="default">
+    <publisher-loc>
+      <xsl:apply-templates mode="#current"/>
+    </publisher-loc>
+  </xsl:template>
+  
+  <xsl:template match="dbk:copyright" mode="default">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
-
+  
+  <xsl:template match="dbk:copyright/dbk:year" mode="default">
+    <copyright-year>
+      <xsl:apply-templates mode="#current"/>  
+    </copyright-year>
+  </xsl:template>
+  
+  <xsl:template match="dbk:copyright/dbk:holder" mode="default">
+    <copyright-holder>
+      <xsl:apply-templates mode="#current"/>
+    </copyright-holder>
+  </xsl:template>
+  
+  <xsl:template match="dbk:legalnotice" mode="default">
+    <copyright-statement>
+      <xsl:apply-templates mode="#current"/>
+    </copyright-statement>
+  </xsl:template>
+  
+  <!-- TO-DO!
+    
+    <xsl:template match="dbk:org|dbk:orgname" mode="default" priority="2">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>-->
+  
   <xsl:template match="dbk:affiliation" mode="default" priority="2">
     <aff>
       <xsl:apply-templates mode="#current"/>
@@ -565,7 +643,17 @@
       <xsl:apply-templates mode="#current"/>
     </bio>
   </xsl:template>
- 
+  
+  <xsl:template match="dbk:pubdate" mode="default">
+    <pub-date>
+      <xsl:if test=". castable as xs:date">
+        <xsl:attribute name="iso-8601-date" select="xs:date(.)"/>
+      </xsl:if>
+      <string-date>
+        <xsl:apply-templates mode="#current"/>
+      </string-date>
+    </pub-date>
+  </xsl:template>
   
   <xsl:template match="dbk:toc" mode="default">
     <toc>
@@ -848,16 +936,6 @@
   
   <xsl:template match="dbk:abstract" mode="default">
     <abstract><xsl:call-template name="css:content"/></abstract>
-  </xsl:template>
-
-  <xsl:template match="dbk:author" mode="default">
-    <contrib contrib-type="{local-name()}">
-      <xsl:call-template name="css:content"/>
-    </contrib>
-  </xsl:template>
-  
-  <xsl:template match="dbk:personname" mode="default">
-    <string-name><xsl:call-template name="css:content"/></string-name>
   </xsl:template>
   
   <!-- BLOCK -->
