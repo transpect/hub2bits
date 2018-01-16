@@ -35,7 +35,6 @@
   </xsl:template>
   
   <xsl:template match="*" mode="class-att"/>
-
   
   <xsl:variable name="dtd-version-att" as="attribute(dtd-version)">
     <xsl:attribute name="dtd-version" select="'1.0-variant Hogrefe Book Tag Set (hobots) 1.0'" />
@@ -506,6 +505,12 @@
       <xsl:apply-templates select="* except $elts-for-grouping" mode="#current"/>
       <xsl:call-template name="custom-meta-group"/>
     </book-meta>
+  </xsl:template>
+  
+  <!-- bring metadata elements in a valid order -->
+  
+  <xsl:template match="book-meta|book-part-meta|sec-meta|collection-meta" mode="clean-up">
+    <xsl:sequence select="jats:order-meta(.)"/>
   </xsl:template>
 
   <xsl:template name="custom-meta-group">
