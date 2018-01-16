@@ -1028,6 +1028,10 @@
 
   <xsl:template match="dbk:link[@xlink:href]/@role" mode="default "/>
 
+  <xsl:template match="dbk:xref[@linkend]" mode="default">
+    <xref rid="{@linkend}"/>
+  </xsl:template>
+
   <xsl:template match="dbk:anchor" mode="default">
     <target><xsl:call-template name="css:content"/></target>
   </xsl:template>
