@@ -531,6 +531,10 @@
       <xsl:apply-templates select="@class, @role, node()" mode="#current"/>
     </book-id>
   </xsl:template>
+  
+  <xsl:template match="dbk:biblioid/@role" mode="default">
+    <xsl:attribute name="book-id-type" select="."/>
+  </xsl:template>
 
   <xsl:template match="dbk:keywordset" mode="default">
     <custom-meta-group>
@@ -942,7 +946,7 @@
   
   <xsl:template match="dbk:subtitle" mode="default">
     <subtitle>
-      <xsl:apply-templates  mode="#current"/>
+      <xsl:apply-templates select="node()" mode="#current"/>
     </subtitle>
   </xsl:template>  
   
