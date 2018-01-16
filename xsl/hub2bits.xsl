@@ -662,6 +662,8 @@
       <xsl:otherwise><xsl:sequence select="concat('unknown-book-part-body_', $elt/name())"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
+  <xsl:variable name="jats:additional-backmatter-parts-title-role-regex" as="xs:string" select="'(p_h_sec[12]_back)'"/>
 
   <xsl:function name="jats:part-submatter" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
@@ -684,7 +686,44 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:variable name="jats:additional-backmatter-parts-title-role-regex" as="xs:string" select="'(p_h_sec[12]_back)'"/>
+  <xsl:function name="jats:order-meta" as="element()+">
+    <xsl:param name="seq" as="element()+"/>
+    <xsl:for-each select="$seq">
+      <xsl:sort select="jats:get-meta-order-int(.)"/>
+      <xsl:sequence select="."/>
+    </xsl:for-each>
+  </xsl:function>
+  
+  <xsl:function name="jats:get-meta-order-int" as="xs:integer">
+    <xsl:param name="elt" as="element()"/>
+    <xsl:value-of select="if($elt/self::book-id)                                                    then  1
+                     else if($elt/self::subj-group)                                                 then  2
+                     else if($elt/self::book-title-group or $elt/self::title-group)                 then  3
+                     else if($elt/local-name() = ('contrib-group', 'aff', 'aff-alternatives', 'x')) then  4
+                     else if($elt/self::author-notes)                                               then  5
+                     else if($elt/self::pub-date)                                                   then  6
+                     else if($elt/self::book-volume-number)                                         then  7
+                     else if($elt/self::book-volume-id)                                             then  8
+                     else if($elt/self::issn)                                                       then  9
+                     else if($elt/self::issn-1)                                                     then 10
+                     else if($elt/self::isbn)                                                       then 11
+                     else if($elt/self::publisher)                                                  then 12
+                     else if($elt/self::edition)                                                    then 13
+                     else if($elt/self::supplementary-material)                                     then 14
+                     else if($elt/self::pub-history)                                                then 15
+                     else if($elt/self::permissions)                                                then 16
+                     else if($elt/self::self-uri)                                                   then 17
+                     else if($elt/local-name() = ('related-article', 'related-object'))             then 18
+                     else if($elt/self::abstract)                                                   then 19
+                     else if($elt/self::trans-abstract)                                             then 20
+                     else if($elt/self::kwd-group)                                                  then 21
+                     else if($elt/self::funding-group)                                              then 22
+                     else if($elt/self::conference)                                                 then 23
+                     else if($elt/self::counts)                                                     then 24
+                     else if($elt/self::custom-meta-group)                                          then 25
+                     else if($elt/self::notes)                                                      then 26
+                     else                                                                               100"/>
+  </xsl:function> 
   
   <xsl:template match="dbk:part[jats:is-appendix-part(.)]" mode="default">
     <app-group>
