@@ -518,6 +518,18 @@
       <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>
     </custom-meta-group>
   </xsl:template>
+  
+  <xsl:template match="dbk:book/dbk:title|dbk:book/dbk:info/dbk:title" mode="default">
+    <book-title>
+      <xsl:call-template name="css:content"/>
+    </book-title>
+  </xsl:template>
+  
+  <xsl:template match="dbk:biblioid">
+    <book-id>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </book-id>
+  </xsl:template>
 
   <xsl:template match="dbk:keywordset" mode="default">
     <custom-meta-group>
