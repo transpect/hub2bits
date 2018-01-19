@@ -650,12 +650,17 @@
     </copyright-statement>
   </xsl:template>
   
-  <!-- TO-DO!
+ <!--  TO-DO!-->
     
-    <xsl:template match="dbk:org|dbk:orgname" mode="default" priority="2">
-    <xsl:apply-templates mode="#current"/>
-  </xsl:template>-->
+  <xsl:template match="dbk:org" mode="default" priority="2">
+    <institution><xsl:apply-templates select="@*, node()[self::text() | self::dbk:orgname]" mode="#current"/></institution>
+    <xsl:apply-templates select="* except dbk:orgname" mode="#current"/>
+  </xsl:template>
   
+  <xsl:template match="dbk:orgname" mode="default" priority="2">
+    <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+
   <xsl:template match="dbk:affiliation" mode="default" priority="2">
     <aff>
       <xsl:apply-templates mode="#current"/>
