@@ -510,7 +510,7 @@
   
   <xsl:template match="book-meta|book-part-meta|sec-meta|collection-meta" mode="clean-up">
     <xsl:copy>
-      <xsl:sequence select="jats:order-meta(*)"/>
+      <xsl:apply-templates select="jats:order-meta(*)" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
