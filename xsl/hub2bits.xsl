@@ -492,7 +492,7 @@
   <xsl:template match="dbk:hub/dbk:info
                       |dbk:book/dbk:info" mode="default">
     <xsl:variable name="context" select="parent::*/local-name()" as="xs:string"/>
-    <xsl:variable name="elts-for-grouping" 
+    <xsl:variable name="elts-for-grouping" as="element()*"
                   select="dbk:title, parent::*/dbk:title, 
                           dbk:subtitle, parent::*/dbk:subtitle, 
                           dbk:authorgroup, dbk:author, dbk:editor, (dbk:copyright|dbk:legalnotice)"/>
@@ -902,8 +902,8 @@
                      else        concat('unknown-meta_', $elt/name())"/>
   </xsl:function>
 
-  <xsl:template name="title-info" as="element(*)+">
-    <xsl:param name="elts" as="element(*)+"/>
+  <xsl:template name="title-info" as="element(*)*">
+    <xsl:param name="elts" as="element(*)*"/>
     <xsl:param name="context" as="element()?"/>
     <xsl:for-each-group select="$elts" group-by="jats:meta-component(., $context)">
       <xsl:choose>
