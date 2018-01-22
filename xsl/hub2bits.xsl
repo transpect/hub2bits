@@ -573,9 +573,7 @@
         </name>    
       </xsl:when>
       <xsl:otherwise>
-       <string-name>
         <xsl:call-template name="css:content"/>
-       </string-name>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
