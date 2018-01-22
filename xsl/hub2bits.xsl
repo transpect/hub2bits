@@ -656,18 +656,18 @@
   </xsl:template>
   
   <xsl:template match="dbk:orgname" mode="default" priority="2">
-    <xsl:apply-templates select="node()" mode="#current"/>
+    <xsl:apply-templates select="@*, node()" mode="#current"/>
   </xsl:template>
 
   <xsl:template match="dbk:affiliation" mode="default" priority="2">
     <aff>
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </aff>
   </xsl:template>
   
   <xsl:template match="dbk:personblurb" mode="default" priority="2">
     <bio>
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </bio>
   </xsl:template>
   
@@ -941,17 +941,17 @@
   
   <xsl:template match="dbk:book/dbk:title" mode="default">
     <book-title>
-      <xsl:apply-templates select="node()" mode="#current"/>
+      <xsl:call-template name="css:content"/>
     </book-title>
   </xsl:template> 
   
   <xsl:template match="dbk:book/dbk:title/*[self::dbk:phrase | self::dbk:superscript | self::dbk:subscript]" mode="default">
-      <xsl:apply-templates  mode="#current"/>
+    <xsl:call-template name="css:content"/>
   </xsl:template> 
   
   <xsl:template match="dbk:subtitle" mode="default">
     <subtitle>
-      <xsl:apply-templates select="node()" mode="#current"/>
+      <xsl:call-template name="css:content"/>
     </subtitle>
   </xsl:template>  
   
@@ -962,19 +962,18 @@
   </xsl:template> 
   
   <xsl:template match="dbk:abstract" mode="default">
-    <abstract><xsl:call-template name="css:content"/></abstract>
+    <abstract>
+      <xsl:call-template name="css:content"/>
+    </abstract>
   </xsl:template>
   
   <!-- BLOCK -->
-  
  
   <xsl:template match="dbk:title" mode="default">
     <title>
       <xsl:call-template name="css:content"/>
     </title>
   </xsl:template>
-
-
 
   <!-- Don’t wrap title content in a bold element -->
   <xsl:template match="@css:font-weight[matches(., '^bold|[6-9]00$')]" mode="css:map-att-to-elt" as="xs:string?">
@@ -1046,7 +1045,6 @@
       <xsl:next-match/>
     </p>
   </xsl:template>
-  
   
   <xsl:template match="dbk:br" mode="default">
     <break/>
