@@ -1221,8 +1221,23 @@
   <!-- FOOTNOTES -->
   
   <xsl:template match="dbk:footnote" mode="default">
-    <fn><xsl:call-template name="css:content"/></fn>
+    <xsl:variable name="label" select="dbk:para[1]/*[1][self::dbk:phrase][@role eq 'hub:identifier']" as="element(dbk:phrase)?"/>
+    <fn>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:if test="$label">
+        <label>
+          <xsl:apply-templates select="$label" mode="fn-label"/>
+        </label>  
+      </xsl:if>
+      <xsl:apply-templates mode="#current"/>
+    </fn>
   </xsl:template>
+  
+  <xsl:template match="dbk:footnote/dbk:para[1]/node()[1][self::dbk:phrase][@role eq 'hub:identifier']" mode="fn-label">
+    <xsl:apply-templates mode="default"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:footnote/dbk:para[1]/node()[1][self::dbk:phrase][@role eq 'hub:identifier']" mode="default"/>
   
   <!-- LISTS -->
   
