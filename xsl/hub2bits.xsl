@@ -603,9 +603,9 @@
   </xsl:template>
   
   <xsl:template match="dbk:biblioid[matches(@role, 'isbn', 'i')]" mode="default">
-    <issn>
+    <isbn>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </issn>
+    </isbn>
   </xsl:template>
   
   <xsl:template match="dbk:publisher|dbk:edition|dbk:surname" mode="default">
