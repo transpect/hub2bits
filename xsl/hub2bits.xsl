@@ -532,8 +532,20 @@
     </book-id>
   </xsl:template>
   
-  <xsl:template match="dbk:biblioid/@role" mode="default">
-    <xsl:attribute name="book-id-type" select="."/>
+  <xsl:template match="dbk:biblioid[matches(@role, 'issn', 'i')]" mode="default">
+    <issn>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </issn>
+  </xsl:template>
+  
+  <xsl:template match="dbk:biblioid[matches(@role, 'isbn', 'i')]" mode="default">
+    <isbn>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </isbn>
+  </xsl:template>
+
+  <xsl:template match="dbk:biblioid[not(matches(@role, '(issn|isbn)', 'i'))]/@role" mode="default">
+    <xsl:attribute name="content-type" select="."/>
   </xsl:template>
 
   <xsl:template match="dbk:keywordset" mode="default">
@@ -594,19 +606,7 @@
     <book-volume-number>
       <xsl:apply-templates mode="#current"/>
     </book-volume-number>
-  </xsl:template>
-  
-  <xsl:template match="dbk:biblioid[matches(@role, 'issn', 'i')]" mode="default">
-    <issn>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </issn>
-  </xsl:template>
-  
-  <xsl:template match="dbk:biblioid[matches(@role, 'isbn', 'i')]" mode="default">
-    <isbn>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </isbn>
-  </xsl:template>
+  </xsl:template>  
   
   <xsl:template match="dbk:publisher|dbk:edition|dbk:surname" mode="default">
     <xsl:element name="{local-name()}">
@@ -1037,7 +1037,13 @@
   </xsl:template>
 
   <xsl:template match="dbk:anchor" mode="default">
-    <target><xsl:call-template name="css:content"/></target>
+    <target>
+      <xsl:call-template name="css:content"/>
+    </target>
+  </xsl:template>
+  
+  <xsl:template match="dbk:anchor/@role" mode="default">
+    <xsl:attribute name="target-type" select="."/>
   </xsl:template>
 
   <xsl:template match="boxed-text/target | boxed-text/sec/target | boxed-text/sec/sec/target" mode="clean-up">
@@ -1423,7 +1429,10 @@
       <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
     </fig>
   </xsl:template>
-
+  
+  <xsl:template match="dbk:figure/@role" mode="default">
+    <xsl:attribute name="fig-type" select="."/>
+  </xsl:template>
   
   <xsl:template match="fig[target]" mode="clean-up">
     <xsl:copy copy-namespaces="no">
