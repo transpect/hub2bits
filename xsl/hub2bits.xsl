@@ -1674,7 +1674,17 @@
   </xsl:template>
 
   <xsl:template match="dbk:biblioentry" mode="default">
-    <ref><xsl:call-template name="css:content"/></ref>
+    <ref>
+      <xsl:call-template name="css:content"/>
+    </ref>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliomixed" mode="default">
+    <ref>
+      <mixed-citation>
+        <xsl:call-template name="css:content"/>
+      </mixed-citation>
+    </ref>
   </xsl:template>
   
   <xsl:template match="dbk:bibliomisc" mode="default">
