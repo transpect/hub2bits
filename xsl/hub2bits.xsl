@@ -1709,6 +1709,8 @@
   
   <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
   
+  <xsl:template match="sup/@xml:lang | sub/@xml:lang" mode="clean-up"/>
+  
   <!-- equations -->
   
   <xsl:template match="dbk:equation" mode="default">
