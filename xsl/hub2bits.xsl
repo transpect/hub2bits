@@ -582,7 +582,8 @@
     <xsl:choose>
       <xsl:when test="dbk:firstname|dbk:surname">
         <name>
-          <xsl:call-template name="css:content"/>  
+          <xsl:apply-templates select="@*" mode="#current"/>
+          <xsl:apply-templates select="dbk:surname, dbk:firstname" mode="#current"/>  
         </name>    
       </xsl:when>
       <xsl:otherwise>
