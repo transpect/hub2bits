@@ -1030,11 +1030,16 @@
     <xref><xsl:call-template name="css:content"/></xref>
   </xsl:template>
   
-  <xsl:template match="dbk:link[@xlink:href]" mode="default">
+  <xsl:template match="dbk:link[@xlink:href]|dbk:ulink[@url]" mode="default">
     <ext-link><xsl:call-template name="css:content"/></ext-link>
   </xsl:template>
-
-  <xsl:template match="dbk:link[@xlink:href]/@role" mode="default "/>
+  
+  <xsl:template match="dbk:ulink/@url" mode="default">
+    <xsl:attribute name="ext-link-type" select="'uri'"/>
+    <xsl:attribute name="xlink:href" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:ulink/@hub:*"/>
 
   <xsl:template match="dbk:xref[@linkend]" mode="default">
     <xref rid="{@linkend}"/>
