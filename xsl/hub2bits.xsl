@@ -303,7 +303,7 @@
   <xsl:key name="jats:style-by-type" match="css:rule" use="@name" />
   
   <xsl:template match="*" mode="default" priority="-1">
-    <xsl:message>hub2hobots: unhandled in mode default: <xsl:apply-templates select="." mode="css:unhandled"/>
+    <xsl:message>hub2bits: unhandled in mode default: <xsl:apply-templates select="." mode="css:unhandled"/>
     </xsl:message>
     <xsl:copy copy-namespaces="no">
       <xsl:call-template name="css:content"/>
@@ -312,7 +312,7 @@
   
   <xsl:template match="@*" mode="default" priority="-1.5">
     <xsl:copy/>
-    <xsl:message>hub2hobots: attr unhandled in mode default: <xsl:apply-templates select="." mode="css:unhandled"/>
+    <xsl:message>hub2bits: attr unhandled in mode default: <xsl:apply-templates select="." mode="css:unhandled"/>
     </xsl:message>
   </xsl:template>
 
@@ -414,7 +414,7 @@
         <xsl:sequence select="'book-part'"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:message>hub2hobots: unknown ref-type for <xsl:value-of select="$elt-name"/></xsl:message>
+        <xsl:message>hub2bits: unknown ref-type for <xsl:value-of select="$elt-name"/></xsl:message>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -495,13 +495,14 @@
     <xsl:variable name="elts-for-grouping" as="element()*"
                   select="dbk:title, parent::*/dbk:title, 
                           dbk:subtitle, parent::*/dbk:subtitle, 
-                          dbk:authorgroup, dbk:author, dbk:editor, (dbk:copyright|dbk:legalnotice)"/>
+                          dbk:authorgroup, dbk:author, dbk:editor, 
+                          (dbk:copyright|dbk:legalnotice), dbk:bibliomisc"/>
     <book-meta>
       <xsl:call-template name="title-info">
         <xsl:with-param name="elts" select="$elts-for-grouping"/>
         <xsl:with-param name="context" select="parent::*"/>
       </xsl:call-template>
-      <xsl:apply-templates select="* except $elts-for-grouping" mode="#current"/>
+      <xsl:apply-templates select="* except ($elts-for-grouping, css:rules)" mode="#current"/>
       <xsl:call-template name="custom-meta-group"/>
     </book-meta>
   </xsl:template>
@@ -516,7 +517,7 @@
 
   <xsl:template name="custom-meta-group">
     <custom-meta-group>
-      <xsl:apply-templates select="dbk:info/css:rules" mode="#current"/>
+      <xsl:apply-templates select="css:rules" mode="#current"/>
     </custom-meta-group>
   </xsl:template>
   
@@ -902,6 +903,8 @@
                             then 'abstract'
                      else if($elt/self::dbk:legalnotice or $elt/self::dbk:copyright)
                             then 'permissions'
+                     else if($elt/self::dbk:bibliomisc)
+                            then 'custom-meta-group'
                      else        concat('unknown-meta_', $elt/name())"/>
   </xsl:function>
 
@@ -1317,12 +1320,12 @@
     <xsl:variable name="preceding-list" select="../preceding-sibling::dbk:orderedlist[1]" as="element(dbk:orderedlist)?"/>
     <xsl:attribute name="continued-from" select="$preceding-list/(@xml:id, generate-id())[1]"/>    
     <xsl:if test="not($preceding-list)">
-      <xsl:message>hub2hobots: No list to continue found. Look for an empty continued-from attribute in the output.</xsl:message>
+      <xsl:message>hub2bits: No list to continue found. Look for an empty continued-from attribute in the output.</xsl:message>
     </xsl:if>    
   </xsl:template>
 
   <xsl:template match="@startingnumber" mode="default">
-    <xsl:message>hub2hobots: No startingnumber support in BITS. Attribute copied nonetheless.</xsl:message>
+    <xsl:message>hub2bits: No startingnumber support in BITS. Attribute copied nonetheless.</xsl:message>
     <xsl:copy/>
   </xsl:template>
   
@@ -1694,6 +1697,13 @@
         <xsl:call-template name="css:content"/>
       </mixed-citation>
     </ref>
+  </xsl:template>
+  
+  <xsl:template match="dbk:info/dbk:bibliomisc" mode="default">
+    <custom-meta>
+      <meta-name><xsl:value-of select="@role"/></meta-name>
+      <meta-value><xsl:call-template name="css:content"/></meta-value>
+    </custom-meta>
   </xsl:template>
   
   <xsl:template match="dbk:bibliomisc" mode="default">
