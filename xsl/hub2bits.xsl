@@ -1705,6 +1705,10 @@
     </ref>
   </xsl:template>
   
+  <xsl:template match="dbk:bibliomixed/@xreflabel" mode="default">
+    <xsl:attribute name="id" select="."/>
+  </xsl:template>
+  
   <xsl:template match="dbk:info/dbk:bibliomisc" mode="default">
     <custom-meta>
       <meta-name><xsl:value-of select="@role"/></meta-name>
