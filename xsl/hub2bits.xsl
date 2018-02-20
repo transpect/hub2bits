@@ -786,7 +786,7 @@
   <xsl:function name="jats:part-submatter" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
-      <xsl:when test="name($elt) = ('title', 'info', 'subtitle')">
+      <xsl:when test="name($elt) = ('title', 'info', 'subtitle', 'titleabbrev')">
         <xsl:sequence select="'book-part-meta'"/>
       </xsl:when>
       <xsl:when test="name($elt) = ('toc')">
@@ -873,7 +873,8 @@
           <xsl:choose>
             <xsl:when test="matches(current-grouping-key(), 'meta')">
               <xsl:call-template name="title-info">
-                <xsl:with-param name="elts" select="current-group()/(self::dbk:title union self::dbk:info/* union self::dbk:subtitle)"/>
+                <xsl:with-param name="elts" 
+                                select="current-group()/(self::dbk:title|self::dbk:info/*|self::dbk:subtitle|self::dbk:titleabbrev)"/>
                 <xsl:with-param name="context" select="parent::*"/>
               </xsl:call-template>
             </xsl:when>
@@ -990,9 +991,9 @@
   <xsl:template match="@css:font-weight[matches(., '^bold|[6-9]00$')]" mode="css:map-att-to-elt" as="xs:string?">
     <xsl:param name="context" as="element(*)?"/>
     <xsl:if test="not(
-                    $context/local-name() = ('title')
+                    $context/local-name() = ('title', 'subtitle', 'alt-title')
                     or
-                    ($context/local-name() = ('phrase') and $context/../local-name() = ('title')) 
+                    ($context/local-name() = ('phrase') and $context/../local-name() = ('title', 'subtitle', 'alt-title')) 
                   )">
       <xsl:sequence select="$css:bold-elt-name"/>  
     </xsl:if>
