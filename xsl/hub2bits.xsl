@@ -494,7 +494,8 @@
     <xsl:variable name="context" select="parent::*/local-name()" as="xs:string"/>
     <xsl:variable name="elts-for-grouping" as="element()*"
                   select="dbk:title, parent::*/dbk:title, 
-                          dbk:subtitle, parent::*/dbk:subtitle, 
+                          dbk:subtitle, parent::*/dbk:subtitle,
+                          dbk:titleabbrev, parent::*/dbk:titleabbrev,
                           dbk:authorgroup, dbk:author, dbk:editor, 
                           (dbk:copyright|dbk:legalnotice), dbk:bibliomisc"/>
     <book-meta>
@@ -896,7 +897,7 @@
   <xsl:function name="jats:meta-component" as="xs:string+">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:param name="context" as="element()?"/>
-    <xsl:value-of select="if($elt/self::dbk:title or $elt/self::dbk:subtitle)
+    <xsl:value-of select="if($elt/self::dbk:title or $elt/self::dbk:subtitle or $elt/self::dbk:titleabbrev)
                             then (if($context/self::dbk:book or $context/self::dbk:hub) then 'book-title-group' else 'title-group')
                      else if($elt/self::dbk:authorgroup or $elt/self::dbk:author or $elt/self::dbk:editor)
                             then 'contrib-group'
@@ -934,7 +935,7 @@
     <sec-meta>
       <xsl:apply-templates select="dbk:authorgroup, dbk:author" mode="#current"/>
     </sec-meta>
-    <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:alt-title" mode="#current"/>
+    <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:titleabbrev" mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:section/dbk:info/dbk:author" mode="default" priority="3">
@@ -957,7 +958,13 @@
     <subtitle>
       <xsl:call-template name="css:content"/>
     </subtitle>
-  </xsl:template>  
+  </xsl:template>
+  
+  <xsl:template match="dbk:titleabbrev" mode="default">
+    <alt-title>
+      <xsl:call-template name="css:content"/>
+    </alt-title>
+  </xsl:template>
   
   <xsl:template match="dbk:subtitle/dbk:date" mode="default">
     <named-content content-type="edition">
