@@ -1501,7 +1501,7 @@
     <xsl:if test="@xml:id">
       <target id="{@xml:id}"/>
     </xsl:if>
-    <xsl:apply-templates mode="#current"/>
+    <xsl:apply-templates select="node() except dbk:alt" mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:imagedata" mode="default">
@@ -1514,9 +1514,14 @@
                         else 'graphic'}">
       <xsl:apply-templates select="(ancestor::dbk:mediaobject | ancestor::dbk:inlinemediaobject)[1]/@xml:id" mode="#current"/>
       <xsl:call-template name="css:content"/>
+      <xsl:apply-templates select="(ancestor::dbk:mediaobject | ancestor::dbk:inlinemediaobject)[1]/dbk:alt" mode="#current"/>
     </xsl:element>
   </xsl:template>
   
+  <xsl:template match="dbk:alt" mode="default">
+    <alt-text><xsl:apply-templates mode="#current"/></alt-text>
+  </xsl:template>
+
   <!-- Override in adaptions -->
   <xsl:template match="dbk:imagedata/@fileref" mode="default">
     <xsl:attribute name="xlink:href" select="."/>
