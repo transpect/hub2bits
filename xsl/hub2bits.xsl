@@ -588,7 +588,7 @@
         </name>    
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="css:content"/>
+        <string-name><xsl:call-template name="css:content"/></string-name>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -601,6 +601,7 @@
   
   <xsl:template match="dbk:othername" mode="default">
     <string-name>
+      <!-- perhaps mapped to something else? string-name is for unstructured content in contrib -->
       <xsl:apply-templates select="text()" mode="#current"/>  
     </string-name>
   </xsl:template>
