@@ -522,12 +522,6 @@
     </custom-meta-group>
   </xsl:template>
   
-  <xsl:template match="dbk:book/dbk:title|dbk:book/dbk:info/dbk:title" mode="default">
-    <book-title>
-      <xsl:apply-templates mode="#current"/>
-    </book-title>
-  </xsl:template>
-  
   <xsl:template match="dbk:biblioid" mode="default">
     <book-id>
       <xsl:apply-templates select="@class, @role, node()" mode="#current"/>
@@ -946,16 +940,12 @@
     </contrib-group>
   </xsl:template>
   
-  <xsl:template match="dbk:book/dbk:title" mode="default">
+  <xsl:template match="dbk:book/dbk:title|dbk:book/dbk:info/dbk:title" mode="default">
     <book-title>
-      <xsl:call-template name="css:content"/>
+   <xsl:apply-templates  select="@xml:id, @xml:base, node()" mode="#current"/>
     </book-title>
   </xsl:template> 
-  
-  <xsl:template match="dbk:book/dbk:title/*[self::dbk:phrase | self::dbk:superscript | self::dbk:subscript]" mode="default">
-    <xsl:call-template name="css:content"/>
-  </xsl:template> 
-  
+   
   <xsl:template match="dbk:subtitle" mode="default">
     <subtitle>
       <xsl:call-template name="css:content"/>
