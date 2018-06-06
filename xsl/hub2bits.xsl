@@ -449,7 +449,7 @@
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib', 'contrib-biographies', 'quotation', 'motto')]"><xsl:sequence select="'front-matter'"/></xsl:when>
-      <xsl:when test="$elt/self::dbk:glossary[jats:matter(preceding-sibling::*[1]) = 'front-matter' or jats:matter(following-sibling::*[1]) = 'front-matter']"><xsl:sequence select="'front-matter'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:glossary[preceding-sibling::*[1][jats:matter(.) = 'front-matter'] or following-sibling::*[1][jats:matter(.)  = 'front-matter']]"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
       <xsl:when test="$name = ('appendix', 'index', 'glossary', 'bibliography')"><xsl:sequence select="'book-back'"/></xsl:when>
