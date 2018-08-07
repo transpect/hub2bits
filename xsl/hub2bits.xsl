@@ -1188,7 +1188,7 @@
   <xsl:template match="dbk:primary" mode="default">
     <xsl:apply-templates select="@sortas" mode="#current"/>
     <term>
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="node() except (dbk:see, dbk:seealso)" mode="#current"/>
     </term>
     <xsl:apply-templates select="if(../dbk:secondary) then ../dbk:secondary else ( dbk:see | dbk:seealso)" mode="#current"/>
   </xsl:template>
@@ -1207,7 +1207,7 @@
     <index-term>
       <xsl:apply-templates select="@sortas" mode="#current"/>
       <term>
-        <xsl:call-template name="css:content"/>
+        <xsl:apply-templates select="node() except (dbk:see, dbk:seealso)" mode="#current"/>
       </term>
       <xsl:apply-templates select="dbk:see | dbk:seealso" mode="#current"/>
     </index-term>
