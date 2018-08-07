@@ -1190,7 +1190,8 @@
     <term>
       <xsl:apply-templates select="node() except (dbk:see, dbk:seealso)" mode="#current"/>
     </term>
-    <xsl:apply-templates select="if(../dbk:secondary) then ../dbk:secondary else ( dbk:see | dbk:seealso)" mode="#current"/>
+    <xsl:apply-templates select="if(../dbk:secondary) then ../dbk:secondary 
+                                 else ( ../dbk:see union ../dbk:seealso union dbk:see union dbk:seealso)" mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:secondary" mode="default">
