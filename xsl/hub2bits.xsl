@@ -1273,6 +1273,10 @@
     </def-list>
   </xsl:template>
   
+  <xsl:template match="dbk:variablelist/@role" mode="default">
+    <xsl:attribute name="list-type" select="."/>
+  </xsl:template>
+  
   <xsl:template match="dbk:varlistentry" mode="default">
     <def-item>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
