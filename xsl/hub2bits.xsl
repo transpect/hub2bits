@@ -985,8 +985,16 @@
     <xsl:if test="not(
                     $context/local-name() = ('title', 'subtitle', 'alt-title')
                     or
-                    ($context/local-name() = ('phrase') and $context/../local-name() = ('title', 'subtitle', 'alt-title')) 
+                    ($context/local-name() = ('phrase') and $context/ancestor::*/local-name() = ('title', 'subtitle', 'alt-title')) 
                   )">
+      <!-- ancestor::* instead of .. in previous expression because of 101024_85813_PFB:
+        <title role="hog_paragraphs_headings_sec_p_h_sec1"
+                   srcpath="Stories/Story_u5b8.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[17]">
+               <phrase role="hub:identifier">
+                  <phrase role="ch_text_bold_-_akkurat_ziffer_sec1">
+                     <anchor xml:id="page_22"/>1.1</phrase>
+               </phrase>
+               <tab>	</tab>Grundlage der Loyalität</title> -->
       <xsl:sequence select="$css:bold-elt-name"/>  
     </xsl:if>
   </xsl:template>
