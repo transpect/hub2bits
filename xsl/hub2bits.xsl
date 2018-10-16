@@ -410,8 +410,8 @@
       <xsl:when test="$elt-name eq 'table-wrap'">
         <xsl:sequence select="'table'"/>
       </xsl:when>
-      <xsl:when test="$elt-name = ('book-part')">
-        <xsl:sequence select="'book-part'"/>
+      <xsl:when test="$elt-name = ('book-part', 'index-term')">
+        <xsl:sequence select="$elt-name"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message>hub2bits: unknown ref-type for <xsl:value-of select="$elt-name"/></xsl:message>
