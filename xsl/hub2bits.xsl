@@ -1773,4 +1773,10 @@
   <!-- not useful at this stadium. perhaps if the attribute usage is improved. Then it could become a styled-content element with style-type in a label -->
   <xsl:template match="@hub:numbering-inline-stylename" mode="clean-up"/>
   
+  <!-- content-type not valid on ext-link -->
+  <xsl:template match="ext-link/@content-type[. = 'same-work-external']" mode="clean-up">
+    <xsl:attribute name="xlink:role" select="."/>
+  </xsl:template>
+  
+  
 </xsl:stylesheet>
