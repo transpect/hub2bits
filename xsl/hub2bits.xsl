@@ -811,35 +811,94 @@
   
   <xsl:function name="jats:get-meta-order-int" as="xs:integer">
     <xsl:param name="elt" as="element()"/>
-    <xsl:value-of select="if($elt/self::book-id)                                                    then  1
-                     else if($elt/self::subj-group)                                                 then  2
-                     else if($elt/self::book-title-group or $elt/self::title-group)                 then  3
-                     else if($elt/local-name() = ('contrib-group', 'aff', 'aff-alternatives', 'x')) then  4
-                     else if($elt/self::author-notes)                                               then  5
-                     else if($elt/self::pub-date)                                                   then  6
-                     else if($elt/self::book-volume-number)                                         then  7
-                     else if($elt/self::book-volume-id)                                             then  8
-                     else if($elt/self::issn)                                                       then  9
-                     else if($elt/self::issn-1)                                                     then 10
-                     else if($elt/self::isbn)                                                       then 11
-                     else if($elt/self::publisher)                                                  then 12
-                     else if($elt/self::edition)                                                    then 13
-                     else if($elt/self::supplementary-material)                                     then 14
-                     else if($elt/self::pub-history)                                                then 15
-                     else if($elt/self::permissions)                                                then 16
-                     else if($elt/self::self-uri)                                                   then 17
-                     else if($elt/local-name() = ('related-article', 'related-object'))             then 18
-                     else if($elt/self::abstract)                                                   then 19
-                     else if($elt/self::trans-abstract)                                             then 20
-                     else if($elt/self::kwd-group)                                                  then 21
-                     else if($elt/self::funding-group)                                              then 22
-                     else if($elt/self::conference)                                                 then 23
-                     else if($elt/self::counts)                                                     then 24
-                     else if($elt/self::custom-meta-group)                                          then 25
-                     else if($elt/self::notes)                                                      then 26
-                     else                                                                               100"/>
+    <xsl:apply-templates select="$elt" mode="meta-order"/>
   </xsl:function> 
   
+  <xsl:template match="book-id" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="1"/>
+  </xsl:template>
+  <xsl:template match="subj-group" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="2"/>
+  </xsl:template>
+  <xsl:template match="book-title-group | title-group" mode="meta-order" as="xs:integer">                  
+    <xsl:sequence select="3"/> 
+  </xsl:template>
+  <xsl:template match="contrib-group| aff | aff-alternatives" mode="meta-order" as="xs:integer">               
+    <xsl:sequence select="4"/> 
+  </xsl:template>
+  <xsl:template match="author-notes" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="5"/>
+  </xsl:template>
+  <xsl:template match="pub-date" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="6"/>
+  </xsl:template>
+  <xsl:template match="subj-group" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="2"/>
+  </xsl:template>
+  <xsl:template match="book-volume-number" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="7"/>
+  </xsl:template>
+  <xsl:template match="book-volume-id" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="8"/>
+  </xsl:template> 
+  <xsl:template match="issn" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="9"/>
+  </xsl:template> 
+  <xsl:template match="issn-1" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="10"/>
+  </xsl:template>
+  <xsl:template match="isbn" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="11"/>
+  </xsl:template>
+  <xsl:template match="publisher" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="12"/>
+  </xsl:template>
+  <xsl:template match="edition" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="13"/>
+  </xsl:template>
+  <xsl:template match="supplementary-material" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="14"/>
+  </xsl:template>
+  <xsl:template match="pub-history" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="15"/>
+  </xsl:template>
+  <xsl:template match="permissions" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="16"/>
+  </xsl:template>
+  <xsl:template match="self-uri" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="17"/>
+  </xsl:template>
+  <xsl:template match="related-article | related-object" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="18"/>
+  </xsl:template>
+  <xsl:template match="abstract" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="19"/>
+  </xsl:template>
+  <xsl:template match="trans-abstract" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="20"/>
+  </xsl:template>
+  <xsl:template match="kwd-group" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="21"/>
+  </xsl:template>
+  <xsl:template match="funding-group" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="22"/>
+  </xsl:template>
+  <xsl:template match="conference" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="23"/>
+  </xsl:template>
+  <xsl:template match="counts" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="24"/>
+  </xsl:template>
+  <xsl:template match="custom-meta-group" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="25"/>
+  </xsl:template>
+  <xsl:template match="notes" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="26"/>
+  </xsl:template>
+  <xsl:template match="node()" mode="meta-order" as="xs:integer" priority="-1">
+    <xsl:sequence select="100"/>
+  </xsl:template>
+
   <xsl:template match="dbk:part[jats:is-appendix-part(.)]" mode="default">
     <app-group>
       <xsl:call-template name="css:content"/>
