@@ -1435,7 +1435,7 @@
         <xsl:when test=". = '&#x25c6;'"><xsl:value-of select="'diamond'"/></xsl:when>
         <xsl:when test=". = '&#x2022;'"><xsl:value-of select="'disc'"/></xsl:when>
         <xsl:when test=". = ('&#x2013;', '&#x2014;')"><xsl:value-of select="'hyphen'"/></xsl:when>
-        <xsl:when test=". = '&#x25fe;'"><xsl:value-of select="'square'"/></xsl:when>
+        <xsl:when test=". = ('&#x25fe;', '&#x25fc;')"><xsl:value-of select="'square'"/></xsl:when>
       </xsl:choose>
     </xsl:variable>
     <xsl:if test="$type">
