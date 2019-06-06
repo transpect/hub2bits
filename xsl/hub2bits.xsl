@@ -689,10 +689,11 @@
     </toc>
   </xsl:template>
 
-  <xsl:template match="dbk:toc/dbk:title | dbk:index/dbk:title" mode="default" priority="2">
-    <title-group>
+  <xsl:template match="dbk:toc/dbk:title
+                      |dbk:index/dbk:title" mode="default" priority="2">
+    <xsl:element name="{concat(local-name(), '-title-group')}">
       <xsl:next-match/>
-    </title-group>
+    </xsl:element>
   </xsl:template>
   
   <xsl:template match="dbk:toc" mode="toc-depth">
