@@ -285,7 +285,7 @@
                         [empty(@srcpath)]
                         [empty(*[name() = ('italic', 'bold', 'underline')])]" mode="clean-up" priority="4">
     <xsl:param name="srcpath" as="attribute(srcpath)?" tunnel="yes"/>
-    <xsl:copy>
+    <xsl:copy copy-namespaces="no">
       <xsl:copy-of select="$srcpath"/>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
