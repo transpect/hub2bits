@@ -691,7 +691,7 @@
 
   <xsl:template match="dbk:toc/dbk:title
                       |dbk:index/dbk:title" mode="default" priority="2">
-    <xsl:element name="{concat(local-name(), '-title-group')}">
+    <xsl:element name="{concat(parent::*/local-name(), '-title-group')}">
       <xsl:next-match/>
     </xsl:element>
   </xsl:template>
