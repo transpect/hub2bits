@@ -1430,13 +1430,13 @@
   <xsl:template match="dbk:itemizedlist/@mark" mode="default">
     <xsl:variable name="type" as="xs:string?">
       <xsl:choose>
-        <xsl:when test=". = '&#x25fd;'"><xsl:value-of select="'box'"/></xsl:when>
-        <xsl:when test=". = '&#x2713;'"><xsl:value-of select="'check'"/></xsl:when>
-        <xsl:when test=". = '&#x25e6;'"><xsl:value-of select="'circle'"/></xsl:when>
-        <xsl:when test=". = '&#x25c6;'"><xsl:value-of select="'diamond'"/></xsl:when>
-        <xsl:when test=". = '&#x2022;'"><xsl:value-of select="'disc'"/></xsl:when>
-        <xsl:when test=". = ('&#x2013;', '&#x2014;')"><xsl:value-of select="'hyphen'"/></xsl:when>
-        <xsl:when test=". = ('&#x25fe;', '&#x25fc;')"><xsl:value-of select="'square'"/></xsl:when>
+        <xsl:when test=". = ('&#x25fd;', '&#x25fb;')"><xsl:sequence select="concat('''', ., '''')"/></xsl:when>
+        <xsl:when test=". = '&#x2713;'"><xsl:sequence select="'check'"/></xsl:when>
+        <xsl:when test=". = ('&#x25e6;', '&#x25cb;')"><xsl:sequence select="'circle'"/></xsl:when>
+        <xsl:when test=". = '&#x25c6;'"><xsl:sequence select="'diamond'"/></xsl:when>
+        <xsl:when test=". = '&#x2022;'"><xsl:sequence select="'disc'"/></xsl:when>
+        <xsl:when test=". = ('&#x2013;', '&#x2014;')"><xsl:sequence select="'hyphen'"/></xsl:when>
+        <xsl:when test=". = ('&#x25fe;', '&#x25fc;')"><xsl:sequence select="'square'"/></xsl:when>
       </xsl:choose>
     </xsl:variable>
     <xsl:if test="$type">
