@@ -691,9 +691,18 @@
 
   <xsl:template match="dbk:toc/dbk:title
                       |dbk:index/dbk:title" mode="default" priority="2">
-    <xsl:element name="{concat(parent::*/local-name(), '-title-group')}">
-      <xsl:next-match/>
-    </xsl:element>
+    <xsl:choose>
+      <xsl:when test="xs:decimal(replace($dtd-version, '^([\d.]+).*$', '$1')) ge 2">
+        <xsl:element name="{concat(parent::*/local-name(), '-title-group')}">
+          <xsl:next-match/>
+        </xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+        <title-group>
+          <xsl:next-match/>
+        </title-group>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="dbk:toc" mode="toc-depth">
