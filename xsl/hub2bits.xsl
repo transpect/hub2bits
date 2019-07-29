@@ -1157,10 +1157,11 @@
   
   <xsl:variable name="jats:speech-para-regex" as="xs:string" select="'letex_speech'"/>
   <xsl:variable name="jats:speaker-regex" as="xs:string" select="'letex_speaker'"/>
+  <xsl:variable name="jats:no-speaker-regex" as="xs:string" select="'letex_no_speaker'"/>
   
   <xsl:template match="dbk:para[matches(@role, $jats:speech-para-regex)]" mode="default" priority="4">
     <speech>
-      <xsl:if test="exists(descendant::dbk:phrase[matches(@role,  $jats:speaker-regex)]) or matches(., '^[\S]+?:.*\S+')">
+      <xsl:if test="exists(descendant::dbk:phrase[matches(@role,  $jats:speaker-regex)]) or matches(., '^[\S]+?:.*\S+') and not(matches(@role, $jats:no-speaker-regex))">
       <speaker>
         <xsl:choose>
           <xsl:when test="dbk:phrase[matches(@role, $jats:speaker-regex)] or dbk:phrase/dbk:phrase[matches(@role, $jats:speaker-regex)]">
