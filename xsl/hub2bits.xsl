@@ -1324,6 +1324,10 @@
     </fn>
   </xsl:template>
   
+  <xsl:template match="@label" mode="default">
+    <xsl:attribute name="symbol" select="."/>
+  </xsl:template>
+  
   <xsl:template match="dbk:footnote/dbk:para[1]/node()[1][self::dbk:phrase][@role eq 'hub:identifier']" mode="fn-label">
     <xsl:apply-templates mode="default"/>
   </xsl:template>
