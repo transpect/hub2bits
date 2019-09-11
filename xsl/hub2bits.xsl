@@ -14,7 +14,12 @@
   version="2.0">
 
   <xsl:import href="http://transpect.io/hub2html/xsl/css-atts2wrap.xsl"/>
-  
+
+  <xsl:output method="xml" cdata-section-elements="tex-math" omit-xml-declaration="no">
+    <!-- cdata-section-elements not supported by XML Calabash 1, can’t use it in p:serialization.
+    You need to have a separate postprocessing Saxon run if this is important -->
+  </xsl:output>
+
   <xsl:param name="srcpaths" select="'no'"/>
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/>
@@ -1850,6 +1855,18 @@
     <xsl:if test="exists(@class)">
       <xsl:attribute name="content-type" select="@class"/>  
     </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="dbk:caption[..//dbk:tr][count(dbk:para) = 1][count(*) = 1]" mode="default">
+    <caption>
+      <title>
+        <xsl:apply-templates select="dbk:para/node()" mode="#current"/>
+      </title>
+    </caption>
+  </xsl:template>
+  
+  <xsl:template match="@colspan | @rospan" mode="default">
+    <xsl:copy/>
   </xsl:template>
   
   <xsl:template match="@class[parent::dbk:tr | parent::dbk:td | parent::dbk:th | parent::dbk:colgroup | parent::dbk:col]" 
