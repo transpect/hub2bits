@@ -455,7 +455,18 @@
   <xsl:function name="jats:matter" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:variable name="name" select="$elt/local-name()" as="xs:string"/>
+    <xsl:variable name="override" as="xs:string">
+      <xsl:apply-templates select="$elt" mode="jats:matter"/>
+    </xsl:variable>
+    <!-- we could change this xsl:choose to an xsl:apply-templates in mode jats:matter if we create a template
+      for each xsl:when case -->
     <xsl:choose>
+      <xsl:when test="$override"><!-- empty string will be cast to false() -->
+        <xsl:sequence select="$override"/>
+      </xsl:when>
+      <xsl:when test="$name = ('appendix') and exists($elt/following-sibling::*/(self::dbk:chapter | self::dbk:part))">
+        <xsl:sequence select="'front-matter'"/><!-- in CHPD, for example, there are front-matter appendices -->
+      </xsl:when>
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib', 'contrib-biographies', 'quotation', 'motto')]"><xsl:sequence select="'front-matter'"/></xsl:when>
@@ -466,6 +477,11 @@
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+
+  <!-- default: empty string, override this template as needed for specific contexts -->
+  <xsl:template match="*" mode="jats:matter" as="xs:string">
+    <xsl:sequence select="''"/>
+  </xsl:template>
   
   <xsl:template match="dbk:book|dbk:hub" mode="default" priority="2">
     <book xmlns:css="http://www.w3.org/1996/css" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -722,19 +738,37 @@
     <sec><xsl:call-template name="css:content"/></sec>
   </xsl:template>
   
-  <xsl:template match="dbk:sect1" mode="default">
-    <sec><xsl:call-template name="css:content"/></sec>
-  </xsl:template>
-  
   <xsl:template match="@renderas" mode="default">
     <xsl:attribute name="disp-level" select="."/>
   </xsl:template>
 
   <xsl:template match="dbk:appendix" mode="default">
-    <app>
-      <!-- why is that done???-->
-      <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
-    </app>
+    <xsl:choose>
+      <xsl:when test="jats:matter(.) = 'front-matter'">
+        <front-matter-part>
+          <xsl:apply-templates select="@*" mode="#current"/>
+          <book-part-meta>
+            <title-group>
+              <xsl:apply-templates select="(. | dbk:info)/(dbk:title | dbk:titleabbrev)" mode="#current"/>
+            </title-group>
+            <xsl:apply-templates select="dbk:info/(* except (dbk:title | dbk:titleabbrev))" mode="#current"/>
+          </book-part-meta>
+          <named-book-part-body>
+            <xsl:apply-templates select="node() except (dbk:title | dbk:titleabbrev | dbk:info)" mode="#current"/>
+          </named-book-part-body>
+        </front-matter-part>
+      </xsl:when>
+      <xsl:otherwise>
+        <app>
+          <!-- why is that done???-->
+          <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+        </app>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="dbk:appendix[jats:matter(.) = 'front-matter']/@role" mode="default">
+    <xsl:attribute name="book-part-type" select="."/>
   </xsl:template>
 
   <xsl:template match="dbk:acknowledgements | dbk:preface[@role = 'acknowledgements']" mode="default">
@@ -810,7 +844,11 @@
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'app-group'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:partintro
-                    | $elt/self::dbk:colophon[@role = ('front-matter-blurb', 'title-page', 'copyright-page', 'frontispiz', 'about-contrib', 'contrib-biographies', 'motto', 'quotation')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
+                    | $elt/self::dbk:appendix[jats:matter(.) = 'front-matter']
+                    | $elt/self::dbk:colophon[@role = ('front-matter-blurb', 'title-page', 'copyright-page', 'frontispiz', 
+                                                       'about-contrib', 'contrib-biographies', 'motto', 'quotation')]">
+        <xsl:sequence select="'front-matter-part'"/>
+      </xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'foreword')]"><xsl:sequence select="'foreword'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'acknowledgements')]"><xsl:sequence select="'ack'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'praise')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
@@ -1198,8 +1236,20 @@
     </p>
   </xsl:template>
   
-  <xsl:template match="dbk:br" mode="default">
+  <xsl:template match="dbk:br | dbk:phrase[@role = 'br']" mode="default">
     <break/>
+  </xsl:template>
+  
+  <xsl:variable name="break-parents" as="xs:string*"
+    select="('aff', 'alt-title', 'article-title', 'attrib', 'bold', 'book-title', 'chapter-title', 'chem-struct', 
+             'collab', 'compound-kwd-part', 'corresp', 'disp-formula', 'fixed-case', 'institution', 'italic', 'kwd', 
+             'label', 'monospace', 'nav-pointer', 'overline', 'part-title', 'product', 'publisher-loc', 
+             'related-article', 'related-object', 'roman', 'sans-serif', 'sc', 'serif', 'sig', 'sig-block', 'source', 
+             'std-organization', 'strike', 'sub', 'subject', 'subtitle', 'sup', 'target', 'td', 'th', 'title', 
+             'trans-source', 'trans-subtitle', 'trans-title', 'underline', 'volume-title', 'xref')"/>
+  
+  <xsl:template match="break[not(name(..) = $break-parents)]" mode="clean-up">
+    <xsl:processing-instruction name="break"/>
   </xsl:template>
   
   <xsl:template match="dbk:superscript" mode="default">
@@ -1212,6 +1262,14 @@
     <sub>
       <xsl:call-template name="css:content"/>
     </sub>
+  </xsl:template>
+  
+  <xsl:template match="@align" mode="default">
+    <xsl:attribute name="css:text-align" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="@width" mode="default">
+    <xsl:attribute name="css:width" select="if (matches(., '^[\d.]+$')) then concat(., 'pt') else ."/>
   </xsl:template>
   
   <xsl:variable name="jats:speech-para-regex" as="xs:string" select="'letex_speech'"/>
@@ -1580,6 +1638,15 @@
     </boxed-text>
   </xsl:template>
   
+  <xsl:template match="dbk:sidebar[dbk:title]" mode="default">
+    <boxed-text>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <sec>
+        <xsl:apply-templates mode="#current"/>
+      </sec>
+    </boxed-text>
+  </xsl:template>
+  
   <!-- POETRY -->
   
   <xsl:template match="dbk:poetry | dbk:poetry/dbk:linegroup | dbk:linegroup[not(parent::dbk:poetry)] " mode="default">
@@ -1681,7 +1748,7 @@
   
   <xsl:template match="dbk:imagedata" mode="default">
     <xsl:element name="{if ( 
-                             not(name(../../..) = ('figure', 'entry', 'colophon', 'table', 'alt'))
+                             not(matches(name(../../..), '^(figure|entry|colophon|table|alt|sidebar|sect(\d|ion))$'))
                              or
                              name(../..) = 'inlinemediaobject' 
                              )
@@ -1806,7 +1873,7 @@
       <xsl:apply-templates select="dbk:textobject/node()" mode="#current"/>
     </xsl:if>
     <table-wrap>
-      <xsl:apply-templates select="@* except (@role | @css:*), dbk:title" mode="#current"/>
+      <xsl:apply-templates select="@* except (@role | @css:*), dbk:title | dbk:caption[exists(current()//dbk:tr)]" mode="#current"/>
       <xsl:choose>
         <xsl:when test="exists(dbk:mediaobject) and not(dbk:tgroup)">
           <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
@@ -1828,7 +1895,7 @@
           <table>
             <xsl:apply-templates select="@role | @css:*" mode="#current"/>
 <!--            <HTMLTABLE_TODO/>-->
-            <xsl:apply-templates mode="#current"/>
+            <xsl:apply-templates select="node() except dbk:caption[exists(current()//dbk:tr)]" mode="#current"/>
           </table>
         </xsl:otherwise>
       </xsl:choose>
