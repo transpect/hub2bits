@@ -1148,8 +1148,12 @@
     <xsl:attribute name="style-type" select="."/>
   </xsl:template>
 
-  <xsl:template match="dbk:link[@linkend, @linkends]" mode="default">
+  <xsl:template match="dbk:link[@linkend | @linkends]" mode="default">
     <xref><xsl:call-template name="css:content"/></xref>
+  </xsl:template>
+  
+  <xsl:template match="dbk:link[@linkend | @linkends]/@role" mode="default">
+    <xsl:attribute name="ref-type" select="."/>
   </xsl:template>
   
   <xsl:template match="dbk:link[@xlink:href]|dbk:ulink[@url]" mode="default">
@@ -1940,7 +1944,7 @@
     </disp-formula>
   </xsl:template>
   
-  <xsl:template match="dbk:inline-equation" mode="default">
+  <xsl:template match="dbk:inlineequation" mode="default">
     <inline-formula>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </inline-formula>
