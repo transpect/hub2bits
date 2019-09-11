@@ -48,6 +48,10 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:template match="processing-instruction() | comment()" mode="default clean-up">
+    <xsl:copy/>
+  </xsl:template>
 
   <xsl:template match="/*" mode="clean-up">
     <xsl:copy copy-namespaces="no">
@@ -709,7 +713,11 @@
     <xsl:attribute name="depth" select="'3'"/>
   </xsl:template>
 
-  <xsl:template match="dbk:section" mode="default">
+  <xsl:template match="dbk:section | dbk:sect1 | dbk:sect2 | dbk:sect3 | dbk:sect4 | dbk:sect5" mode="default">
+    <sec><xsl:call-template name="css:content"/></sec>
+  </xsl:template>
+  
+  <xsl:template match="dbk:sect1" mode="default">
     <sec><xsl:call-template name="css:content"/></sec>
   </xsl:template>
   
@@ -735,18 +743,54 @@
       <xsl:when test="ancestor::*/self::dbk:part[jats:is-appendix-part(.)]">
         <app>
           <glossary>
-            <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+            <xsl:call-template name="collect-glossary"/>
           </glossary>
         </app>
       </xsl:when>
       <xsl:otherwise>
         <glossary>
-          <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+           <xsl:call-template name="collect-glossary"/>
         </glossary>
       </xsl:otherwise>
     </xsl:choose>
-
   </xsl:template>
+  
+  <xsl:template name="collect-glossary">
+    <xsl:choose>
+      <xsl:when test="exists (dbk:glossentry)
+                      and
+                      (every $n in (* except (dbk:title | dbk:info)) satisfies ($n/self::dbk:glossentry))">
+        <xsl:apply-templates select="@*, dbk:title | dbk:info" mode="#current"/>
+        <def-list>
+          <xsl:apply-templates select="node() except (dbk:title | dbk:info)" mode="#current"/>
+        </def-list>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- This order (process info last – why is that?) was already like this in the template above 
+          when GI introduced this named template -->
+        <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="dbk:glossentry" mode="default">
+    <def-item>
+      <xsl:call-template name="css:content"/>
+    </def-item>
+  </xsl:template>
+
+  <xsl:template match="dbk:glossterm" mode="default">
+    <term>
+      <xsl:call-template name="css:content"/>
+    </term>
+  </xsl:template>
+  
+  <xsl:template match="dbk:glossdef" mode="default">
+    <def>
+      <xsl:call-template name="css:content"/>
+    </def>
+  </xsl:template>
+  
   
   <xsl:template match="dbk:index" mode="default">
     <index>
@@ -1120,7 +1164,13 @@
   <xsl:template match="dbk:ulink/@hub:*"/>
 
   <xsl:template match="dbk:xref[@linkend]" mode="default">
-    <xref rid="{@linkend}"/>
+    <xref rid="{@linkend}">
+      <xsl:apply-templates select="@* except (@linkend | @endterm), @endterm, node()" mode="#current"/>
+    </xref>
+  </xsl:template>
+
+  <xsl:template match="@endterm" mode="default">
+    <named-content content-type="link-text" rid="{.}"/>
   </xsl:template>
 
   <xsl:template match="dbk:anchor" mode="default">
@@ -1327,6 +1377,22 @@
 
   <xsl:template match="@sortas" mode="default">
     <xsl:attribute name="sort-key" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:indexterm/@class[. = ('startofrange', 'endofrange', 'singular')]" mode="default"/>
+  
+  <xsl:template match="dbk:indexterm/@startref" mode="default">
+    <xsl:attribute name="rid" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:indexterm/@type" mode="default">
+    <xsl:attribute name="index-type" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:indexterm[@class = 'endofrange']" mode="default">
+    <index-term-range-end>
+      <xsl:call-template name="css:content"/>
+    </index-term-range-end>
   </xsl:template>
 
   <!-- FOOTNOTES -->
@@ -1752,7 +1818,7 @@
         <xsl:otherwise>
           <table>
             <xsl:apply-templates select="@role | @css:*" mode="#current"/>
-            <HTMLTABLE_TODO/>
+<!--            <HTMLTABLE_TODO/>-->
             <xsl:apply-templates mode="#current"/>
           </table>
         </xsl:otherwise>
@@ -1768,6 +1834,24 @@
       </xsl:if>
     </table-wrap>
   </xsl:template>
+  
+  <!-- HTML TABLES -->
+  <xsl:template match="dbk:tr | dbk:td | dbk:th | dbk:colgroup | dbk:col" mode="default">
+    <xsl:element name="{local-name()}">
+      <xsl:call-template name="css:content"/>
+    </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="dbk:tr | dbk:td | dbk:th | dbk:colgroup | dbk:col" mode="class-att">
+    <xsl:if test="exists(@class)">
+      <xsl:attribute name="content-type" select="@class"/>  
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="@class[parent::dbk:tr | parent::dbk:td | parent::dbk:th | parent::dbk:colgroup | parent::dbk:col]" 
+    mode="default"/>
+  
+  <!-- end HTML TABLES -->
   
   <xsl:template match="dbk:informaltable/dbk:alt | dbk:table/dbk:alt" mode="default">
     <alternatives>
@@ -1794,7 +1878,7 @@
   
   <!-- BIBLIOGRAPHY -->
   
-  <xsl:template match="dbk:bibliography | dbk:bibliodiv" mode="default">
+  <xsl:template match="dbk:bibliography | dbk:bibliodiv | dbk:bibliolist" mode="default">
     <ref-list>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </ref-list>
@@ -1829,13 +1913,17 @@
     </custom-meta>
   </xsl:template>
   
-  <xsl:template match="dbk:bibliomisc" mode="default">
+  <xsl:template match="dbk:bibliomisc[empty(ancestor::dbk:bibliomixed)]" mode="default">
     <mixed-citation>
       <xsl:if test="../@xml:id">
         <xsl:attribute name="id" select="../@xml:id"/>  
       </xsl:if>
       <xsl:call-template name="css:content"/>
     </mixed-citation>
+  </xsl:template>
+  
+  <xsl:template match="dbk:bibliomisc[exists(ancestor::dbk:bibliomixed)]" mode="default">
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:biblioentry/@xml:id" mode="default"/>
@@ -1868,9 +1956,14 @@
   <xsl:template match="@hub:numbering-inline-stylename" mode="clean-up"/>
   
   <!-- content-type not valid on ext-link -->
-  <xsl:template match="ext-link/@content-type[. = 'same-work-external']" mode="clean-up">
+  <xsl:template match="ext-link/@content-type" mode="clean-up">
     <xsl:attribute name="xlink:role" select="."/>
   </xsl:template>
+  
+  <xsl:template match="sec/@content-type" mode="clean-up">
+    <xsl:attribute name="sec-type" select="."/>
+  </xsl:template>
+
   
   
 </xsl:stylesheet>
