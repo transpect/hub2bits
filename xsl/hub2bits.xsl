@@ -464,9 +464,6 @@
       <xsl:when test="$override"><!-- empty string will be cast to false() -->
         <xsl:sequence select="$override"/>
       </xsl:when>
-      <xsl:when test="$name = ('appendix') and exists($elt/following-sibling::*/(self::dbk:chapter | self::dbk:part))">
-        <xsl:sequence select="'front-matter'"/><!-- in CHPD, for example, there are front-matter appendices -->
-      </xsl:when>
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib', 'contrib-biographies', 'quotation', 'motto')]"><xsl:sequence select="'front-matter'"/></xsl:when>
