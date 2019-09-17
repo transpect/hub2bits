@@ -1998,7 +1998,7 @@
     </custom-meta>
   </xsl:template>
   
-  <xsl:template match="dbk:bibliomisc[empty(ancestor::dbk:bibliomixed)]" mode="default">
+  <xsl:template match="dbk:bibliomisc[empty(ancestor::dbk:bibliomixed)][not(parent::dbk:info)]" mode="default">
     <mixed-citation>
       <xsl:if test="../@xml:id">
         <xsl:attribute name="id" select="../@xml:id"/>  
