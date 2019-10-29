@@ -1878,7 +1878,7 @@
       <xsl:apply-templates select="dbk:textobject/node()" mode="#current"/>
     </xsl:if>
     <table-wrap>
-      <xsl:apply-templates select="@* except (@role | @css:*), dbk:title | dbk:caption[exists(current()//dbk:tr)]" mode="#current"/>
+      <xsl:apply-templates select="@* except (@role | @css:*| @width), dbk:title | dbk:caption[exists(current()//dbk:tr)]" mode="#current"/>
       <xsl:choose>
         <xsl:when test="exists(dbk:mediaobject) and not(dbk:tgroup)">
           <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
@@ -1889,7 +1889,7 @@
           <xsl:apply-templates select="dbk:alt" mode="#current"/>
           <xsl:for-each select="dbk:tgroup">
             <table>
-              <xsl:apply-templates select="../@role | ../@css:*" mode="#current"/>
+              <xsl:apply-templates select="../@role | ../@css:* | ../@width" mode="#current"/>
               <xsl:apply-templates select="." mode="#current"/>
               <!--<xsl:apply-templates select="* except (dbk:alt | dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>-->
               <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
