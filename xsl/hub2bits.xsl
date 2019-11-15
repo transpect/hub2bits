@@ -838,7 +838,7 @@
   <xsl:function name="jats:book-part" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
-      <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'app-group'"/></xsl:when>
+<!--      <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'app-group'"/></xsl:when>-->
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'book-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:partintro
                     | $elt/self::dbk:appendix[jats:matter(.) = 'front-matter']
@@ -994,7 +994,7 @@
     <xsl:sequence select="100"/>
   </xsl:template>
 
-  <xsl:template match="dbk:part[jats:is-appendix-part(.)]" mode="default">
+  <xsl:template match="dbk:part[jats:is-appendix-part(.)][not(dbk:index)]" mode="default">
     <app-group>
       <xsl:call-template name="css:content"/>
     </app-group>
@@ -1002,13 +1002,13 @@
   
   <xsl:template match="app-group" mode="clean-up">
     <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="@*, node() except (ref-list | index)" mode="#current"/>
+      <xsl:apply-templates select="@*, node() except (ref-list | app)" mode="#current"/>
+      <xsl:apply-templates select="app | ref-list" mode="#current"/>
     </xsl:copy>
-    <xsl:apply-templates select="ref-list | index" mode="#current"/>
   </xsl:template>
   
   
-  <xsl:template match="  dbk:part | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
+  <xsl:template match="  dbk:part | dbk:part[jats:is-appendix-part(.)][dbk:index] | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
                        | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
