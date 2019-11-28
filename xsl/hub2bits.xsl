@@ -2057,6 +2057,9 @@
     <xsl:attribute name="sec-type" select="."/>
   </xsl:template>
 
+  <xsl:template match="fn/@content-type" mode="clean-up">
+    <xsl:attribute name="fn-type" select="."/>
+  </xsl:template>
   
   
 </xsl:stylesheet>
