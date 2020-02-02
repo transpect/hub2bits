@@ -861,7 +861,11 @@
 
   <xsl:function name="jats:is-appendix-part" as="xs:boolean">
     <xsl:param name="elt" as="element(dbk:part)"/>
-    <xsl:sequence select="if ($jats:appendix-to-bookpart) then false() else (every $c in $elt/* satisfies $c/name() = ('appendix', 'index', 'bibliography', 'glossary', 'title', 'subtitle', 'info'))"/>
+    <xsl:sequence select="if ($jats:appendix-to-bookpart) 
+                          then false() 
+                          else (every $c in $elt/* 
+                                satisfies $c/name() = ('appendix', 'index', 'bibliography', 'glossary', 
+                                                       'title', 'subtitle', 'info'))"/>
   </xsl:function>
 
   <xsl:function name="jats:book-part-body" as="xs:string">
