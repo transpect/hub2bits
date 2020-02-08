@@ -28,6 +28,29 @@
   
   <xsl:variable name="jats:appendix-to-bookpart" as="xs:boolean" select="false()"/>
   
+  <xsl:template match="*" mode="split-uri">
+    <!-- Override this in order to attach future split URIs to book-parts etc., as xml:base attributes.
+      These base URIs will be used by split-bits.xpl to generate chunks and XInclude instructions at the
+    places where the chunks originated. 
+    An override looks like
+    <xsl:template match="book-part" mode="split-uri" as="attribute(xml:base)">
+      <xsl:attribute name="xml:base" select="concat('out/', my:normalize-title(.), '.xml')"/>
+    </xsl:template>
+    This mode may be invoked from transforming @role in default mode or from invoking css:content 
+    which results in transforming the element in mode class-att. 
+    Also remember to add the following template to your importing XSLT(s): 
+      <xsl:template match="*" mode="class-att" priority="2">
+        <xsl:next-match/>
+        <xsl:apply-templates select="." mode="split-uri"/>
+      </xsl:template>
+      <xsl:template match="@role" mode="default" priority="2">
+        <xsl:next-match/>
+        <xsl:apply-templates select=".." mode="split-uri"/>
+      </xsl:template>
+    -->
+  </xsl:template>
+
+
   <xsl:function name="css:other-atts" as="attribute(*)*">
     <xsl:param name="context" as="element(*)"/>
     <xsl:sequence select="$context/@*[not(css:map-att-to-elt(., ..))]"/> 
@@ -368,6 +391,7 @@
         <xsl:attribute name="content-type" select="."/>
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:apply-templates select=".." mode="split-uri"/>
   </xsl:template>
 
   <xsl:key name="by-id" match="*[@id | @xml:id]" use="@id | @xml:id"/>
@@ -743,6 +767,7 @@
     <xsl:choose>
       <xsl:when test="jats:matter(.) = 'front-matter'">
         <front-matter-part>
+          <xsl:apply-templates select="." mode="split-uri"/>
           <xsl:apply-templates select="@*" mode="#current"/>
           <book-part-meta>
             <title-group>
@@ -757,6 +782,7 @@
       </xsl:when>
       <xsl:otherwise>
         <app>
+          <xsl:apply-templates select="." mode="split-uri"/>
           <!-- why is that done???-->
           <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
         </app>
@@ -778,6 +804,7 @@
     <xsl:choose>
       <xsl:when test="ancestor::*/self::dbk:part[jats:is-appendix-part(.)]">
         <app>
+          <xsl:apply-templates select="." mode="split-uri"/>
           <glossary>
             <xsl:call-template name="collect-glossary"/>
           </glossary>
@@ -785,7 +812,8 @@
       </xsl:when>
       <xsl:otherwise>
         <glossary>
-           <xsl:call-template name="collect-glossary"/>
+          <xsl:apply-templates select="." mode="split-uri"/>
+          <xsl:call-template name="collect-glossary"/>
         </glossary>
       </xsl:otherwise>
     </xsl:choose>
@@ -830,6 +858,7 @@
   
   <xsl:template match="dbk:index" mode="default">
     <index>
+      <xsl:apply-templates select="." mode="split-uri"/>
       <xsl:apply-templates select="@*, dbk:title" mode="#current"/>
       <!-- will be filled in clean-up -->
     </index>
@@ -1000,6 +1029,7 @@
 
   <xsl:template match="dbk:part[jats:is-appendix-part(.)][not(dbk:index)]" mode="default">
     <app-group>
+      <xsl:apply-templates select="." mode="split-uri"/>
       <xsl:call-template name="css:content"/>
     </app-group>
   </xsl:template>
@@ -1016,6 +1046,7 @@
                        | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
+      <xsl:apply-templates select="." mode="split-uri"/>
       <xsl:apply-templates select="@*" mode="#current">
         <xsl:with-param name="elt-name" select="$elt-name"/>
       </xsl:apply-templates>
