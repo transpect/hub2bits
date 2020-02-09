@@ -13,7 +13,7 @@
       <xsl:apply-templates select="@* | node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
-  <xsl:template match="@xml:base" mode="split"/>
+<!--  <xsl:template match="@xml:base" mode="split"/>-->
   <xsl:template match="*[parent::*][@xml:base]" mode="split">
     <xsl:element name="xi:include">
       <xsl:attribute name="href" select="@xml:base"/>
