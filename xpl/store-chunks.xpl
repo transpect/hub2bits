@@ -12,6 +12,10 @@
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="resolve-uri('status')"/>
+  <p:option name="include-method" select="'xinclude'">
+    <p:documentation>Currently, if the value is not 'xinclude', related-object elements will 
+    be created for linking to the chunks.</p:documentation>
+  </p:option>
 
   <p:input port="source" primary="true" >
     <p:documentation>A BITS document with xml:base attributes at the designated chunk roots.</p:documentation>
@@ -43,6 +47,7 @@
       <p:pipe port="xsl" step="hub2bits-store-chunks"/>
     </p:input>
     <p:input port="parameters"><p:empty/></p:input>
+    <p:with-param name="include-method" select="$include-method"/>
   </p:xslt>
   
   <tr:prepend-xml-model name="prepend-xml-model-to-toc">

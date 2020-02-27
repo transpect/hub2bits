@@ -30,7 +30,7 @@
   
   <xsl:template match="*" mode="split-uri">
     <!-- Override this in order to attach future split URIs to book-parts etc., as xml:base attributes.
-      These base URIs will be used by split-bits.xpl to generate chunks and XInclude instructions at the
+      These base URIs will be used by store-chunks.xsl to generate chunks and XInclude instructions at the
     places where the chunks originated. 
     An override looks like
     <xsl:template match="book-part" mode="split-uri" as="attribute(xml:base)">

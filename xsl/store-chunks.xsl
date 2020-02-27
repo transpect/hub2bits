@@ -6,60 +6,140 @@
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:tr="http://transpect.io"
   xmlns:jats="http://jats.nlm.nih.gov"
-  version="2.0" exclude-result-prefixes="tr jats xs">
+  version="2.0" exclude-result-prefixes="tr jats xs xi">
+
   <xsl:import href="http://transpect.io/xslt-util/uri-to-relative-path/xsl/uri-to-relative-path.xsl"/>
+
+  <xsl:param name="include-method" as="xs:string" select="'xinclude'"/>
+
   <xsl:template match="@* | node()" mode="split export">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@* | node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
-<!--  <xsl:template match="@xml:base" mode="split"/>-->
-  <xsl:template match="*[parent::*][@xml:base]" mode="split">
-    <xsl:element name="xi:include">
-      <xsl:attribute name="href" select="@xml:base"/>
-    </xsl:element>
+
+  <xsl:template match="@xml:base" mode="split">
+    <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
+    <xsl:attribute name="{name()}" 
+      select="key('export-name-by-genid', generate-id(), $export-names)/@xml:base"/>
   </xsl:template>
+
+  <xsl:template match="*[parent::*][@xml:base]" mode="split">
+    <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
+    <xsl:variable name="unique-uri" as="xs:string" 
+      select="key('export-name-by-genid', generate-id(), $export-names)/@xml:base"/>
+    <xsl:choose>
+      <xsl:when test="$include-method = 'xinclude'">
+        <xsl:element name="xi:include">
+          <xsl:attribute name="href" select="$unique-uri"/>
+        </xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:element name="related-object">
+          <xsl:attribute name="xlink:href" select="$unique-uri"/>
+          <xsl:attribute name="content-type" select="@sec-type | @book-part-type"/>
+          <xsl:variable name="title" as="element(title)">
+            <xsl:apply-templates select="(.//title)[1]" mode="toc"/>
+          </xsl:variable>
+          <chapter-title>
+            <xsl:sequence select="$title/node()"/>  
+          </chapter-title>
+        </xsl:element>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template mode="split" match="/*">
     <xsl:apply-templates select="/" mode="toc"/>
-    <xsl:apply-templates select="descendant-or-self::*[@xml:base]" mode="export"/>
+    <xsl:variable name="export-roots" as="element(*)*" select="descendant-or-self::*[@xml:base]"/>
+    <xsl:variable name="unique-export-names" as="document-node(element(export-names))">
+      <xsl:document>
+        <export-names>
+          <xsl:for-each-group select="$export-roots" group-by="@xml:base">
+            <xsl:for-each select="current-group()">
+              <xsl:variable name="pos" select="position()" as="xs:integer"/>
+              <export-name genid="{generate-id()}">
+                <xsl:choose>
+                  <xsl:when test="$pos = 1">
+                    <xsl:attribute name="xml:base" select="current-grouping-key()"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:attribute name="xml:base"
+                      select="replace(current-grouping-key(), '\.xml$', '_' || $pos || '.xml')"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </export-name>
+            </xsl:for-each>
+          </xsl:for-each-group>
+        </export-names>
+      </xsl:document>
+    </xsl:variable>
+    <xsl:apply-templates select="$export-roots" mode="export">
+      <xsl:with-param name="export-names" select="$unique-export-names" tunnel="yes"
+         as="document-node(element(export-names))"/>
+    </xsl:apply-templates>
   </xsl:template>
+
+  <xsl:key name="export-name-by-genid" match="export-name" use="@genid"/>
+
   <xsl:template match="*[@xml:base]" mode="export">
-    <xsl:result-document href="{@xml:base}">
+    <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
+    <xsl:variable name="unique-uri" as="xs:string" 
+      select="key('export-name-by-genid', generate-id(), $export-names)/@xml:base"/>
+    <xsl:result-document href="{$unique-uri}">
       <xsl:copy>
         <xsl:apply-templates select="@*, node()" mode="split"/>
       </xsl:copy>
     </xsl:result-document>
   </xsl:template>
+
   <xsl:variable name="root" as="document-node(element(*))" select="/"/>
+
   <xsl:key name="by-id" match="*[@id]" use="@id"/>
-  <xsl:template match="@rid" mode="split" as="attribute(*)+">
-    <xsl:variable name="base" select="ancestor::*[@xml:base][1]/@xml:base" as="xs:string"/>
-    <xsl:variable name="new-rid" as="attribute(rid)">
+
+  <xsl:template match="@rid" mode="split" as="item()*">
+    <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
+    <xsl:variable name="base" 
+      select="key('export-name-by-genid', generate-id(ancestor::*[@xml:base][1]), $export-names)/@xml:base" as="xs:string"/>
+    <xsl:variable name="targets" as="xs:string+">
+      <xsl:for-each select="tokenize(., '\s+', 's')">
+        <xsl:variable name="target-base" 
+          select="for $t in key('by-id', ., $root)
+                  return key('export-name-by-genid', generate-id($t/ancestor-or-self::*[@xml:base][1]), $export-names)/@xml:base"
+          as="xs:string?"/>
+        <xsl:choose>
+          <xsl:when test="$target-base and not($base = $target-base)">
+            <xsl:sequence select="jats:relative-link($base, $target-base, .)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="."/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:variable name="grouped" as="element(group)+">
+      <xsl:for-each-group select="$targets" group-by="substring-before(., '#')">
+        <group target-file="{current-grouping-key()}">
+          <xsl:for-each select="current-group()">
+            <target rid="{substring-after(., '#')}"/>
+          </xsl:for-each>
+        </group>
+      </xsl:for-each-group>
+    </xsl:variable>
+    <xsl:if test="count($grouped) gt 1">
+      <xsl:message select="'Link to multiple output files: ', $grouped" terminate="yes"/>  
+    </xsl:if>
+    <xsl:for-each select="$grouped">
       <xsl:attribute name="rid" separator=" ">
-        <xsl:for-each select="tokenize(., '\s+', 's')">
-          <xsl:variable name="target-base"
-            select="key('by-id', ., $root)/ancestor-or-self::*[@xml:base][1]/@xml:base" as="xs:string?"/>
-          <xsl:choose>
-            <xsl:when test="$target-base and not($base = $target-base)">
-              <xsl:sequence select="jats:relative-link($base, $target-base, .)"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:sequence select="."/>
-            </xsl:otherwise>
-          </xsl:choose>
+        <xsl:for-each select="target">
+          <xsl:sequence select="../@target-file || '#' || @rid"/>
         </xsl:for-each>
       </xsl:attribute>
-    </xsl:variable>
-    <xsl:if test="contains($new-rid, '#')">
-      <xsl:if test="contains($new-rid, ' ')">
-        <xsl:message select="'multi-rid refs to other chunk: ', $new-rid" terminate="yes"/>
-      </xsl:if>
       <xsl:apply-templates mode="alt"
-        select="key('by-id', replace($new-rid, '^.+#', ''), $root)/ancestor-or-self::*[@xml:base][1]"/>
-    </xsl:if>
-    <xsl:sequence select="$new-rid"/>
+        select="key('by-id', target[1]/@rid, $root)/ancestor-or-self::*[@xml:base][1]"/>
+    </xsl:for-each>
   </xsl:template>
-  
+
   <xsl:function name="jats:relative-link" as="xs:string">
     <xsl:param name="base-uri" as="xs:string"/>
     <xsl:param name="target-uri" as="xs:string"/>
@@ -69,14 +149,43 @@
     <xsl:sequence select="string-join(($relative, $rid), '#')"/>
   </xsl:function>
   
-  <xsl:template match="index | fn" mode="alt toc"/>
+  <xsl:template match="index-term | fn" mode="alt toc"/>
+
+  <xsl:template match="*" mode="alt">
+    <xsl:message select="'store-chunks.xsl, mode ''alt'': Please support ', name()"/>
+  </xsl:template>
   
+  <xsl:template match="sub | target" mode="alt"/>
+
   <xsl:template match="book-part" mode="alt">
     <xsl:attribute name="alt" separator="">
       <xsl:value-of select="@book-part-type"/>
       <xsl:text xml:space="preserve"> “</xsl:text>
       <xsl:apply-templates select="book-part-meta/title-group/title" mode="#current"/>
       <xsl:text>”</xsl:text>
+    </xsl:attribute>
+  </xsl:template>
+  
+  <xsl:template match="sec" mode="alt">
+    <xsl:apply-templates select="title" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="title" mode="alt">
+    <xsl:attribute name="alt" separator="">
+      <xsl:text xml:space="preserve">“</xsl:text>
+      <xsl:apply-templates mode="#current"/>
+      <xsl:text>”</xsl:text>
+    </xsl:attribute>
+  </xsl:template>
+  
+  <xsl:template match="p" mode="alt">
+    <xsl:attribute name="alt" separator="">
+      <xsl:text xml:space="preserve">“</xsl:text>
+      <xsl:variable name="text" as="xs:string">
+        <xsl:apply-templates mode="#current"/>  
+      </xsl:variable>
+      <xsl:sequence select="substring($text, 1, 30)"/>
+      <xsl:text>…”</xsl:text>
     </xsl:attribute>
   </xsl:template>
   
@@ -94,7 +203,7 @@
       <ext-link>
         <xsl:attribute name="xlink:href" select="jats:relative-link(/*/@xml:base, @xml:base, ())"/>
       </ext-link>
-      <xsl:apply-templates select="descendant::*[@xml:base]" mode="#current"/>
+      <xsl:apply-templates select="descendant::*[@xml:base][ancestor::*[@xml:base][1] is current()]" mode="#current"/>
     </toc-entry>
   </xsl:template>
   
