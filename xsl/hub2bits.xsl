@@ -1565,28 +1565,15 @@
     </term>
   </xsl:template>
   
-	<xsl:template match="dbk:variablelist[ancestor::*[self::dbk:variablelist]] | dbk:itemizedlist[ancestor::*[self::dbk:variablelist]] | dbk:orderedlist[ancestor::*[self::dbk:variablelist]]" mode="default" priority="5">
-    <!-- special case: ordered or itemized lists in definition lists have to become also a def-list otherwise it is invalid hobots-->
+	<xsl:template match="dbk:variablelist[ancestor::*[self::dbk:variablelist]] | 
+	                     dbk:itemizedlist[ancestor::*[self::dbk:variablelist]] | 
+	                     dbk:orderedlist[ancestor::*[self::dbk:variablelist]]" mode="default" priority="5">
+    <!-- in BITS, the def element may only hold p elements, therefore we need to wrap nested lists: -->
     <p specific-use="{name()}">
-      <def-list>
-        <xsl:attribute name="id" select="generate-id()"/>
-        <xsl:apply-templates select="@*, node()" mode="#current"/>
-      </def-list>
+      <xsl:next-match/>
     </p>
   </xsl:template>
   
-  <xsl:template match="dbk:orderedlist[ancestor::*[self::dbk:variablelist]]/dbk:listitem | dbk:itemizedlist[ancestor::*[self::dbk:variablelist]]/dbk:listitem" mode="default" priority="5">
-    <def-item>
-      <xsl:apply-templates select="@* except(@override)" mode="#current"/>
-      <xsl:element name="term">
-        <xsl:value-of select="if (@override) then @override else ../@mark"/>
-      </xsl:element>
-      <def>
-        <xsl:apply-templates select="node()" mode="#current"/>
-      </def>
-    </def-item>
-  </xsl:template>
-   
   <xsl:template match="dbk:varlistentry/dbk:listitem" mode="default">
     <def>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
