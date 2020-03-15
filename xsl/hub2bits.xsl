@@ -1232,6 +1232,10 @@
     <xsl:attribute name="ref-type" select="."/>
   </xsl:template>
   
+  <xsl:template match="dbk:link/@remap" mode="default">
+    <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+  
   <xsl:template match="dbk:link[@xlink:href]|dbk:ulink[@url]" mode="default">
     <ext-link><xsl:call-template name="css:content"/></ext-link>
   </xsl:template>
