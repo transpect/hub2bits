@@ -1232,7 +1232,7 @@
     <xsl:attribute name="ref-type" select="."/>
   </xsl:template>
   
-  <xsl:template match="dbk:link/@remap" mode="default">
+  <xsl:template match="dbk:link/@remap[not(. = ('HyperlinkTextDestination'))]" mode="default">
     <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
   
