@@ -246,12 +246,15 @@
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <!-- GI 2020-05-12: Why has this been dissolved when there are no p atts? 
-        https://redmine.le-tex.de/issues/8439 -->
-        <xsl:next-match/>
-        <!--<xsl:apply-templates mode="#current">
+        <!-- GI 2020-05-12: Was inclined to use <xsl:next-match/> here while fixing 
+        https://redmine.le-tex.de/issues/8439 
+        The I realized that the bold wrapping was deactivated in all titles. It shouldn’t
+        be deactivated for figure and table titles because they aren’t bold by default. 
+        Apart from that, it might be a bit overzealous to unwrap styled-content when $p-atts
+        are empty. But keeping it like that for the time being.-->
+        <xsl:apply-templates mode="#current">
           <xsl:with-param name="srcpath" select="@srcpath" tunnel="yes"/>
-        </xsl:apply-templates>-->
+        </xsl:apply-templates>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -1177,7 +1180,11 @@
   <!-- Don’t wrap title content in a bold element -->
   <xsl:template match="@css:font-weight[matches(., '^bold|[6-9]00$')]" mode="css:map-att-to-elt" as="xs:string?">
     <xsl:param name="context" as="element(*)?"/>
-    <xsl:if test="not(
+    <xsl:if test="$context/ancestor-or-self::*/local-name() = ('figure', 'table')
+                  (: figure and table titles are not bold by default; keep the mapping to the bold element here,
+                     https://redmine.le-tex.de/issues/8439 :)
+                  or
+                  not(
                     $context/local-name() = ('title', 'subtitle', 'alt-title')
                     or
                     ($context/local-name() = ('phrase') and $context/ancestor::*/local-name() = ('title', 'subtitle', 'alt-title')) 
