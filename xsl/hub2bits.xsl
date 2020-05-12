@@ -228,7 +228,9 @@
                                                            in $style-atts
                                                        return $a[
                                                                   some $b in $p-atts[name() = name($a)] satisfies ($b != $a)
-                                                                  ]" as="attribute(*)*"/>
+                                                                  or 
+                                                                  empty($p-atts[name() = name($a)])
+                                                                ]" as="attribute(*)*"/>
          <xsl:choose>
           <!-- Don’t dissolve spans if they override some para property (e.g., they make
                bold to normal by means of their style: -->
@@ -244,9 +246,12 @@
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates mode="#current">
+        <!-- GI 2020-05-12: Why has this been dissolved when there are no p atts? 
+        https://redmine.le-tex.de/issues/8439 -->
+        <xsl:next-match/>
+        <!--<xsl:apply-templates mode="#current">
           <xsl:with-param name="srcpath" select="@srcpath" tunnel="yes"/>
-        </xsl:apply-templates>
+        </xsl:apply-templates>-->
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
