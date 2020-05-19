@@ -16,6 +16,9 @@
     <p:documentation>Currently, if the value is not 'xinclude', related-object elements will 
     be created for linking to the chunks.</p:documentation>
   </p:option>
+  <p:option name="dtd-version" select="''">
+    <p:documentation>If non-empty, will be added as @dtd-version to every split chunk.</p:documentation>
+  </p:option>
 
   <p:input port="source" primary="true" >
     <p:documentation>A BITS document with xml:base attributes at the designated chunk roots.</p:documentation>
@@ -48,6 +51,7 @@
     </p:input>
     <p:input port="parameters"><p:empty/></p:input>
     <p:with-param name="include-method" select="$include-method"/>
+    <p:with-param name="dtd-version" select="$dtd-version"/>
   </p:xslt>
   
   <tr:prepend-xml-model name="prepend-xml-model-to-toc">

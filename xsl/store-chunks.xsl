@@ -11,6 +11,16 @@
   <xsl:import href="http://transpect.io/xslt-util/uri-to-relative-path/xsl/uri-to-relative-path.xsl"/>
 
   <xsl:param name="include-method" as="xs:string" select="'xinclude'"/>
+  <xsl:param name="ft-path-position" select="''" as="xs:string">
+    <!-- The n-th last position in the tokenized base URI that will be replaced with $ft-path-replacement.
+    Leave as empty string if no full-text export is required -->
+  </xsl:param>
+  <xsl:param name="ft-path-replacement" select="'ft-out'" as="xs:string"/>
+  <xsl:param name="dtd-version" as="xs:string?"/>
+  
+  <xsl:variable name="ft-path-pos" as="xs:positiveInteger?" 
+    select="for $p in $ft-path-position[. castable as xs:positiveInteger]
+            return xs:positiveInteger($p)"/>
 
   <xsl:template match="@* | node()" mode="split export">
     <xsl:copy copy-namespaces="no">
@@ -22,6 +32,9 @@
     <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
     <xsl:attribute name="{name()}" 
       select="key('export-name-by-genid', generate-id(), $export-names)/@xml:base"/>
+    <xsl:if test="$dtd-version">
+      <xsl:attribute name="dtd-version" select="$dtd-version"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="*[parent::*][@xml:base]" mode="split">
@@ -31,7 +44,7 @@
     <xsl:choose>
       <xsl:when test="$include-method = 'xinclude'">
         <xsl:element name="xi:include">
-          <xsl:attribute name="href" select="$unique-uri"/>
+          <xsl:attribute name="href" select="jats:relative-link(/*/@xml:base, $unique-uri, ())"/>
         </xsl:element>
       </xsl:when>
       <xsl:otherwise>
@@ -50,7 +63,6 @@
   </xsl:template>
 
   <xsl:template mode="split" match="/*">
-    <xsl:apply-templates select="/" mode="toc"/>
     <xsl:variable name="export-roots" as="element(*)*" select="descendant-or-self::*[@xml:base]"/>
     <xsl:variable name="unique-export-names" as="document-node(element(export-names))">
       <xsl:document>
@@ -74,6 +86,17 @@
         </export-names>
       </xsl:document>
     </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$include-method = 'xinclude'">
+        <xsl:next-match>
+          <xsl:with-param name="export-names" select="$unique-export-names" tunnel="yes"
+            as="document-node(element(export-names))"/>
+        </xsl:next-match>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="/" mode="toc"/>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates select="$export-roots" mode="export">
       <xsl:with-param name="export-names" select="$unique-export-names" tunnel="yes"
          as="document-node(element(export-names))"/>
@@ -92,12 +115,12 @@
       </xsl:copy>
     </xsl:result-document>
   </xsl:template>
-
+  
   <xsl:variable name="root" as="document-node(element(*))" select="/"/>
 
   <xsl:key name="by-id" match="*[@id]" use="@id"/>
 
-  <xsl:template match="@rid" mode="split" as="item()*">
+  <xsl:template match="@rid[not($include-method = 'xinclude')]" mode="split" as="item()*">
     <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
     <xsl:variable name="base" 
       select="key('export-name-by-genid', generate-id(ancestor::*[@xml:base][1]), $export-names)/@xml:base" as="xs:string"/>
