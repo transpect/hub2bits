@@ -1055,12 +1055,13 @@
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
       <xsl:apply-templates select="." mode="split-uri"/>
+      <xsl:if test="$elt-name eq 'book-part'">
+        <xsl:attribute name="book-part-type" select="local-name()"/>
+        <!-- may be overwritten by transforming @role -->
+      </xsl:if>
       <xsl:apply-templates select="@*" mode="#current">
         <xsl:with-param name="elt-name" select="$elt-name" tunnel="yes"/>
       </xsl:apply-templates>
-      <!--<xsl:if test="$elt-name eq 'book-part'">
-        <xsl:attribute name="book-part-type" select="local-name()"/>
-      </xsl:if>-->
       <xsl:variable name="context" select="." as="element(*)"/>
       <xsl:for-each-group select="*" group-adjacent="jats:part-submatter(.)">
         <xsl:element name="{current-grouping-key()}">
