@@ -918,24 +918,39 @@
 
   <xsl:function name="jats:part-submatter" as="xs:string">
     <xsl:param name="elt" as="element(*)"/>
-    <xsl:choose>
-      <xsl:when test="name($elt) = ('title', 'info', 'subtitle', 'titleabbrev')">
-        <xsl:sequence select="'book-part-meta'"/>
-      </xsl:when>
-      <xsl:when test="name($elt) = ('toc')">
-        <xsl:sequence select="'front-matter'"/>
-      </xsl:when>
-      <xsl:when test="name($elt) = ('bibliography', 'glossary', 'appendix', 'index')">
-        <xsl:sequence select="'back'"/>
-      </xsl:when>
-      <xsl:when test="name($elt) = 'section' and $elt[matches(dbk:title/@role, $jats:additional-backmatter-parts-title-role-regex)]">
-        <xsl:sequence select="'back'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:sequence select="jats:book-part-body($elt/..)"/>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:apply-templates select="$elt" mode="jats:part-submatter"/>
   </xsl:function>
+  
+  <!-- This function’s body was refactored from a monolithic xsl:choose to the folliwing templates. 
+    The main motivation was to support custom meta elements that were allowed in the DocBook source,
+    like this:
+    <xsl:template match="dbk:chapter/dbk:info/rdf:Description" mode="jats:part-submatter" as="xs:string">
+      <xsl:sequence select="'book-part-meta'"/>
+    </xsl:template> -->
+  
+  <!-- additional advantage over xsl:choose in the function body with test="name($elt) = ('title', …)": 
+       all the flexibility of matching patterns -->
+  <xsl:template match="dbk:title | dbk:info | dbk:subtitle | dbk:titleabbrev" mode="jats:part-submatter" as="xs:string">
+    <xsl:sequence select="'book-part-meta'"/>
+  </xsl:template>
+  
+  <!-- this way, we can handle front matter appendices quite elegantly: --> 
+  <xsl:template match="dbk:toc | dbk:appendix[following-sibling::dbk:chapter | following-sibling::dbk:part]" 
+    mode="jats:part-submatter" as="xs:string">
+    <xsl:sequence select="'front-matter'"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:bibliography | dbk:glossary | dbk:appendix |
+                       dbk:section[matches(dbk:title/@role, $jats:additional-backmatter-parts-title-role-regex)]" 
+                mode="jats:part-submatter" as="xs:string">
+    <xsl:sequence select="'back'"/>
+  </xsl:template>
+  
+  <!-- previously xsl:otherwise: -->
+  <xsl:template match="*" mode="jats:part-submatter" as="xs:string">
+    <xsl:sequence select="jats:book-part-body(..)"/>
+  </xsl:template>
+  
   
   <xsl:function name="jats:order-meta" as="element()+">
     <xsl:param name="seq" as="element()+"/>
@@ -1093,25 +1108,52 @@
   <xsl:function name="jats:meta-component" as="xs:string+">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:param name="context" as="element()?"/>
-    <xsl:value-of select="if($elt/self::dbk:title or $elt/self::dbk:subtitle or $elt/self::dbk:titleabbrev)
-                            then (if($context/self::dbk:book or $context/self::dbk:hub) then 'book-title-group' else 'title-group')
-                     else if($elt/self::dbk:authorgroup or $elt/self::dbk:author or $elt/self::dbk:editor)
-                            then 'contrib-group'
-                     else if($elt/self::dbk:abstract)
-                            then 'abstract'
-                     else if($elt/self::dbk:legalnotice or $elt/self::dbk:copyright)
-                            then 'permissions'
-                     else if($elt/self::dbk:bibliomisc)
-                            then 'custom-meta-group'
-                     else        concat('unknown-meta_', $elt/name())"/>
+    <xsl:apply-templates select="$elt" mode="jats:meta-component">
+      <xsl:with-param name="context" select="$context"/>
+    </xsl:apply-templates>
   </xsl:function>
+  
+  <xsl:template match="*" mode="jats:meta-component">
+    <xsl:sequence select="concat('unknown-meta_', name())"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:bibliomisc" mode="jats:meta-component" as="xs:string">
+    <xsl:sequence select="'custom-meta-group'"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:legalnotice | dbk:copyright" mode="jats:meta-component" as="xs:string">
+    <xsl:sequence select="'permissions'"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:abstract" mode="jats:meta-component" as="xs:string">
+    <xsl:sequence select="'abstract'"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:authorgroup | dbk:author | dbk:editor" mode="jats:meta-component" as="xs:string">
+    <xsl:sequence select="'contrib-group'"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:title | dbk:subtitle | dbk:titleabbrev" mode="jats:meta-component" as="xs:string">
+    <!-- Probably can do without passing $context as a parameter, by simply matching book/title etc.
+      with higher priority? Leave it as it is for now because a) who knows which customization uses the 
+    2-argument function and b) spelling out all matching patterns might be more verbose than the following: -->
+    <xsl:param name="context" as="element(*)?"/>
+    <xsl:choose>
+      <xsl:when test="$context/local-name() = ('book', 'hub')">
+        <xsl:sequence select="'book-title-group'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="'title-group'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
-  <xsl:template name="title-info" as="element(*)*">
+  <xsl:template name="title-info" as="node()*">
     <xsl:param name="elts" as="element(*)*"/>
     <xsl:param name="context" as="element()?"/>
     <xsl:for-each-group select="$elts" group-by="jats:meta-component(., $context)">
       <xsl:choose>
-        <xsl:when test="current-grouping-key() = 'abstract'">
+        <xsl:when test="current-grouping-key() = ('abstract', '')">
           <xsl:apply-templates select="current-group()" mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
