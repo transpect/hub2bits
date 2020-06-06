@@ -940,7 +940,7 @@
     <xsl:sequence select="'front-matter'"/>
   </xsl:template>
   
-  <xsl:template match="dbk:bibliography | dbk:glossary | dbk:appendix |
+  <xsl:template match="dbk:bibliography | dbk:glossary | dbk:appendix | dbk:index |
                        dbk:section[matches(dbk:title/@role, $jats:additional-backmatter-parts-title-role-regex)]" 
                 mode="jats:part-submatter" as="xs:string">
     <xsl:sequence select="'back'"/>
