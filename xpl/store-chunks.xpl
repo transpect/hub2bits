@@ -14,14 +14,23 @@
   <p:option name="status-dir-uri" required="false" select="resolve-uri('status')"/>
   <p:option name="include-method" select="'xinclude'">
     <p:documentation>Currently, if the value is not 'xinclude', related-object elements will 
-    be created for linking to the chunks.</p:documentation>
+    be created for linking to contained chunks.</p:documentation>
   </p:option>
   <p:option name="dtd-version" select="''">
     <p:documentation>If non-empty, will be added as @dtd-version to every split chunk.</p:documentation>
   </p:option>
 
   <p:input port="source" primary="true" >
-    <p:documentation>A BITS document with xml:base attributes at the designated chunk roots.</p:documentation>
+    <p:documentation>A BITS document with xml:base attributes at the designated chunk roots.
+    These chunk roots can be book-part, front-matter-part, sec, app, etc.
+    The chunk roots are typically calculated in 'split-uri' mode which in turn is applied
+    to each element in 'default' mode. See the comments about split-uri mode in hub2bits.xsl.
+    It is important to know that the xml:base attributes won’t be created by default. 
+    It is necessary to import hub2bits.xsl and to implement 'split-uri' in such a way that
+    the xml:base attributes will be attached to the future splitting roots.
+    It is not essential to go from Hub XML to BITS first. This splitting step and the preceding
+    xml:base generation step may be applied to a BITS source document, too.
+    </p:documentation>
   </p:input>
   <p:input port="xsl">
     <p:document href="../xsl/store-chunks.xsl"/>

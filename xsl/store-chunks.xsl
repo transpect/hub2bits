@@ -12,15 +12,16 @@
 
   <xsl:param name="include-method" as="xs:string" select="'xinclude'"/>
   <xsl:param name="ft-path-position" select="''" as="xs:string">
-    <!-- The n-th last position in the tokenized base URI that will be replaced with $ft-path-replacement.
-    Leave as empty string if no full-text export is required -->
+    <!-- The n-th (or n-th last if negative) position in the tokenized base URI 
+      will be replaced with $ft-path-replacement. Leave as empty string if no 
+      full-text export is required -->
   </xsl:param>
   <xsl:param name="ft-path-replacement" select="'ft-out'" as="xs:string"/>
   <xsl:param name="dtd-version" as="xs:string?"/>
   
-  <xsl:variable name="ft-path-pos" as="xs:positiveInteger?" 
+  <xsl:variable name="ft-path-pos" as="xs:integer?" 
     select="for $p in $ft-path-position[. castable as xs:positiveInteger]
-            return xs:positiveInteger($p)"/>
+            return xs:integer($p)"/>
 
   <xsl:template match="@* | node()" mode="split export">
     <xsl:copy copy-namespaces="no">
@@ -73,7 +74,12 @@
               <export-name genid="{generate-id()}">
                 <xsl:choose>
                   <xsl:when test="$pos = 1">
-                    <xsl:attribute name="xml:base" select="current-grouping-key()"/>
+                    <!-- This is just a workaround for an issue that occurs when invoking this from XProc.
+                      Saxon thinks that the top-level element’s base URI is the URI that the document was 
+                      read from. Therefore it refuses to “store” it to the same location. We avoid this by 
+                    duplicating the last slash in the URI. -->
+                    <xsl:attribute name="xml:base" 
+                      select="replace(current-grouping-key(), '^(.+/)', '$1/')"/>
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:attribute name="xml:base"
@@ -113,7 +119,7 @@
       <xsl:copy>
         <xsl:apply-templates select="@*, node()" mode="split"/>
       </xsl:copy>
-    </xsl:result-document>
+    </xsl:result-document>  
   </xsl:template>
   
   <xsl:variable name="root" as="document-node(element(*))" select="/"/>
@@ -221,7 +227,7 @@
   <xsl:template match="*[@xml:base]" mode="toc">
     <toc-entry>
       <xsl:apply-templates select="@content-type | @book-part-type | @sec-type" mode="#current"/>
-      <xsl:apply-templates select="*[1]/descendant-or-self::title |
+      <xsl:apply-templates select="*[empty(self::sec-meta)][1]/descendant-or-self::title |
                                    *[1]/descendant-or-self::book-title" mode="#current"/>
       <ext-link>
         <xsl:attribute name="xlink:href" select="jats:relative-link(/*/@xml:base, @xml:base, ())"/>
