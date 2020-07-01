@@ -50,6 +50,11 @@
     <p:pipe port="result" step="prepend-xml-model-to-toc"/>
   </p:output>
   <p:serialization port="result" indent="true" omit-xml-declaration="false"/>
+
+  <p:output port="adjusted-links">
+    <p:pipe port="not-matched" step="adjusted-links-and-chunks"/>
+  </p:output>
+  <p:serialization port="adjusted-links" indent="true" omit-xml-declaration="false"/>
   
   <p:import href="http://transpect.io/xproc-util/xml-model/xpl/prepend-xml-model.xpl" />
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
@@ -71,10 +76,13 @@
 
   <p:sink name="sink1"/>
 
-  <p:for-each>
-    <p:iteration-source>
+  <p:split-sequence name="adjusted-links-and-chunks" test="not(ends-with(base-uri(), 'links-adjusted.xml'))">
+    <p:input port="source">
       <p:pipe port="secondary" step="export-chunks"/>
-    </p:iteration-source>
+    </p:input>
+  </p:split-sequence>
+
+  <p:for-each>
     <tr:prepend-xml-model name="prepend-xml-model">
       <p:input port="models">
         <p:pipe step="hub2bits-store-chunks" port="models"/>

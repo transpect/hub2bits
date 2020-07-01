@@ -23,25 +23,25 @@
     select="for $p in $ft-path-position[. castable as xs:positiveInteger]
             return xs:integer($p)"/>
 
-  <xsl:template match="@* | node()" mode="split export">
+  <xsl:template match="@* | node()" mode="split export xlink-href">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@* | node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
   <xsl:template match="@xml:base" mode="split">
-    <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
+    <xsl:param name="export-file-names" as="document-node(element(export-file-names))" tunnel="yes"/>
     <xsl:attribute name="{name()}" 
-      select="key('export-name-by-genid', generate-id(), $export-names)/@xml:base"/>
+      select="key('export-name-by-genid', generate-id(), $export-file-names)/@xml:base"/>
     <xsl:if test="$dtd-version">
       <xsl:attribute name="dtd-version" select="$dtd-version"/>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="*[parent::*][@xml:base]" mode="split">
-    <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
+    <xsl:param name="export-file-names" as="document-node(element(export-file-names))" tunnel="yes"/>
     <xsl:variable name="unique-uri" as="xs:string" 
-      select="key('export-name-by-genid', generate-id(), $export-names)/@xml:base"/>
+      select="key('export-name-by-genid', generate-id(), $export-file-names)/@xml:base"/>
     <xsl:choose>
       <xsl:when test="$include-method = 'xinclude'">
         <xsl:element name="xi:include">
@@ -65,9 +65,9 @@
 
   <xsl:template mode="split" match="/*">
     <xsl:variable name="export-roots" as="element(*)*" select="descendant-or-self::*[@xml:base]"/>
-    <xsl:variable name="unique-export-names" as="document-node(element(export-names))">
+    <xsl:variable name="unique-export-names" as="document-node(element(export-file-names))">
       <xsl:document>
-        <export-names>
+        <export-file-names>
           <xsl:for-each-group select="$export-roots" group-by="@xml:base">
             <xsl:for-each select="current-group()">
               <xsl:variable name="pos" select="position()" as="xs:integer"/>
@@ -89,32 +89,41 @@
               </export-name>
             </xsl:for-each>
           </xsl:for-each-group>
-        </export-names>
+        </export-file-names>
       </xsl:document>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="$include-method = 'xinclude'">
         <xsl:next-match>
-          <xsl:with-param name="export-names" select="$unique-export-names" tunnel="yes"
-            as="document-node(element(export-names))"/>
+          <xsl:with-param name="export-file-names" select="$unique-export-names" tunnel="yes"
+            as="document-node(element(export-file-names))"/>
         </xsl:next-match>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates select="/" mode="toc"/>
+        <xsl:apply-templates select="/" mode="toc">
+          <xsl:with-param name="export-file-names" select="$unique-export-names" tunnel="yes"
+            as="document-node(element(export-file-names))"/>
+        </xsl:apply-templates>
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:result-document href="links-adjusted.xml">
+      <xsl:apply-templates select="." mode="xlink-href">
+        <xsl:with-param name="export-file-names" select="$unique-export-names" tunnel="yes"
+          as="document-node(element(export-file-names))"/>
+      </xsl:apply-templates>  
+    </xsl:result-document>
     <xsl:apply-templates select="$export-roots" mode="export">
-      <xsl:with-param name="export-names" select="$unique-export-names" tunnel="yes"
-         as="document-node(element(export-names))"/>
+      <xsl:with-param name="export-file-names" select="$unique-export-names" tunnel="yes"
+         as="document-node(element(export-file-names))"/>
     </xsl:apply-templates>
   </xsl:template>
 
   <xsl:key name="export-name-by-genid" match="export-name" use="@genid"/>
 
   <xsl:template match="*[@xml:base]" mode="export">
-    <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
+    <xsl:param name="export-file-names" as="document-node(element(export-file-names))" tunnel="yes"/>
     <xsl:variable name="unique-uri" as="xs:string" 
-      select="key('export-name-by-genid', generate-id(), $export-names)/@xml:base"/>
+      select="key('export-name-by-genid', generate-id(), $export-file-names)/@xml:base"/>
     <xsl:result-document href="{$unique-uri}">
       <xsl:copy>
         <xsl:apply-templates select="@*, node()" mode="split"/>
@@ -126,15 +135,38 @@
 
   <xsl:key name="by-id" match="*[@id]" use="@id"/>
 
-  <xsl:template match="@rid[not($include-method = 'xinclude')]" mode="split" as="item()*">
-    <xsl:param name="export-names" as="document-node(element(export-names))" tunnel="yes"/>
+  <xsl:template match="xref[@rid]" mode="split xlink-href">
+    <xsl:copy>
+      <xsl:apply-templates select="@* except @rid" mode="#current"/>
+      <xsl:copy-of select="@rid"/>
+      <xsl:variable name="xlink-href" as="attribute()*">
+        <xsl:apply-templates select="@rid" mode="xlink-href"/>
+      </xsl:variable>
+      <xsl:choose>
+        <xsl:when test="matches($xlink-href/self::attribute(xlink:href), '\w#\w')">
+          <xsl:sequence select="$xlink-href/self::attribute(alt)"/>
+          <ext-link>
+            <xsl:sequence select="$xlink-href/self::attribute(xlink:href)"/>
+            <xsl:apply-templates mode="#current"/>
+          </ext-link>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="$xlink-href/self::attribute(rid)"/>
+          <xsl:apply-templates mode="#current"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="xref/@rid[not($include-method = 'xinclude')]" mode="xlink-href" as="attribute()*">
+    <xsl:param name="export-file-names" as="document-node(element(export-file-names))" tunnel="yes"/>
     <xsl:variable name="base" 
-      select="key('export-name-by-genid', generate-id(ancestor::*[@xml:base][1]), $export-names)/@xml:base" as="xs:string"/>
+      select="key('export-name-by-genid', generate-id(ancestor::*[@xml:base][1]), $export-file-names)/@xml:base" as="xs:string"/>
     <xsl:variable name="targets" as="xs:string+">
       <xsl:for-each select="tokenize(., '\s+', 's')">
         <xsl:variable name="target-base" 
           select="for $t in key('by-id', ., $root)
-                  return key('export-name-by-genid', generate-id($t/ancestor-or-self::*[@xml:base][1]), $export-names)/@xml:base"
+                  return key('export-name-by-genid', generate-id($t/ancestor-or-self::*[@xml:base][1]), $export-file-names)/@xml:base"
           as="xs:string?"/>
         <xsl:choose>
           <xsl:when test="$target-base and not($base = $target-base)">
@@ -150,7 +182,7 @@
       <xsl:for-each-group select="$targets" group-by="substring-before(., '#')">
         <group target-file="{current-grouping-key()}">
           <xsl:for-each select="current-group()">
-            <target rid="{substring-after(., '#')}"/>
+            <target rid="{if (contains(., '#')) then substring-after(., '#') else .}"/>
           </xsl:for-each>
         </group>
       </xsl:for-each-group>
@@ -159,11 +191,22 @@
       <xsl:message select="'Link to multiple output files: ', $grouped" terminate="yes"/>  
     </xsl:if>
     <xsl:for-each select="$grouped">
-      <xsl:attribute name="rid" separator=" ">
-        <xsl:for-each select="target">
-          <xsl:sequence select="../@target-file || '#' || @rid"/>
-        </xsl:for-each>
-      </xsl:attribute>
+      <xsl:choose>
+        <xsl:when test="@target-file = ''">
+          <xsl:attribute name="rid" separator=" ">
+            <xsl:for-each select="target">
+              <xsl:sequence select="@rid"/>
+            </xsl:for-each>
+          </xsl:attribute>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:attribute name="xlink:href" separator=" ">
+            <xsl:for-each select="target">
+              <xsl:sequence select="string-join((../@target-file, @rid), '#')"/>
+            </xsl:for-each>
+          </xsl:attribute>    
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:apply-templates mode="alt"
         select="key('by-id', target[1]/@rid, $root)/ancestor-or-self::*[@xml:base][1]"/>
     </xsl:for-each>
@@ -219,8 +262,10 @@
   </xsl:template>
   
   <xsl:template match="/" mode="toc">
+    <xsl:param name="export-file-names" as="document-node(element(export-file-names))" tunnel="yes"/>
     <toc>
       <xsl:apply-templates mode="#current"/>
+      <!--<xsl:sequence select="$export-file-names/*"/>-->
     </toc>
   </xsl:template>
   
