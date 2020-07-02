@@ -50,7 +50,9 @@
     <p:pipe port="result" step="prepend-xml-model-to-toc"/>
   </p:output>
   <p:serialization port="result" indent="true" omit-xml-declaration="false"/>
-
+  <p:output port="chunks" sequence="true">
+    <p:pipe port="chunks" step="store-chunks"/>
+  </p:output>
   <p:output port="adjusted-links">
     <p:pipe port="not-matched" step="adjusted-links-and-chunks"/>
   </p:output>
@@ -82,7 +84,10 @@
     </p:input>
   </p:split-sequence>
 
-  <p:for-each>
+  <p:for-each name="store-chunks">
+    <p:output port="chunks">
+      <p:pipe port="result" step="prepend-xml-model"/>
+    </p:output>
     <tr:prepend-xml-model name="prepend-xml-model">
       <p:input port="models">
         <p:pipe step="hub2bits-store-chunks" port="models"/>
