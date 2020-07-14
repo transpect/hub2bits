@@ -6,7 +6,7 @@
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:tr="http://transpect.io"
   xmlns:jats="http://jats.nlm.nih.gov"
-  version="2.0" exclude-result-prefixes="tr jats xs xi">
+  version="3.0" exclude-result-prefixes="tr jats xs xi">
 
   <xsl:import href="http://transpect.io/xslt-util/uri-to-relative-path/xsl/uri-to-relative-path.xsl"/>
 
@@ -135,20 +135,55 @@
 
   <xsl:key name="by-id" match="*[@id]" use="@id"/>
 
+  <xsl:template match="xref[@ref-type='bibr'][@rid]" mode="split xlink-href" priority="1">
+    <xsl:variable name="context" as="element(xref)" select="."/>
+    <xsl:variable name="xlink-href" as="attribute()*">
+      <xsl:apply-templates select="@rid" mode="xlink-href"/>
+    </xsl:variable>
+    <xsl:text>[</xsl:text>
+    <xsl:for-each select="tokenize($xlink-href/self::attribute(xlink:href))[normalize-space()]">
+      <xsl:variable name="current" select="." as="xs:string"/>
+      <xsl:variable name="rid" as="xs:string" select="replace($current, '^.*#', '')"/>
+      <xsl:copy select="$context">
+        <xsl:copy-of select="@*"/>
+        <xsl:attribute name="rid" select="$rid"/>
+        <xsl:apply-templates select="key('by-id', $rid, $root)" mode="alt"/>
+        <ext-link>
+          <xsl:attribute name="xlink:href" select="$current"/>
+          <xsl:apply-templates select="$context" mode="link-text">
+            <xsl:with-param name="fragid" select="$rid"/>
+          </xsl:apply-templates>
+        </ext-link>
+      </xsl:copy>
+      <xsl:if test="not(position() = last())">
+        <xsl:text>,</xsl:text>
+      </xsl:if>
+    </xsl:for-each>
+    <xsl:text>]</xsl:text>
+  </xsl:template>
+    
   <xsl:template match="xref[@rid]" mode="split xlink-href">
+    <xsl:variable name="context" as="element(xref)" select="."/>
     <xsl:copy>
       <xsl:apply-templates select="@* except @rid" mode="#current"/>
       <xsl:copy-of select="@rid"/>
       <xsl:variable name="xlink-href" as="attribute()*">
         <xsl:apply-templates select="@rid" mode="xlink-href"/>
       </xsl:variable>
+      <xsl:sequence select="$xlink-href/(self::attribute(alt)[normalize-space()] | self::attribute(foo))"/>
       <xsl:choose>
         <xsl:when test="matches($xlink-href/self::attribute(xlink:href), '\w#\w')">
-          <xsl:sequence select="$xlink-href/self::attribute(alt)"/>
-          <ext-link>
-            <xsl:sequence select="$xlink-href/self::attribute(xlink:href)"/>
-            <xsl:apply-templates mode="#current"/>
-          </ext-link>
+          <xsl:for-each select="tokenize($xlink-href/self::attribute(xlink:href))[normalize-space()]">
+            <ext-link>
+              <xsl:attribute name="xlink:href" select="."/>
+              <xsl:apply-templates select="$context" mode="link-text">
+                <xsl:with-param name="fragid" select="replace(., '^.*#', '')"/>
+              </xsl:apply-templates>
+            </ext-link>
+            <xsl:if test="not(position() = last())">
+              <xsl:text>,</xsl:text>
+            </xsl:if>
+          </xsl:for-each>
         </xsl:when>
         <xsl:otherwise>
           <xsl:sequence select="$xlink-href/self::attribute(rid)"/>
@@ -156,6 +191,16 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="xref[node()]" mode="link-text" priority="1">
+    <xsl:apply-templates mode="split"/>
+  </xsl:template>
+  
+  <xsl:template match="xref[@ref-type = 'bibr']" mode="link-text">
+    <xsl:param name="fragid" as="xs:string?"/>
+    <xsl:variable name="ref" as="element(ref)?" select="key('by-id', $fragid, $root)"/>
+    <xsl:value-of select="index-of($ref/../ref/generate-id(), $ref/generate-id())"/>
   </xsl:template>
 
   <xsl:template match="xref/@rid[not($include-method = 'xinclude')]" mode="xlink-href" as="attribute()*">
@@ -198,17 +243,19 @@
               <xsl:sequence select="@rid"/>
             </xsl:for-each>
           </xsl:attribute>
+          <xsl:apply-templates mode="alt"
+            select="key('by-id', target[1]/@rid, $root)/ancestor-or-self::*[title]/title"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:attribute name="xlink:href" separator=" ">
             <xsl:for-each select="target">
               <xsl:sequence select="string-join((../@target-file, @rid), '#')"/>
             </xsl:for-each>
-          </xsl:attribute>    
+          </xsl:attribute>
+          <xsl:apply-templates mode="alt"
+            select="key('by-id', target[1]/@rid, $root)/ancestor-or-self::*[@xml:base][1]"/>
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:apply-templates mode="alt"
-        select="key('by-id', target[1]/@rid, $root)/ancestor-or-self::*[@xml:base][1]"/>
     </xsl:for-each>
   </xsl:template>
 
@@ -224,17 +271,27 @@
   <xsl:template match="index-term | fn" mode="alt toc"/>
 
   <xsl:template match="*" mode="alt">
-    <xsl:message select="'store-chunks.xsl, mode ''alt'': Please support ', name()"/>
+    <xsl:message select="'store-chunks.xsl, mode ''alt'': Please support ', name()" terminate="yes"/>
+  </xsl:template>
+  
+  <xsl:template match="mixed-citation | ext-link | sc" mode="alt">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="ref" mode="alt" as="attribute(alt)">
+    <xsl:variable name="tmp" as="item()*">
+      <xsl:apply-templates select="mixed-citation/node()" mode="#current"/>
+    </xsl:variable>   
+    <xsl:attribute name="alt" select="normalize-space(string-join($tmp))"/>
   </xsl:template>
   
   <xsl:template match="sub | target" mode="alt"/>
 
   <xsl:template match="book-part" mode="alt">
     <xsl:attribute name="alt" separator="">
-      <xsl:value-of select="@book-part-type"/>
-      <xsl:text xml:space="preserve"> “</xsl:text>
+<!--      <xsl:value-of select="@book-part-type"/>
+      <xsl:text xml:space="preserve"> </xsl:text>-->
       <xsl:apply-templates select="book-part-meta/title-group/title" mode="#current"/>
-      <xsl:text>”</xsl:text>
     </xsl:attribute>
   </xsl:template>
   
@@ -243,10 +300,18 @@
   </xsl:template>
   
   <xsl:template match="title" mode="alt">
-    <xsl:attribute name="alt" separator="">
-      <xsl:text xml:space="preserve">“</xsl:text>
+    <xsl:variable name="result" as="node()*">
       <xsl:apply-templates mode="#current"/>
-      <xsl:text>”</xsl:text>
+    </xsl:variable>
+    <xsl:variable name="result-as-string" as="xs:string" select="normalize-space(string-join($result))"/>
+    <xsl:attribute name="alt" separator="">
+      <xsl:if test="not(starts-with($result-as-string, '“'))">
+        <xsl:text>“</xsl:text>
+      </xsl:if>
+      <xsl:sequence select="$result"/>
+      <xsl:if test="not(starts-with($result-as-string, '“'))">
+        <xsl:text>”</xsl:text>
+      </xsl:if>
     </xsl:attribute>
   </xsl:template>
   
