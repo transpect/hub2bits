@@ -2054,7 +2054,7 @@
   
   <xsl:template match="dbk:bibliography | dbk:bibliodiv | dbk:bibliolist" mode="default">
     <ref-list>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:call-template name="css:content"/>
     </ref-list>
   </xsl:template>
 
