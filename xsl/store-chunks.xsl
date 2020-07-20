@@ -166,11 +166,11 @@
     <xsl:variable name="context" as="element(xref)" select="."/>
     <xsl:copy>
       <xsl:apply-templates select="@* except @rid" mode="#current"/>
-      <xsl:copy-of select="@rid"/>
+      <xsl:copy-of select="@rid, @ref-type"/>
       <xsl:variable name="xlink-href" as="attribute()*">
         <xsl:apply-templates select="@rid" mode="xlink-href"/>
       </xsl:variable>
-      <xsl:sequence select="$xlink-href/(self::attribute(alt)[normalize-space()] | self::attribute(foo))"/>
+      <xsl:sequence select="$xlink-href/self::attribute(alt)[normalize-space()]"/>
       <xsl:choose>
         <xsl:when test="matches($xlink-href/self::attribute(xlink:href), '\w#\w')">
           <xsl:for-each select="tokenize($xlink-href/self::attribute(xlink:href))[normalize-space()]">
@@ -201,6 +201,28 @@
     <xsl:param name="fragid" as="xs:string?"/>
     <xsl:variable name="ref" as="element(ref)?" select="key('by-id', $fragid, $root)"/>
     <xsl:value-of select="index-of($ref/../ref/generate-id(), $ref/generate-id())"/>
+  </xsl:template>
+  
+  <xsl:template match="xref[@ref-type = 'table-fn']/@rid" mode="xlink-href" priority="1">
+    <xsl:variable name="fn" as="element(*)?" select="key('by-id', ., $root)"/>
+    <xsl:apply-templates select="$fn" mode="alt"/>
+    <xsl:copy-of select="."/>
+  </xsl:template>
+  
+  <xsl:template match="def-list[@list-type = 'tablefootnotes']/def-item" mode="alt">
+    <xsl:attribute name="alt">
+      <xsl:apply-templates select="def/p/node()" mode="alt"/>
+    </xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match="def-list[@list-type = 'tablefootnotes']/def-item/def/p/text()[last()]" mode="alt">
+    <xsl:value-of select="replace(., '\p{P}\s*$', '')"/>
+  </xsl:template>
+
+  <xsl:template match="xref" mode="alt">
+    <xsl:value-of>
+      <xsl:apply-templates select="." mode="xlink-href"/>
+    </xsl:value-of>
   </xsl:template>
 
   <xsl:template match="xref/@rid[not($include-method = 'xinclude')]" mode="xlink-href" as="attribute()*">
@@ -268,14 +290,19 @@
     <xsl:sequence select="string-join(($relative, $rid), '#')"/>
   </xsl:function>
   
-  <xsl:template match="index-term | fn" mode="alt toc"/>
+  <xsl:template match="index-term | fn | index-term-range-end | target" mode="alt toc"/>
 
   <xsl:template match="*" mode="alt">
     <xsl:message select="'store-chunks.xsl, mode ''alt'': Please support ', name()" terminate="yes"/>
   </xsl:template>
   
-  <xsl:template match="mixed-citation | ext-link | sc" mode="alt">
+  <xsl:template match="mixed-citation | ext-link | sc | sub | sup | italic | bold 
+    | named-content[not(@content-type = 'print')]" mode="alt">
     <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="break" mode="alt">
+    <xsl:text xml:space="preserve"> </xsl:text>
   </xsl:template>
   
   <xsl:template match="ref" mode="alt" as="attribute(alt)">
@@ -285,8 +312,6 @@
     <xsl:attribute name="alt" select="normalize-space(string-join($tmp))"/>
   </xsl:template>
   
-  <xsl:template match="sub | target" mode="alt"/>
-
   <xsl:template match="book-part" mode="alt">
     <xsl:attribute name="alt" separator="">
 <!--      <xsl:value-of select="@book-part-type"/>
