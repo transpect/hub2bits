@@ -1962,11 +1962,16 @@
     </p>
   </xsl:template>  
   
+  <xsl:template name="more-specific-box-content-type">
+    <!-- customization hook for creating specific-use="TOC_sub" -->
+  </xsl:template>
+  
   <xsl:template match="dbk:informaltable | dbk:table" mode="default">
     <xsl:if test="dbk:textobject[every $elt in node() satisfies $elt/self::dbk:sidebar]">
       <xsl:apply-templates select="dbk:textobject/node()" mode="#current"/>
     </xsl:if>
     <table-wrap>
+      <xsl:call-template name="more-specific-box-content-type"/>
       <xsl:apply-templates select="@* except (@role | @css:*| @width), dbk:title | dbk:caption[exists(current()//dbk:tr)]" mode="#current"/>
       <xsl:choose>
         <xsl:when test="exists(dbk:mediaobject) and not(dbk:tgroup)">
