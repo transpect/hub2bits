@@ -844,6 +844,12 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+  <xsl:template match="dbk:glosslist" mode="default" priority="2">
+    <def-list list-type="gloss-list">
+      <xsl:call-template name="css:content"/>
+    </def-list>
+  </xsl:template>
   
   <xsl:template match="dbk:glossentry" mode="default">
     <def-item>
@@ -856,7 +862,9 @@
       <xsl:call-template name="css:content"/>
     </term>
   </xsl:template>
-  
+
+  <xsl:template match="dbk:glossterm/@role" mode="default"/>
+    
   <xsl:template match="dbk:glossdef" mode="default">
     <def>
       <xsl:call-template name="css:content"/>
