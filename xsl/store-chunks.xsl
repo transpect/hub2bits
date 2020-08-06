@@ -210,9 +210,10 @@
   </xsl:template>
   
   <xsl:template match="def-list[@list-type = 'tablefootnotes']/def-item" mode="alt">
-    <xsl:attribute name="alt">
+    <xsl:variable name="alt" as="item()*">
       <xsl:apply-templates select="def/p/node()" mode="alt"/>
-    </xsl:attribute>
+    </xsl:variable>
+    <xsl:attribute name="alt" select="normalize-space(string-join($alt, ''))"/>
   </xsl:template>
 
   <xsl:template match="def-list[@list-type = 'tablefootnotes']/def-item/def/p/text()[last()]" mode="alt">
