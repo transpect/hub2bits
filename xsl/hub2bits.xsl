@@ -1192,7 +1192,7 @@
   
   <xsl:template match="dbk:book/dbk:title|dbk:book/dbk:info/dbk:title" mode="default">
     <book-title>
-   <xsl:apply-templates  select="@xml:id, @xml:base, node()" mode="#current"/>
+      <xsl:apply-templates  select="@xml:id, @xml:base, node(), ../dbk:itermset/*, ../dbk:info/dbk:itermset/*" mode="#current"/>
     </book-title>
   </xsl:template> 
    
