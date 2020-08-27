@@ -53,7 +53,7 @@
   <p:output port="chunks" sequence="true">
     <p:pipe port="chunks" step="store-chunks"/>
   </p:output>
-  <p:output port="adjusted-links">
+  <p:output port="adjusted-links" sequence="true">
     <p:pipe port="not-matched" step="adjusted-links-and-chunks"/>
   </p:output>
   <p:serialization port="adjusted-links" indent="true" omit-xml-declaration="false"/>
@@ -78,7 +78,10 @@
 
   <p:sink name="sink1"/>
 
-  <p:split-sequence name="adjusted-links-and-chunks" test="not(ends-with(base-uri(), 'links-adjusted.xml'))">
+  <p:split-sequence name="adjusted-links-and-chunks" 
+    test="not(ends-with(base-uri(), 'links-adjusted.xml')
+              or
+              ends-with(base-uri(), 'export-names.xml'))">
     <p:input port="source">
       <p:pipe port="secondary" step="export-chunks"/>
     </p:input>

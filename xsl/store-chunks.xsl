@@ -112,6 +112,10 @@
           as="document-node(element(export-file-names))"/>
       </xsl:apply-templates>  
     </xsl:result-document>
+    <xsl:message select="'EEEEEEEEEEEEEEEEE ', $unique-export-names"></xsl:message>
+    <!--<xsl:result-document href="export-names.xml">
+      <xsl:sequence select="$unique-export-names"/>
+    </xsl:result-document>-->
     <xsl:apply-templates select="$export-roots" mode="export">
       <xsl:with-param name="export-file-names" select="$unique-export-names" tunnel="yes"
          as="document-node(element(export-file-names))"/>
@@ -225,6 +229,10 @@
       <xsl:apply-templates select="." mode="xlink-href"/>
     </xsl:value-of>
   </xsl:template>
+  
+  <xsl:template match="xref[@rid]" mode="alt">
+    <xsl:apply-templates select="key('by-id', @rid)" mode="#current"/>
+  </xsl:template>
 
   <xsl:template match="xref/@rid[not($include-method = 'xinclude')]" mode="xlink-href" as="attribute()*">
     <xsl:param name="export-file-names" as="document-node(element(export-file-names))" tunnel="yes"/>
@@ -294,7 +302,7 @@
   <xsl:template match="index-term | fn | index-term-range-end | target" mode="alt toc"/>
 
   <xsl:template match="*" mode="alt">
-    <xsl:message select="'store-chunks.xsl, mode ''alt'': Please support ', name()" terminate="yes"/>
+    <xsl:message select="'store-chunks.xsl, mode ''alt'': Please support ', name(), ' ID: ', @id" terminate="yes"/>
   </xsl:template>
   
   <xsl:template match="mixed-citation | ext-link | sc | sub | sup | italic | bold 
@@ -325,6 +333,10 @@
     <xsl:apply-templates select="title" mode="#current"/>
   </xsl:template>
   
+  <xsl:template match="sec/table-wrap[empty(caption/title | label)]" mode="alt">
+    <xsl:apply-templates select="../title" mode="#current"/>
+  </xsl:template>
+  
   <xsl:template match="title" mode="alt">
     <xsl:variable name="result" as="node()*">
       <xsl:apply-templates mode="#current"/>
@@ -344,10 +356,10 @@
   <xsl:template match="p" mode="alt">
     <xsl:attribute name="alt" separator="">
       <xsl:text xml:space="preserve">“</xsl:text>
-      <xsl:variable name="text" as="xs:string">
+      <xsl:variable name="text" as="xs:string*">
         <xsl:apply-templates mode="#current"/>  
       </xsl:variable>
-      <xsl:sequence select="substring($text, 1, 30)"/>
+      <xsl:sequence select="substring(string-join($text), 1, 30)"/>
       <xsl:text>…”</xsl:text>
     </xsl:attribute>
   </xsl:template>
