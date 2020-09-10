@@ -1971,6 +1971,7 @@
       <xsl:apply-templates select="dbk:textobject/node()" mode="#current"/>
     </xsl:if>
     <table-wrap>
+      <xsl:variable name="context" select="."/>
       <xsl:call-template name="more-specific-box-content-type"/>
       <xsl:apply-templates select="@* except (@role | @css:*| @width), dbk:title | dbk:caption[exists(current()//dbk:tr)]" mode="#current"/>
       <xsl:choose>
@@ -1986,8 +1987,8 @@
               <xsl:apply-templates select="../@role | ../@css:* | ../@width" mode="#current"/>
               <xsl:apply-templates select="." mode="#current"/>
               <!--<xsl:apply-templates select="* except (dbk:alt | dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>-->
-              <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
             </table>
+              <xsl:apply-templates select="$context/dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
             </xsl:for-each>
         </xsl:when>
         <xsl:otherwise>
