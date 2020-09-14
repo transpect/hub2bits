@@ -112,10 +112,6 @@
           as="document-node(element(export-file-names))"/>
       </xsl:apply-templates>  
     </xsl:result-document>
-    <xsl:message select="'EEEEEEEEEEEEEEEEE ', $unique-export-names"></xsl:message>
-    <!--<xsl:result-document href="export-names.xml">
-      <xsl:sequence select="$unique-export-names"/>
-    </xsl:result-document>-->
     <xsl:apply-templates select="$export-roots" mode="export">
       <xsl:with-param name="export-file-names" select="$unique-export-names" tunnel="yes"
          as="document-node(element(export-file-names))"/>
@@ -170,6 +166,7 @@
     <xsl:variable name="context" as="element(xref)" select="."/>
     <xsl:copy>
       <xsl:apply-templates select="@* except @rid" mode="#current"/>
+      <xsl:apply-templates select="key('by-id', @rid)" mode="ref-type"/>
       <xsl:copy-of select="@rid, @ref-type"/>
       <xsl:variable name="xlink-href" as="attribute()*">
         <xsl:apply-templates select="@rid" mode="xlink-href"/>
@@ -189,12 +186,28 @@
             </xsl:if>
           </xsl:for-each>
         </xsl:when>
+        <xsl:when test="matches($xlink-href/self::attribute(xlink:href), '\w')">
+          <xsl:for-each select="tokenize($xlink-href/self::attribute(xlink:href))[normalize-space()]">
+            <ext-link>
+              <xsl:attribute name="xlink:href" select="."/>
+            </ext-link>
+            <xsl:if test="not(position() = last())">
+              <xsl:text>,</xsl:text>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:sequence select="$xlink-href/self::attribute(rid)"/>
           <xsl:apply-templates mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="*" mode="ref-type"/>
+  
+  <xsl:template match="front-matter-part" mode="ref-type">
+    <xsl:attribute name="ref-type" select="local-name()"/>
   </xsl:template>
   
   <xsl:template match="xref[node()]" mode="link-text" priority="1">
@@ -275,12 +288,15 @@
             </xsl:for-each>
           </xsl:attribute>
           <xsl:apply-templates mode="alt"
-            select="key('by-id', target[1]/@rid, $root)/ancestor-or-self::*[title]/title"/>
+            select="for $elt in key('by-id', target[1]/@rid, $root)/ancestor-or-self::*[title] 
+                    return ($elt/titleabbrev, $elt/title)[1]"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:attribute name="xlink:href" separator=" ">
             <xsl:for-each select="target">
-              <xsl:sequence select="string-join((../@target-file, @rid), '#')"/>
+              <!-- [empty(key('by-id', ., $root)/@xml:base)] should create a link without fragment identifier for 
+                top-level elements -->
+              <xsl:sequence select="string-join((../@target-file, @rid[empty(key('by-id', ., $root)/@xml:base)]), '#')"/>
             </xsl:for-each>
           </xsl:attribute>
           <xsl:apply-templates mode="alt"
@@ -321,7 +337,7 @@
     <xsl:attribute name="alt" select="normalize-space(string-join($tmp))"/>
   </xsl:template>
   
-  <xsl:template match="book-part" mode="alt">
+  <xsl:template match="front-matter-part | book-part" mode="alt">
     <xsl:attribute name="alt" separator="">
 <!--      <xsl:value-of select="@book-part-type"/>
       <xsl:text xml:space="preserve"> </xsl:text>-->
