@@ -159,6 +159,21 @@
         <xsl:text>,</xsl:text>
       </xsl:if>
     </xsl:for-each>
+    <xsl:for-each select="tokenize($xlink-href/self::attribute(rid))[normalize-space()]">
+      <xsl:variable name="current" select="." as="xs:string"/>
+      <xsl:variable name="rid" as="xs:string" select="."/>
+      <xsl:copy select="$context">
+        <xsl:copy-of select="@*"/>
+        <xsl:attribute name="rid" select="$rid"/>
+        <xsl:apply-templates select="key('by-id', $rid, $root)" mode="alt"/>
+        <xsl:apply-templates select="$context" mode="link-text">
+          <xsl:with-param name="fragid" select="$rid"/>
+        </xsl:apply-templates>
+      </xsl:copy>
+      <xsl:if test="not(position() = last())">
+        <xsl:text>,</xsl:text>
+      </xsl:if>
+    </xsl:for-each>
     <xsl:text>]</xsl:text>
   </xsl:template>
     
