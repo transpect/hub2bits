@@ -18,7 +18,7 @@
   </xsl:param>
   <xsl:param name="ft-path-replacement" select="'ft-out'" as="xs:string"/>
   <xsl:param name="dtd-version" as="xs:string?"/>
-  
+
   <xsl:variable name="ft-path-pos" as="xs:integer?" 
     select="for $p in $ft-path-position[. castable as xs:positiveInteger]
             return xs:integer($p)"/>
@@ -127,13 +127,37 @@
     <xsl:result-document href="{$unique-uri}">
       <xsl:copy>
         <xsl:apply-templates select="@*, node()" mode="split"/>
+        <xsl:if test="$include-method = 'related-object' and empty(ref-list)">
+          <xsl:call-template name="copy-refs"/>
+        </xsl:if>
       </xsl:copy>
     </xsl:result-document>  
+  </xsl:template>
+  
+  <xsl:template name="copy-refs" as="element(ref-list)?">
+    <xsl:variable name="bibr-xref-rids" as="xs:string*" 
+      select="distinct-values(descendant::xref[@ref-type = 'bibr'][base-uri() = base-uri(current())]/@rid ! tokenize(.))"/>
+    <xsl:variable name="ref-ids" as="xs:string*" 
+      select="distinct-values(descendant::ref[base-uri() = base-uri(current())][not(@content-type = 'additionalRef')]/@id)"/>
+    <xsl:variable name="refs" select="key('by-id', $bibr-xref-rids)[not(@id = $ref-ids)]" as="element(ref)*"/>
+    <xsl:if test="exists($refs)">
+      <ref-list content-type="collected-from-out-of-chunk">
+        <xsl:apply-templates select="$refs" mode="xlink-href"/>
+      </ref-list>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="ref[empty(label)][@content-type = 'numberedRef'][@id]/node()[1]" mode="xlink-href">
+    <label>
+      <xsl:value-of select="jats:ref-label(..)"/>
+    </label>
+    <xsl:next-match/>
   </xsl:template>
   
   <xsl:variable name="root" as="document-node(element(*))" select="/"/>
 
   <xsl:key name="by-id" match="*[@id]" use="@id"/>
+  <xsl:key name="by-rid" match="*[@rid]" use="tokenize(@rid)"/>
 
   <xsl:template match="xref[@ref-type='bibr'][@rid]" mode="split xlink-href" priority="1">
     <xsl:variable name="context" as="element(xref)" select="."/>
@@ -232,8 +256,13 @@
   <xsl:template match="xref[@ref-type = 'bibr']" mode="link-text">
     <xsl:param name="fragid" as="xs:string?"/>
     <xsl:variable name="ref" as="element(ref)?" select="key('by-id', $fragid, $root)"/>
-    <xsl:value-of select="index-of($ref/../ref/generate-id(), $ref/generate-id())"/>
+    <xsl:value-of select="jats:ref-label($ref)"/>
   </xsl:template>
+  
+  <xsl:function name="jats:ref-label" as="xs:string">
+    <xsl:param name="ref" as="element(ref)?"/>
+    <xsl:sequence select="string(index-of($ref/../ref/generate-id(), $ref/generate-id()))"/>
+  </xsl:function>
   
   <xsl:template match="xref[@ref-type = 'table-fn']/@rid" mode="xlink-href" priority="1">
     <xsl:variable name="fn" as="element(*)?" select="key('by-id', ., $root)"/>
