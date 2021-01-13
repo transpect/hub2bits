@@ -229,6 +229,7 @@
           <xsl:for-each select="tokenize($xlink-href/self::attribute(xlink:href))[normalize-space()]">
             <ext-link>
               <xsl:attribute name="xlink:href" select="."/>
+              <xsl:apply-templates select="$context/node()" mode="#current"/>
             </ext-link>
             <xsl:if test="not(position() = last())">
               <xsl:text>,</xsl:text>
