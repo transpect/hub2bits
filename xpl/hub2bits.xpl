@@ -51,12 +51,31 @@
   
   <p:sink/>
   
-  <p:wrap wrapper="cx:document" match="/*">
+  <p:count>
     <p:input port="source">
       <p:pipe port="models" step="hub2bits"/>
     </p:input>
-  </p:wrap>
-  <p:add-attribute name="models" attribute-name="port" attribute-value="models" match="/*"/>
+  </p:count>
+  
+  <p:choose name="models">
+    <p:when test="number(/*) gt 0">
+      <p:output port="result" primary="true" sequence="true"/>
+      <p:wrap wrapper="cx:document" match="/*">
+        <p:input port="source">
+          <p:pipe port="models" step="hub2bits"/>
+        </p:input>
+      </p:wrap>
+      <p:add-attribute attribute-name="port" attribute-value="models" match="/*"/>
+    </p:when>
+    <p:otherwise>
+      <p:output port="result" primary="true" sequence="true"/>
+      <p:identity>
+        <p:input port="source">
+          <p:empty/>
+        </p:input>
+      </p:identity>
+    </p:otherwise>
+  </p:choose>
   
   <p:sink/>
   
