@@ -195,12 +195,14 @@
   </xsl:template>
   
   <xsl:template match="p | title" mode="clean-up" priority="5">
+    <xsl:param name="root" tunnel="yes" as="document-node(element(*))?"/>
+    <xsl:variable name="actual-root" select="if ($root) then $root else root(current())"/>
     <xsl:variable name="p-atts" as="attribute(*)*" select="@*[matches(name(), '^(css:|xml:lang$)')]"/>
     <xsl:variable name="p-class-atts" as="attribute(*)*" 
       select="key(
                  'jats:style-by-type', 
                  (@style-type|@content-type), 
-                 root(current())
+                 $actual-root
               )/(css:attic | .)/@*[matches(name(), '^(css:|xml:lang$)')]"/>
     <xsl:next-match>
       <xsl:with-param name="p-atts" tunnel="yes" as="attribute(*)*">
