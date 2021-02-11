@@ -560,6 +560,7 @@
         <xsl:with-param name="context" select="parent::*"/>
       </xsl:call-template>
       <xsl:apply-templates select="* except ($elts-for-grouping, css:rules)" mode="#current"/>
+      <xsl:call-template name="kwd-group"/>
       <xsl:call-template name="custom-meta-group"/>
     </book-meta>
   </xsl:template>
@@ -570,6 +571,10 @@
     <xsl:copy>
       <xsl:apply-templates select="jats:order-meta(*)" mode="#current"/>
     </xsl:copy>
+  </xsl:template>
+
+  <xsl:template name="kwd-group">
+    <xsl:apply-templates select="dbk:keywordset[@role = $kwd-group-keywordset-roles]" mode="#current"/>
   </xsl:template>
 
   <xsl:template name="custom-meta-group">
@@ -600,13 +605,38 @@
     <xsl:attribute name="content-type" select="."/>
   </xsl:template>
 
-  <xsl:template match="dbk:keywordset" mode="default">
+  <xsl:variable name="kwd-group-keywordset-roles" as="xs:string*"
+    select="('author-created', 'abbreviations')"/>
+
+  <xsl:template match="dbk:keywordset[not(@role = $kwd-group-keywordset-roles)]" mode="default">
     <custom-meta-group>
       <xsl:apply-templates mode="#current"/>
     </custom-meta-group>
   </xsl:template>
+
+  <xsl:template match="dbk:keywordset[@role = $kwd-group-keywordset-roles]" mode="default" priority="1">
+    <kwd-group>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </kwd-group>
+  </xsl:template>
+
+  <xsl:template match="dbk:keywordset[@role = $kwd-group-keywordset-roles]/@annotations" mode="default">
+    <title>
+      <xsl:value-of select="."/>
+    </title>
+  </xsl:template>
+
+  <xsl:template match="dbk:keywordset/@role[. = ('author-created', 'abbreviations')]" mode="default">
+    <xsl:attribute name="kwd-group-type" select="."/>
+  </xsl:template>
+
+  <xsl:template match="dbk:keywordset[@role = $kwd-group-keywordset-roles]/dbk:keyword" mode="default">
+    <kwd>
+      <xsl:apply-templates mode="#current"/>
+    </kwd>
+  </xsl:template>
   
-  <xsl:template match="dbk:keyword" mode="default">
+  <xsl:template match="dbk:keyword[not(@role = $kwd-group-keywordset-roles)]" mode="default">
     <custom-meta>
       <meta-name>
         <xsl:value-of select="@role"/>
