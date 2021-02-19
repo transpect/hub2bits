@@ -1781,6 +1781,14 @@
     </verse-group>
   </xsl:template>
   
+  <xsl:variable name="jats:verse-group-attrib" as="xs:string" select="'tr-verse-line-attrib'"/>
+
+  <xsl:template match="dbk:poetry/dbk:linegroup[matches(@role, $jats:verse-group-attrib)]" mode="default" priority="3">
+    <attrib>
+      <xsl:apply-templates select="@* except @role, dbk:line/node()" mode="#current"/>
+    </attrib>
+  </xsl:template>
+
   <xsl:template match="dbk:linegroup/dbk:line" mode="default">
     <verse-line>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
