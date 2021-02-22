@@ -1757,8 +1757,7 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  
-  <xsl:template match="dbk:sidebar" mode="default">
+  <xsl:template match="dbk:sidebar | dbk:formalpara" mode="default">
     <boxed-text>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </boxed-text>
