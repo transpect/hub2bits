@@ -2115,18 +2115,30 @@
     <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
 
-  <xsl:template match="dbk:biblioentry" mode="default">
+  <xsl:template match="*[local-name() = ('biblioentry', 'bibliodiv', 'bibliography', 'bibliolist')]
+                        /dbk:biblioentry" mode="default">
     <ref>
       <xsl:call-template name="css:content"/>
     </ref>
   </xsl:template>
 
-  <xsl:template match="dbk:bibliomixed" mode="default">
+  <xsl:template match="*[local-name() = ('biblioentry', 'bibliodiv', 'bibliography', 'bibliolist')]
+                        /dbk:bibliomixed" mode="default">
     <ref>
       <mixed-citation>
         <xsl:call-template name="css:content"/>
       </mixed-citation>
     </ref>
+  </xsl:template>
+
+  <xsl:template match="dbk:biblioset" mode="default">
+    <element-citation>
+      <xsl:call-template name="css:content"/>
+    </element-citation>
+  </xsl:template>
+
+  <xsl:template match="dbk:biblioset/@relation" mode="default">
+    <xsl:attribute name="publication-type" select="."/>
   </xsl:template>
   
   <xsl:template match="dbk:bibliomixed/@xreflabel" mode="default">
@@ -2156,7 +2168,29 @@
   <xsl:template match="dbk:biblioentry/@xml:id" mode="default"/>
   
   <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
+
+  <xsl:template match="dbk:confgroup" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="dbk:conftitle" mode="default">
+    <conf-name>
+      <xsl:apply-templates mode="#current"/>
+    </conf-name>
+  </xsl:template>
+
+  <xsl:template match="dbk:confgroup/dbk:address" mode="default">
+    <conf-loc>
+      <xsl:apply-templates mode="#current"/>
+    </conf-loc>
+  </xsl:template>
   
+  <xsl:template match="dbk:biblioref[not(@endterm) and (@linkend or @linkends)]" mode="default">
+    <xref ref-type="bibr" rid="{(@linkends, @linkend)[1]}">
+      <xsl:apply-templates mode="#current"/>
+    </xref>
+  </xsl:template>
+
   <xsl:template match="sup/@xml:lang | sub/@xml:lang" mode="clean-up"/>
   
   <!-- equations -->
