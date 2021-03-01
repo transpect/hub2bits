@@ -2115,14 +2115,14 @@
     <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
 
-  <xsl:template match="*[local-name() = ('biblioentry', 'bibliodiv', 'bibliography', 'bibliolist')]
+  <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:biblioentry" mode="default">
     <ref>
       <xsl:call-template name="css:content"/>
     </ref>
   </xsl:template>
 
-  <xsl:template match="*[local-name() = ('biblioentry', 'bibliodiv', 'bibliography', 'bibliolist')]
+  <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:bibliomixed" mode="default">
     <ref>
       <mixed-citation>
