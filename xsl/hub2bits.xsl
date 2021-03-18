@@ -829,8 +829,7 @@
       <xsl:otherwise>
         <app>
           <xsl:apply-templates select="." mode="split-uri"/>
-          <!-- why is that done???-->
-          <xsl:apply-templates select="@*, * except dbk:info, dbk:info" mode="#current"/>
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
         </app>
       </xsl:otherwise>
     </xsl:choose>
@@ -1215,14 +1214,14 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="dbk:section/dbk:info[dbk:title][count(*) gt 1]" mode="default" priority="2">
+  <xsl:template match="dbk:section/dbk:info[dbk:title][count(*) gt 1] | dbk:appendix/dbk:info[dbk:title][count(*) gt 1]" mode="default" priority="2">
     <sec-meta>
       <xsl:apply-templates select="dbk:authorgroup, dbk:author" mode="#current"/>
     </sec-meta>
     <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:titleabbrev" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="dbk:section/dbk:info/dbk:author" mode="default" priority="3">
+  <xsl:template match="dbk:section/dbk:info/dbk:author | dbk:appendix/dbk:info/dbk:author" mode="default" priority="3">
     <contrib-group>
       <xsl:next-match/>
     </contrib-group>
