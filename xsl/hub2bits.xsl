@@ -1214,9 +1214,9 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="dbk:section/dbk:info[dbk:title][count(*) gt 1] | dbk:appendix/dbk:info[dbk:title][count(*) gt 1]" mode="default" priority="2">
+  <xsl:template match="dbk:section/dbk:info[dbk:title][count(*) gt 1] | dbk:appendix/dbk:info[dbk:title][dbk:author | dbk:authorgroup | dbk:abstract | dbk:keywordset | dbk:legalnotice | dbk:copyright]" mode="default" priority="2">
     <sec-meta>
-      <xsl:apply-templates select="dbk:authorgroup, dbk:author" mode="#current"/>
+      <xsl:apply-templates select="dbk:authorgroup | dbk:author | dbk:abstract | dbk:keywordset | dbk:legalnotice | dbk:copyright" mode="#current"/>
     </sec-meta>
     <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:titleabbrev" mode="#current"/>
   </xsl:template>
