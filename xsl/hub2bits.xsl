@@ -596,22 +596,33 @@
       <xsl:apply-templates select="@class, @role, node()" mode="#current"/>
     </book-id>
   </xsl:template>
-  
-  <xsl:template match="dbk:biblioid[matches(@role, 'issn', 'i')]" mode="default">
-    <issn>
+
+  <xsl:template match="dbk:biblioid[matches((@class, @role)[1], '^doi$', 'i')]" mode="default">
+    <pub-id>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </pub-id>
+  </xsl:template>
+  <xsl:template match="dbk:biblioid/@*[local-name() = ('class', 'role')][matches(., '^doi$', 'i')]" mode="default">
+    <xsl:attribute name="pub-id-type" select="'doi'"/>
+  </xsl:template>
+  <xsl:template match="dbk:biblioid[@class = 'doi']/@role" mode="default"/>
+  
+  <xsl:template match="dbk:biblioid[matches((@class, @role)[1], '^issn$', 'i')]" mode="default">
+    <issn>
+      <xsl:apply-templates select="@* except (@class, @role), node()" mode="#current"/>
     </issn>
   </xsl:template>
   
-  <xsl:template match="dbk:biblioid[matches(@role, 'isbn', 'i')]" mode="default">
+  <xsl:template match="dbk:biblioid[matches((@class, @role)[1], '^isbn$', 'i')]" mode="default">
     <isbn>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@* except (@class, @role), node()" mode="#current"/>
     </isbn>
   </xsl:template>
 
-  <xsl:template match="dbk:biblioid[not(matches(@role, '(issn|isbn)', 'i'))]/@role" mode="default">
+  <xsl:template match="dbk:biblioid/@*[name() = ('role', 'class')]" mode="default" priority="-1">
     <xsl:attribute name="content-type" select="."/>
   </xsl:template>
+  <xsl:template match="dbk:biblioid[@class]/@role" mode="default"/>
 
   <xsl:variable name="kwd-group-keywordset-roles" as="xs:string*"
     select="('author-created', 'abbreviations')"/>
@@ -700,10 +711,14 @@
     </book-volume-number>
   </xsl:template>  
   
-  <xsl:template match="dbk:publisher|dbk:edition|dbk:surname" mode="default">
+  <xsl:template match="dbk:edition|dbk:surname" mode="default">
     <xsl:element name="{local-name()}">
       <xsl:apply-templates mode="#current"/>
     </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:publisher" mode="default">
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:publishername" mode="default">
@@ -2145,10 +2160,68 @@
   <xsl:template match="dbk:biblioset/@relation" mode="default">
     <xsl:attribute name="publication-type" select="."/>
   </xsl:template>
-  
-  <xsl:template match="dbk:bibliomixed/@xreflabel" mode="default">
-    <xsl:attribute name="id" select="."/>
+
+  <xsl:template match="dbk:biblioset[@relation]/dbk:title" mode="default">
+    <xsl:variable name="element-name" as="xs:string">
+      <xsl:choose>
+        <xsl:when test="parent::*/@relation = 'article'">
+          <xsl:value-of select="'article-title'"/>
+        </xsl:when>
+        <xsl:when test="parent::*/@relation = 'chapter'">
+          <xsl:value-of select="'chapter-title'"/>
+        </xsl:when>
+        <xsl:when test="parent::*/@relation = 'data'">
+          <xsl:value-of select="'data-title'"/>
+        </xsl:when>
+        <xsl:when test="parent::*/@relation = 'issue'">
+          <xsl:value-of select="'issue-title'"/>
+        </xsl:when>
+        <xsl:when test="parent::*/@relation = 'part'">
+          <xsl:value-of select="'part-title'"/>
+        </xsl:when>
+        <xsl:when test="parent::*/@relation = 'trans'">
+          <xsl:value-of select="'trans-title'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'_unspecific_'"/><!-- handle me -->
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$element-name = '_unspecific_'">
+        <source content-type="title" specific-use="{parent::*/@relation}">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </source>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:element name="{$element-name}">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </xsl:element>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
+
+  <xsl:template match="dbk:bibliomisc[@role = 'container-title'][ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]" mode="default">
+    <source content-type="title" specific-use="{@role}">
+      <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
+    </source>
+  </xsl:template>
+  
+  <xsl:template match="dbk:bibliomisc[ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]" mode="default" priority="-1">
+    <named-content>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </named-content>
+  </xsl:template>
+  <xsl:template match="dbk:bibliomisc[ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]/@role" mode="default" priority="-1">
+    <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:bibliomisc[@role = 'edition']" mode="default">
+    <edition>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </edition>
+  </xsl:template>
+  <xsl:template match="dbk:bibliography//dbk:bibliomisc/@role[. = 'edition']" mode="default"/>
   
   <xsl:template match="dbk:info/dbk:bibliomisc" mode="default">
     <custom-meta>
@@ -2157,7 +2230,7 @@
     </custom-meta>
   </xsl:template>
   
-  <xsl:template match="dbk:bibliomisc[empty(ancestor::dbk:bibliomixed)][not(parent::dbk:info)]" mode="default">
+  <xsl:template match="dbk:bibliomisc[not(ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')])][not(parent::dbk:info)]" mode="default">
     <mixed-citation>
       <xsl:if test="../@xml:id">
         <xsl:attribute name="id" select="../@xml:id"/>  
@@ -2166,10 +2239,52 @@
     </mixed-citation>
   </xsl:template>
   
-  <xsl:template match="dbk:bibliomisc[exists(ancestor::dbk:bibliomixed)]" mode="default">
-    <xsl:apply-templates mode="#current"/>
+  <xsl:template match="dbk:bibliomixed/@xreflabel" mode="default">
+    <xsl:attribute name="id" select="."/>
   </xsl:template>
   
+  <xsl:template match="dbk:bibliography//dbk:abbrev" mode="default">
+    <abbrev>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </abbrev>
+  </xsl:template>
+  <xsl:template match="dbk:bibliography//dbk:abbrev/@role" mode="default">
+    <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:issuenum" mode="default">
+    <issue>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </issue>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:pagenums" mode="default">
+    <page-range>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </page-range>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:volumenum" mode="default">
+    <volume>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </volume>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:releaseinfo" mode="default">
+    <string-date>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </string-date>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:releaseinfo//*[preceding-sibling::*]" mode="default">
+    <xsl:value-of select="'&#x20;'"/>
+    <xsl:next-match/>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:releaseinfo/@role" mode="default">
+    <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+
   <xsl:template match="dbk:biblioentry/@xml:id" mode="default"/>
   
   <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
