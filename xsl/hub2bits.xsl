@@ -514,6 +514,7 @@
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
 
   <!-- default: empty string, override this template as needed for specific contexts -->
   <xsl:template match="*" mode="jats:matter" as="xs:string">
@@ -683,13 +684,31 @@
       <xsl:when test="dbk:firstname|dbk:surname">
         <name>
           <xsl:apply-templates select="@*" mode="#current"/>
-          <xsl:apply-templates select="dbk:surname, dbk:firstname" mode="#current"/>  
+          <xsl:apply-templates select="dbk:surname" mode="#current"/>
+          <xsl:if test="exists(dbk:firstname)">
+            <given-names>
+              <xsl:apply-templates select="dbk:firstname/@*" mode="#current"/>
+              <xsl:for-each select="dbk:firstname">
+                <xsl:apply-templates mode="#current"/>
+                <xsl:if test="not(position() = last())">
+                  <xsl:text> </xsl:text>
+                </xsl:if>
+              </xsl:for-each>
+            </given-names>
+          </xsl:if>
         </name>    
       </xsl:when>
       <xsl:otherwise>
         <string-name><xsl:call-template name="css:content"/></string-name>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="string-name[empty(parent::name-alternatives)]
+                                  [ancestor::article[1]/@dtd-version/xs:decimal(.) &lt; 1.2]" mode="clean-up">
+    <name-alternatives>
+      <xsl:next-match/>
+    </name-alternatives>
   </xsl:template>
   
   <xsl:template match="dbk:firstname" mode="default">
@@ -2207,12 +2226,12 @@
     </source>
   </xsl:template>
   
-  <xsl:template match="dbk:bibliomisc[ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]" mode="default" priority="-1">
+  <xsl:template match="dbk:bibliomisc[ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]" mode="default" priority="-0.75">
     <named-content>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </named-content>
   </xsl:template>
-  <xsl:template match="dbk:bibliomisc[ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]/@role" mode="default" priority="-1">
+  <xsl:template match="dbk:bibliomisc[ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]/@role" mode="default" priority="-0.75">
     <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
 
@@ -2241,6 +2260,12 @@
   
   <xsl:template match="dbk:bibliomixed/@xreflabel" mode="default">
     <xsl:attribute name="id" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:bibliomisc[tokenize(@role, '\s+') = 'comment']" mode="default">
+    <comment>
+      <xsl:apply-templates mode="#current"/>
+    </comment>
   </xsl:template>
   
   <xsl:template match="dbk:bibliography//dbk:abbrev" mode="default">
@@ -2309,6 +2334,12 @@
     <xref ref-type="bibr" rid="{(@linkends, @linkend)[1]}">
       <xsl:apply-templates mode="#current"/>
     </xref>
+  </xsl:template>
+  
+  <xsl:template match="dbk:issuenum" mode="default">
+    <issue>
+      <xsl:call-template name="css:content"/>
+    </issue>
   </xsl:template>
 
   <xsl:template match="sup/@xml:lang | sub/@xml:lang" mode="clean-up"/>
