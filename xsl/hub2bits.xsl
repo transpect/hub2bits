@@ -739,7 +739,13 @@
   <xsl:template match="dbk:bibliography//dbk:publisher" mode="default">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
-  
+
+  <xsl:template match="dbk:info/dbk:publisher" mode="default">
+    <publisher>
+      <xsl:apply-templates mode="#current"/>
+    </publisher>
+  </xsl:template>
+
   <xsl:template match="dbk:publishername" mode="default">
     <publisher-name>
       <xsl:apply-templates mode="#current"/>
