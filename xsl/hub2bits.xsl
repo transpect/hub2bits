@@ -576,7 +576,7 @@
   
   <!-- bring metadata elements in a valid order -->
   
-  <xsl:template match="book-meta|book-part-meta|sec-meta|collection-meta" mode="clean-up">
+  <xsl:template match="article-meta|book-meta|book-part-meta|sec-meta|collection-meta" mode="clean-up">
     <xsl:copy>
       <xsl:apply-templates select="jats:order-meta(*)" mode="#current"/>
     </xsl:copy>
