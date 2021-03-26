@@ -24,8 +24,11 @@
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/>
   
+  <xsl:param name="vocab" as="xs:string" select="'bits'"/>
   <xsl:param name="dtd-version" as="xs:string" select="'2.0'" />
   
+  <xsl:variable name="jats:vocabulary" as="xs:string" select="tokenize($vocab, '\s+')"/>
+
   <xsl:variable name="jats:appendix-to-bookpart" as="xs:boolean" select="false()"/>
   
   <xsl:template match="*" mode="split-uri">

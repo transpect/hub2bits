@@ -10,6 +10,8 @@
 
   <xsl:import href="hub2bits.xsl"/>
 
+  <xsl:param name="vocab" as="xs:string" select="'jats'"/>
+
   <!-- General structure. Overridden because of metadata concerns-->
   <xsl:template match="dbk:book | dbk:hub" mode="default" priority="2">
     <article>

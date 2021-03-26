@@ -13,6 +13,7 @@
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="'debug'"/>
   <p:option name="status-dir-uri" required="false" select="resolve-uri('status')"/>
+  <p:option name="vocab" required="false" select="'bits'"/>
   <p:option name="fallback-xsl" select="'http://transpect.io/hub2bits/xsl/hub2bits.xsl'"/>
   <p:option name="fallback-xpl" select="'http://transpect.io/hub2bits/xpl/fallback.xpl'"/>
   <p:option name="load" required="false" select="'hub2bits/hub2bits'"/>
@@ -101,7 +102,8 @@
         <collection dir-uri="http://this.transpect.io/a9s/" file="hub2bits/hub2bits.xpl"/>
         <generator-collection dir-uri="http://this.transpect.io/a9s/" file="hub2bits/hub2bits.xpl.xsl"/>
       </examples>
-    </p:pipeinfo>  
+    </p:pipeinfo>
+    <p:with-param name="vocab" select="$vocab"/>
   </tr:dynamic-transformation-pipeline>
 
   <tr:prepend-xml-model name="prepend-xml-model">
