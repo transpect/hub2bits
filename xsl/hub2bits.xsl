@@ -1040,8 +1040,8 @@
   </xsl:template>
   
   
-  <xsl:function name="jats:order-meta" as="element()+">
-    <xsl:param name="seq" as="element()+"/>
+  <xsl:function name="jats:order-meta" as="element()*">
+    <xsl:param name="seq" as="element()*"/>
     <xsl:for-each select="$seq">
       <xsl:sort select="jats:get-meta-order-int(.)"/>
       <xsl:sequence select="."/>
