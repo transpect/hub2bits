@@ -168,6 +168,8 @@
     </back>
   </xsl:template>
   <xsl:template match="body[not(following-sibling::back)]/ref-list" mode="clean-up"/>
+
+  <xsl:template match="body[not(node())]" mode="clean-up"/>
   
   <xsl:template match="dbk:phrase[dbk:informaltable][every $n in node() satisfies ($n/self::dbk:informaltable)]" mode="default">
     <xsl:apply-templates mode="#current"/>
@@ -579,9 +581,16 @@
   
   <!-- bring metadata elements in a valid order -->
   
-  <xsl:template match="article-meta|book-meta|book-part-meta|sec-meta|collection-meta" mode="clean-up">
+  <xsl:template match="article-meta|book-meta|book-part-meta|collection-meta|journal-meta|sec-meta" mode="clean-up">
     <xsl:copy>
       <xsl:apply-templates select="jats:order-meta(*)" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <!-- order children in element name -->
+  <xsl:template match="name" mode="clean-up">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, surname, given-names, prefix, suffix" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
@@ -808,12 +817,21 @@
   
   <xsl:template match="dbk:pubdate" mode="default">
     <pub-date>
-      <xsl:if test=". castable as xs:date">
-        <xsl:attribute name="iso-8601-date" select="xs:date(.)"/>
-      </xsl:if>
-      <string-date>
-        <xsl:apply-templates mode="#current"/>
-      </string-date>
+      <xsl:choose>
+        <xsl:when test="$jats:vocabulary = 'jats' and @role = 'year'">
+          <year>
+            <xsl:apply-templates mode="#current"/>
+          </year>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:if test=". castable as xs:date">
+            <xsl:attribute name="iso-8601-date" select="xs:date(.)"/>
+          </xsl:if>
+          <string-date>
+            <xsl:apply-templates mode="#current"/>
+          </string-date>
+        </xsl:otherwise>
+      </xsl:choose>
     </pub-date>
   </xsl:template>
   
@@ -1053,13 +1071,13 @@
     <xsl:apply-templates select="$elt" mode="meta-order"/>
   </xsl:function> 
   
-  <xsl:template match="book-id" mode="meta-order" as="xs:integer">
+  <xsl:template match="article-id | book-id | journal-id" mode="meta-order" as="xs:integer">
     <xsl:sequence select="1"/>
   </xsl:template>
-  <xsl:template match="subj-group" mode="meta-order" as="xs:integer">
+  <xsl:template match="article-categories | subj-group" mode="meta-order" as="xs:integer">
     <xsl:sequence select="2"/>
   </xsl:template>
-  <xsl:template match="book-title-group | title-group" mode="meta-order" as="xs:integer">                  
+  <xsl:template match="book-title-group | journal-title-group | title-group" mode="meta-order" as="xs:integer">                  
     <xsl:sequence select="3"/> 
   </xsl:template>
   <xsl:template match="contrib-group| aff | aff-alternatives" mode="meta-order" as="xs:integer">               
@@ -1074,13 +1092,13 @@
   <xsl:template match="subj-group" mode="meta-order" as="xs:integer">
     <xsl:sequence select="2"/>
   </xsl:template>
-  <xsl:template match="book-volume-number" mode="meta-order" as="xs:integer">
+  <xsl:template match="book-volume-number | volume" mode="meta-order" as="xs:integer">
     <xsl:sequence select="7"/>
   </xsl:template>
-  <xsl:template match="book-volume-id" mode="meta-order" as="xs:integer">
+  <xsl:template match="book-volume-id | volume-id" mode="meta-order" as="xs:integer">
     <xsl:sequence select="8"/>
   </xsl:template> 
-  <xsl:template match="issn" mode="meta-order" as="xs:integer">
+  <xsl:template match="issue | issn" mode="meta-order" as="xs:integer">
     <xsl:sequence select="9"/>
   </xsl:template> 
   <xsl:template match="issn-1" mode="meta-order" as="xs:integer">
@@ -1136,6 +1154,24 @@
   </xsl:template>
   <xsl:template match="node()" mode="meta-order" as="xs:integer" priority="-1">
     <xsl:sequence select="100"/>
+  </xsl:template>
+
+  <xsl:template match="article-meta/*" mode="meta-order" as="xs:integer">
+    <xsl:sequence 
+      select="index-of(
+                (
+                  'article-id', 'article-version', 'article-version-alternatives', 
+                  'article-categories', 'title-group', 'contrib-group', 'aff', 
+                  'aff-alternatives', 'author-notes', 'pub-date', 'pub-date-not-available', 
+                  'volume', 'volume-id', 'volume-series', 'issue', 'issue-id', 
+                  'issue-title', 'issue-sponsor', 'issue-part', 'volume-issue-group', 
+                  'isbn', 'supplement', 'fpage', 'lpage', 'page-range', 'elocation-id', 
+                  'email', 'ext-link', 'uri', 'product', 'supplementary-material', 
+                  'history', 'pub-history', 'permissions', 'self-uri', 'related-article', 
+                  'related-object', 'abstract', 'trans-abstract', 'kwd-group', 
+                  'funding-group', 'support-group', 'conference', 'counts', 'custom-meta-group'
+                ), name()
+              )"/>
   </xsl:template>
 
   <xsl:template match="dbk:part[jats:is-appendix-part(.)][not(dbk:index)]" mode="default">
@@ -2260,7 +2296,7 @@
   
   <xsl:template match="dbk:bibliomisc[not(ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')])][not(parent::dbk:info)]" mode="default">
     <mixed-citation>
-      <xsl:if test="../@xml:id">
+      <xsl:if test="parent::*[not(self::dbk:bibliography)]/@xml:id">
         <xsl:attribute name="id" select="../@xml:id"/>  
       </xsl:if>
       <xsl:call-template name="css:content"/>
