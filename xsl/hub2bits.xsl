@@ -2205,6 +2205,10 @@
       <xsl:call-template name="css:content"/>
     </ref>
   </xsl:template>
+  <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
+                        /dbk:biblioentry/@xml:id" mode="default" priority="2">
+    <xsl:attribute name="id" select="."/>
+  </xsl:template>
 
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:bibliomixed" mode="default">
