@@ -93,8 +93,6 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:key name="by-id" match="*[@id]" use="@id"/>
-
   <!-- This anchor has already given its ID to someone else, but we've been
     too lazy to remove this anchor in the first run. -->
   <xsl:template match="target[if (count(root(.)/*) = 1)
@@ -2205,6 +2203,7 @@
       <xsl:call-template name="css:content"/>
     </ref>
   </xsl:template>
+  
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:biblioentry/@xml:id" mode="default" priority="2">
     <xsl:attribute name="id" select="."/>
