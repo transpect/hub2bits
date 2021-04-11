@@ -432,7 +432,11 @@
   <xsl:function name="jats:ref-types" as="xs:string*">
     <xsl:param name="targets" as="element(*)*"/>
     <xsl:variable name="names" select="distinct-values($targets/local-name())" as="xs:string*"/>
-    <xsl:sequence select="for $n in $names return jats:ref-type($n)"/>
+    <!-- distinct-values(): because of https://github.com/transpect/hub2bits/commit/22c9056,
+      an ID will be created on ref, in addition to mixed-citation. This needs to be fixed
+      eventually, so that IDs will only be created on ref. In the meantime, just make the
+      two 'bibr' tokens unique. -->
+    <xsl:sequence select="distinct-values(for $n in $names return jats:ref-type($n))"/>
   </xsl:function>
   
   <xsl:function name="jats:ref-type" as="xs:string?">
@@ -441,7 +445,7 @@
       <xsl:when test="$elt-name eq 'app'">
         <xsl:sequence select="'app'"/>
       </xsl:when>
-      <xsl:when test="$elt-name = ('ref', 'mixed-citation')">
+      <xsl:when test="$elt-name = ('ref', 'mixed-citation', 'element-citation')">
         <xsl:sequence select="'bibr'"/>
       </xsl:when>
       <xsl:when test="$elt-name eq 'boxed-text'">
