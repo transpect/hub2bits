@@ -2216,10 +2216,20 @@
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:bibliomixed" mode="default">
     <ref>
+      <xsl:apply-templates select="@id" mode="#current">
+        <xsl:with-param name="render" select="true()" as="xs:boolean"/>
+      </xsl:apply-templates>
       <mixed-citation>
         <xsl:call-template name="css:content"/>
       </mixed-citation>
     </ref>
+  </xsl:template>
+  <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
+                        /dbk:bibliomixed/@xml:id" mode="default">
+    <xsl:param name="render" as="xs:boolean" select="false()"/>
+    <xsl:if test="$render">
+      <xsl:next-match/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="dbk:biblioset" mode="default">
