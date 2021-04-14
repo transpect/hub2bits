@@ -2208,10 +2208,29 @@
       <xsl:call-template name="css:content"/>
     </ref>
   </xsl:template>
+
+  <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
+                        /dbk:biblioentry[dbk:info/dbk:bibliomisc[@role = 'rendered']]" mode="default" priority="2">
+    <citation-alternatives>
+      <xsl:call-template name="css:content"/>
+      <xsl:apply-templates select="dbk:info/dbk:bibliomisc" mode="#current">
+        <xsl:with-param name="render" select="true()"/>
+      </xsl:apply-templates>
+    </citation-alternatives>
+  </xsl:template>
   
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:biblioentry/@xml:id" mode="default" priority="2">
     <xsl:attribute name="id" select="."/>
+  </xsl:template>
+
+  <xsl:template match="dbk:biblioentry/dbk:info/dbk:bibliomisc[@role = 'rendered']" mode="default" priority="1">
+    <xsl:param name="render" select="false()" as="xs:boolean"/>
+    <xsl:if test="$render">
+      <mixed-citation>
+        <xsl:call-template name="css:content"/>
+      </mixed-citation>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
