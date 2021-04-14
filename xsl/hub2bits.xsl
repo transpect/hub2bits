@@ -2211,14 +2211,22 @@
 
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:biblioentry[dbk:info/dbk:bibliomisc[@role = 'rendered']]" mode="default" priority="2">
-    <citation-alternatives>
-      <xsl:call-template name="css:content"/>
-      <xsl:apply-templates select="dbk:info/dbk:bibliomisc" mode="#current">
-        <xsl:with-param name="render" select="true()"/>
-      </xsl:apply-templates>
-    </citation-alternatives>
+    <ref>
+      <xsl:if test="@xml:id">
+        <xsl:attribute name="id" select="@xml:id"/>
+      </xsl:if>
+      <citation-alternatives>
+        <xsl:call-template name="css:content"/>
+        <xsl:apply-templates select="dbk:info/dbk:bibliomisc" mode="#current">
+          <xsl:with-param name="render" select="true()"/>
+        </xsl:apply-templates>
+      </citation-alternatives>
+    </ref>
   </xsl:template>
   
+  <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
+                        /dbk:biblioentry[dbk:info/dbk:bibliomisc[@role = 'rendered']]/@xml:id" mode="default" priority="3"/>
+
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:biblioentry/@xml:id" mode="default" priority="2">
     <xsl:attribute name="id" select="."/>
