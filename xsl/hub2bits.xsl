@@ -819,9 +819,10 @@
   </xsl:template>
   
   <xsl:template match="dbk:pubdate" mode="default">
-    <pub-date>
+    <xsl:element name="{if(ancestor::dbk:bibliography) then 'date' else 'pub-date'}">
       <xsl:choose>
-        <xsl:when test="$jats:vocabulary = 'jats' and @role = 'year'">
+        <xsl:when test="$jats:vocabulary = 'jats' and 
+                        (@role = 'year' or matches(., '^(19|20)\d\d$'))">
           <year>
             <xsl:apply-templates mode="#current"/>
           </year>
@@ -835,7 +836,7 @@
           </string-date>
         </xsl:otherwise>
       </xsl:choose>
-    </pub-date>
+    </xsl:element>
   </xsl:template>
   
   <xsl:template match="dbk:toc" mode="default">
@@ -2262,15 +2263,19 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="dbk:biblioset" mode="default">
+  <xsl:template match="dbk:biblioset[not(preceding-sibling::dbk:biblioset)]" mode="default">
     <element-citation>
+      <xsl:variable name="pubtype" select="../dbk:biblioset/@relation"/>
+      <xsl:if test="$pubtype">
+        <xsl:attribute name="publication-type" 
+          select="($pubtype[. = 'journal'], $pubtype[not(. = 'journal')])[1]"/>
+      </xsl:if>
       <xsl:call-template name="css:content"/>
+      <xsl:apply-templates select="following-sibling::dbk:biblioset/node()" mode="#current"/>
     </element-citation>
   </xsl:template>
-
-  <xsl:template match="dbk:biblioset/@relation" mode="default">
-    <xsl:attribute name="publication-type" select="."/>
-  </xsl:template>
+  <xsl:template match="dbk:biblioset[preceding-sibling::dbk:biblioset]" mode="default"/>
+  <xsl:template match="dbk:biblioset/@relation" mode="default"/>
 
   <xsl:template match="dbk:biblioset[@relation]/dbk:title" mode="default">
     <xsl:variable name="element-name" as="xs:string">
