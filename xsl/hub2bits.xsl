@@ -2210,14 +2210,14 @@
   </xsl:template>
 
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
-                        /dbk:biblioentry[dbk:info/dbk:bibliomisc[@role = 'rendered']]" mode="default" priority="2">
+                        /dbk:biblioentry[dbk:abstract[@role = 'rendered']]" mode="default" priority="2">
     <ref>
       <xsl:if test="@xml:id">
         <xsl:attribute name="id" select="@xml:id"/>
       </xsl:if>
       <citation-alternatives>
         <xsl:call-template name="css:content"/>
-        <xsl:apply-templates select="dbk:info/dbk:bibliomisc" mode="#current">
+        <xsl:apply-templates select="dbk:abstract[@role = 'rendered']" mode="#current">
           <xsl:with-param name="render" select="true()"/>
         </xsl:apply-templates>
       </citation-alternatives>
@@ -2225,19 +2225,21 @@
   </xsl:template>
   
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
-                        /dbk:biblioentry[dbk:info/dbk:bibliomisc[@role = 'rendered']]/@xml:id" mode="default" priority="3"/>
+                        /dbk:biblioentry[dbk:abstract[@role = 'rendered']]/@xml:id" mode="default" priority="3"/>
 
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:biblioentry/@xml:id" mode="default" priority="2">
     <xsl:attribute name="id" select="."/>
   </xsl:template>
 
-  <xsl:template match="dbk:biblioentry/dbk:info/dbk:bibliomisc[@role = 'rendered']" mode="default" priority="1">
+  <xsl:template match="dbk:biblioentry/dbk:abstract[@role = 'rendered']" mode="default" priority="5">
     <xsl:param name="render" select="false()" as="xs:boolean"/>
     <xsl:if test="$render">
-      <mixed-citation>
-        <xsl:call-template name="css:content"/>
-      </mixed-citation>
+      <xsl:for-each select="dbk:para">
+        <mixed-citation specific-use="rendered">
+          <xsl:call-template name="css:content"/>
+        </mixed-citation>
+      </xsl:for-each>
     </xsl:if>
   </xsl:template>
 
