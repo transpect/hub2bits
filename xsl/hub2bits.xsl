@@ -641,7 +641,7 @@
   <xsl:template match="dbk:biblioid[@class]/@role" mode="default"/>
 
   <xsl:variable name="kwd-group-keywordset-roles" as="xs:string*"
-    select="('author-created', 'abbreviations')"/>
+    select="('author-created', 'author-generated', 'abbreviations')"/>
 
   <xsl:template match="dbk:keywordset[not(@role = $kwd-group-keywordset-roles)]" mode="default">
     <custom-meta-group>
@@ -661,7 +661,7 @@
     </title>
   </xsl:template>
 
-  <xsl:template match="dbk:keywordset/@role[. = ('author-created', 'abbreviations')]" mode="default">
+  <xsl:template match="dbk:keywordset/@role[. = $kwd-group-keywordset-roles]" mode="default">
     <xsl:attribute name="kwd-group-type" select="."/>
   </xsl:template>
 
