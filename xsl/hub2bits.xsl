@@ -711,6 +711,7 @@
               </xsl:for-each>
             </given-names>
           </xsl:if>
+          <xsl:apply-templates select="*[not(self::dbk:surname|self::dbk:firstname)]" mode="#current"/>
         </name>    
       </xsl:when>
       <xsl:otherwise>
