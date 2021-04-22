@@ -718,6 +718,12 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+  <xsl:template match="dbk:personname/dbk:honorific" mode="default">
+    <prefix>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </prefix>
+  </xsl:template>
   
   <xsl:template match="string-name[empty(parent::name-alternatives)]
                                   [ancestor::article[1]/@dtd-version/xs:decimal(.) &lt; 1.2]" mode="clean-up">
@@ -749,6 +755,20 @@
     <xsl:element name="{local-name()}">
       <xsl:apply-templates mode="#current"/>
     </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:authorgroup" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:authorgroup/dbk:*[local-name() = ('author', 'editor')]" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliography//dbk:*[local-name() = ('author', 'editor')]/dbk:personname" mode="default">
+    <name content-type="{parent::*/name()}">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </name>
   </xsl:template>
 
   <xsl:template match="dbk:bibliography//dbk:publisher" mode="default">
@@ -2322,6 +2342,13 @@
       <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
     </source>
   </xsl:template>
+
+  <xsl:template match="dbk:bibliomisc[matches(@role, '^ur(i|l)$', 'i')]" mode="default">
+    <uri>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </uri>
+  </xsl:template>
+  <xsl:template match="dbk:bibliomisc/@role[matches(., '^ur(i|l)$', 'i')]" mode="default"/>
   
   <xsl:template match="dbk:bibliomisc[ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]" mode="default" priority="-0.75">
     <named-content>
@@ -2372,6 +2399,18 @@
   </xsl:template>
   <xsl:template match="dbk:bibliography//dbk:abbrev/@role" mode="default">
     <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+
+  <xsl:template match="dbk:bibliosource" mode="default">
+    <source>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </source>
+  </xsl:template>
+  <xsl:template match="dbk:bibliosource/@role" mode="default">
+    <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+  <xsl:template match="dbk:bibliosource/@*[name() = ('class', 'otherclass')]" mode="default">
+    <xsl:attribute name="content-type" select="."/>
   </xsl:template>
 
   <xsl:template match="dbk:bibliography//dbk:issuenum" mode="default">
