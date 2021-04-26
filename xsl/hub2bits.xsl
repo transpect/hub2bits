@@ -173,7 +173,7 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="p[not(parent::*[self::list-item] or self::term)][boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
+  <xsl:template match="p[not(parent::*[self::list-item or self::ack] or self::term)][boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
@@ -181,6 +181,12 @@
     <caption>
       <xsl:next-match/>
     </caption>
+  </xsl:template>
+
+  <xsl:template match="ack/boxed-text" mode="clean-up">
+    <p>
+      <xsl:next-match/>
+    </p>
   </xsl:template>
   
   <!-- not permitted by schema: -->
