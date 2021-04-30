@@ -2523,16 +2523,6 @@
     <xsl:attribute name="fn-type" select="."/>
   </xsl:template>
   
-  <xsl:template match="table[descendant::*[@css:writing-mode = 'vertical-lr']]" mode="col-widths" priority="7">
-    <!-- https://redmine.le-tex.de/issues/8934 -->
-    <xsl:copy>
-      <xsl:copy-of select="@*"/>
-      <xsl:copy-of select="node()"/>
-    </xsl:copy>
-  </xsl:template>
-  
-  <xsl:template match="@css:writing-mode | @css:text-orientation" mode="hub2htm:css-style-overrides" priority="3"><!-- https://redmine.le-tex.de/issues/10133, https://redmine.le-tex.de/issues/10298s --></xsl:template>
-  
   <xsl:template match="css:rule[matches(@name, 'p_text_glossary_term(_-_.+?)?(_-_p_list)')]/@*[name() = ('css:margin-left', 'css:text-indent')] | 
     p[matches(@content-type, 'p_text_glossary_term(_-_.+?)?(_-_p_list)')]/@*[name() = ('css:margin-left', 'css:text-indent')]" 
     mode="epub-alternatives" priority="5">
