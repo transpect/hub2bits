@@ -1399,13 +1399,14 @@
     </xsl:if>
   </xsl:template>
   
-
   <xsl:template match="dbk:title[dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]]" mode="default">
-    <xsl:variable name="identifier" select="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1]" as="element(dbk:phrase)"/>
-    <label>
-      <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier]" mode="#current"/>
-      <xsl:apply-templates mode="#current" select="$identifier/node()"/>
-    </label>
+    <xsl:variable name="identifier" select="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1]" as="element(dbk:phrase)?"/>
+    <xsl:if test="normalize-space($identifier) or dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier]">
+      <label>
+        <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier]" mode="#current"/>
+        <xsl:apply-templates mode="#current" select="$identifier/node()"/>
+      </label>
+    </xsl:if>
     <title>
       <xsl:apply-templates mode="#current"
         select="@*, node() except ($identifier | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier])"/>
