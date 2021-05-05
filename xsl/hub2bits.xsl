@@ -2496,10 +2496,40 @@
     </disp-formula>
   </xsl:template>
   
+  <xsl:template match="dbk:equation[dbk:alt/@role = 'TeX'][mml:math]" mode="default">
+    <disp-formula>
+      <xsl:apply-templates select="@* except @label, @label, dbk:info | dbk:title" mode="#current"/>
+      <alternatives>
+        <xsl:apply-templates select="* except dbk:info | dbk:title" mode="#current"/>
+      </alternatives>
+    </disp-formula>
+  </xsl:template>
+  
+  <xsl:template match="@label" mode="default">
+    <label>
+      <xsl:value-of select="."/>
+    </label>
+  </xsl:template>
+  
+  <xsl:template match="dbk:alt[@role = 'TeX'] | dbk:mathphrase[@role = 'TeX']" mode="default">
+    <tex-math>
+      <xsl:value-of select="."/>
+    </tex-math>
+  </xsl:template>
+  
   <xsl:template match="dbk:inlineequation" mode="default">
     <inline-formula>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </inline-formula>
+  </xsl:template>
+  
+  <xsl:template match="dbk:inlineequation[dbk:alt/@role = 'TeX'][mml:math]" mode="default">
+    <disp-formula>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <alternatives>
+        <xsl:apply-templates select="*" mode="#current"/>
+      </alternatives>
+    </disp-formula>
   </xsl:template>
 
   <xsl:function name="jats:is-page-anchor" as="xs:boolean">
