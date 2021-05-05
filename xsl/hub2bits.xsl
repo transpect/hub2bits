@@ -1412,7 +1412,7 @@
         select="@*, node() except ($identifier | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier])"/>
     </title>
   </xsl:template>
-
+  
   <xsl:template match="dbk:para | dbk:simpara" mode="default">
     <p><xsl:call-template name="css:content"/></p>
   </xsl:template>
@@ -2489,6 +2489,12 @@
   <xsl:template match="sup/@xml:lang | sub/@xml:lang" mode="clean-up"/>
   
   <!-- equations -->
+  
+  <xsl:template match="dbk:listitem/dbk:equation" mode="default" priority="2">
+    <p>
+      <xsl:next-match/>
+    </p>
+  </xsl:template>
   
   <xsl:template match="dbk:equation" mode="default">
     <disp-formula>
