@@ -700,6 +700,12 @@
     </contrib>
   </xsl:template>
   
+  <xsl:template match="dbk:bibliography//dbk:editor[count(node[normalize-space()]) = 1][dbk:orgname]" mode="default">
+    <institution content-type="editor">
+      <xsl:apply-templates select="@*, dbk:orgname/(@*, node())" mode="#current"/>
+    </institution>
+  </xsl:template>
+  
   <xsl:template match="dbk:personname" mode="default">
     <xsl:choose>
       <xsl:when test="dbk:firstname|dbk:surname">
