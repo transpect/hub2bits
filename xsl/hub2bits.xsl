@@ -1738,7 +1738,7 @@
     </fn>
   </xsl:template>
   
-  <xsl:template match="@label" mode="default">
+  <xsl:template match="dbk:footnote/@label | dbk:footnoteref/@label" mode="default">
     <xsl:attribute name="symbol" select="."/>
   </xsl:template>
   
