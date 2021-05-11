@@ -2433,6 +2433,17 @@
     <xsl:attribute name="content-type" select="."/>
   </xsl:template>
 
+  <xsl:template match="dbk:othercredit[@role = 'collaborator']" mode="default">
+    <collab>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </collab>
+  </xsl:template>
+  <xsl:template match="dbk:othercredit/@role[. = 'collaborator']" mode="default"/>
+
+  <xsl:template match="dbk:othercredit[@role = 'collaborator']//*[self::dbk:personname or self::dbk:surname]" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
   <xsl:template match="dbk:bibliography//dbk:issuenum" mode="default">
     <issue>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
