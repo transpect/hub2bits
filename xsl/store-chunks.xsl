@@ -257,6 +257,9 @@
   <xsl:template match="xref[@ref-type = 'bibr']" mode="link-text">
     <xsl:param name="fragid" as="xs:string?"/>
     <xsl:variable name="ref" as="element(ref)?" select="key('by-id', $fragid, $root)"/>
+    <xsl:if test="empty($ref)">
+      <xsl:message select="'Empty bib: ', ., $fragid, ancestor::*[last()]/@*"/>
+    </xsl:if>
     <xsl:value-of select="jats:ref-label($ref)"/>
   </xsl:template>
   
