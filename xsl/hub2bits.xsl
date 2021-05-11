@@ -2351,6 +2351,12 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="dbk:biblioset/dbk:abstract" mode="default">
+    <annotation content-type="abstract">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </annotation>
+  </xsl:template>
+
   <xsl:template match="dbk:bibliomisc[@role = 'container-title'][ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]" mode="default">
     <source content-type="title" specific-use="{@role}">
       <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
