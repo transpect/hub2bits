@@ -1225,7 +1225,6 @@
     </xsl:copy>
   </xsl:template>
   
-  
   <xsl:template match="  dbk:part | dbk:part[jats:is-appendix-part(.)][dbk:index] | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
                        | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
@@ -2054,6 +2053,12 @@
     <tbody>
       <xsl:call-template name="css:content"/>
     </tbody>
+  </xsl:template>
+
+  <xsl:template match="dbk:tfoot" mode="default">
+    <tfoot>
+      <xsl:call-template name="css:content"/>
+    </tfoot>
   </xsl:template>
 
   <xsl:template match="dbk:colspec[@colwidth]" mode="default">
