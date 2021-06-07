@@ -1825,12 +1825,13 @@
   
   <xsl:template match="dbk:listitem" mode="default">
     <list-item>
-      <xsl:apply-templates select="@* except @override, @override, node()" mode="#current"/>
+      <xsl:apply-templates select="@* except @override, @override, node()[not(self::dbk:anchor and . is ../node()[1])]" mode="#current"/>
     </list-item>
   </xsl:template>
   
   <xsl:template match="dbk:listitem/@override" mode="default">
     <label>
+      <xsl:if test="../node()[1][self::dbk:anchor]"><xsl:apply-templates select="../node()[1]" mode="#current"/></xsl:if>
       <xsl:value-of select="."/>
     </label>
   </xsl:template>
