@@ -945,7 +945,7 @@
 
   <xsl:template match="dbk:glossary" mode="default">
     <xsl:choose>
-      <xsl:when test="ancestor::*/self::dbk:part[jats:is-appendix-part(.)]">
+      <xsl:when test="ancestor::*/self::dbk:part[jats:is-appendix-part(.)] and not(parent::*[self::dbk:appendix])">
         <app>
           <xsl:apply-templates select="." mode="split-uri"/>
           <glossary>
