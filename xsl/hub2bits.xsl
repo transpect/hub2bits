@@ -2040,7 +2040,9 @@
         <colgroup>
           <xsl:apply-templates select="dbk:colspec" mode="#current"/>
         </colgroup>
-        <xsl:apply-templates select="node() except dbk:colspec" mode="#current"/>
+        <xsl:apply-templates select="node() except dbk:colspec" mode="#current">
+          <xsl:sort select="index-of(('colspec', 'thead', 'tfoot', 'tbody', 'row'), local-name())"/>
+        </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <xsl:call-template name="css:content"/>
