@@ -1922,7 +1922,7 @@
   <xsl:template match="dbk:figure" mode="default">
     <fig>
       <xsl:call-template name="css:other-atts"/>
-      <xsl:apply-templates select="(.//dbk:anchor[not(matches(@xml:id, '^(cell)?page_'))])[1]/@xml:id" mode="#current"/>
+      <xsl:apply-templates select="(@xml:id, (.//dbk:anchor[not(matches(@xml:id, '^(cell)?page_'))])[1]/@xml:id)[1]" mode="#current"/>
       <label>
         <xsl:apply-templates select=".//*:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
         <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
