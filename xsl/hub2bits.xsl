@@ -1244,7 +1244,7 @@
             <xsl:when test="matches(current-grouping-key(), 'meta')">
               <xsl:call-template name="title-info">
                 <xsl:with-param name="elts" 
-                                select="current-group()/(self::dbk:title|self::dbk:info/*|self::dbk:subtitle|self::dbk:titleabbrev)"/>
+                                select="current-group()/(self::dbk:title|self::dbk:info/*|self::dbk:subtitle|self::dbk:titleabbrev|self::dbk:bibliomisc)"/>
                 <xsl:with-param name="context" select="parent::*"/>
               </xsl:call-template>
             </xsl:when>
