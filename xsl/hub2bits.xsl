@@ -1329,14 +1329,17 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="dbk:section/dbk:info[dbk:title][count(*) gt 1] | dbk:appendix/dbk:info[dbk:title][dbk:author | dbk:authorgroup | dbk:abstract | dbk:keywordset | dbk:legalnotice | dbk:copyright]" mode="default" priority="2">
+  <xsl:template match="dbk:section/dbk:info[dbk:title][count(*) gt 1] | 
+                       dbk:acknowledgements/dbk:info[dbk:title][count(*) gt 1] | 
+                       dbk:preface[@role = 'acknowledgements']/dbk:info[dbk:title][count(*) gt 1] | 
+                       dbk:appendix/dbk:info[dbk:title][dbk:author | dbk:authorgroup | dbk:abstract | dbk:keywordset | dbk:legalnotice | dbk:copyright]" mode="default" priority="2">
     <sec-meta>
       <xsl:apply-templates select="dbk:authorgroup | dbk:author | dbk:abstract | dbk:keywordset | dbk:legalnotice | dbk:copyright" mode="#current"/>
     </sec-meta>
     <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:titleabbrev" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="dbk:section/dbk:info/dbk:author | dbk:appendix/dbk:info/dbk:author" mode="default" priority="3">
+  <xsl:template match="dbk:section/dbk:info/dbk:author | dbk:appendix/dbk:info/dbk:author | dbk:acknowledgements/dbk:info/dbk:author | dbk:preface[@role = 'acknowledgements']/dbk:info/dbk:author" mode="default" priority="3">
     <contrib-group>
       <xsl:next-match/>
     </contrib-group>
