@@ -2545,7 +2545,9 @@
     </disp-formula>
   </xsl:template>
   
-  <xsl:template match="@label" mode="default">
+  <xsl:template match="@label
+                      |dbk:equation/dbk:title
+                      |dbk:inlineequation/dbk:title" mode="default">
     <label>
       <xsl:value-of select="."/>
     </label>
