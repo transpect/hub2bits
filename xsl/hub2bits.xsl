@@ -355,7 +355,6 @@
   <xsl:template match="bold[@css:font-weight = 'normal']" mode="clean-up" priority="5">
       <xsl:apply-templates mode="#current"/>
   </xsl:template>
-
   
   <xsl:key name="jats:style-by-type" match="css:rule" use="@name" />
   
@@ -2251,6 +2250,9 @@
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:biblioentry" mode="default">
     <ref>
+      <xsl:if test="@xml:id">
+        <xsl:attribute name="id" select="@xml:id"/>
+      </xsl:if>
       <xsl:call-template name="css:content"/>
     </ref>
   </xsl:template>
@@ -2292,7 +2294,7 @@
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
                         /dbk:bibliomixed" mode="default">
     <ref>
-      <xsl:apply-templates select="@id" mode="#current">
+      <xsl:apply-templates select="@xml:id" mode="#current">
         <xsl:with-param name="render" select="true()" as="xs:boolean"/>
       </xsl:apply-templates>
       <mixed-citation>
@@ -2300,8 +2302,9 @@
       </mixed-citation>
     </ref>
   </xsl:template>
-  <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
-                        /dbk:bibliomixed/@xml:id" mode="default">
+  
+  <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]/dbk:bibliomixed/@xml:id" 
+                mode="default">
     <xsl:param name="render" as="xs:boolean" select="false()"/>
     <xsl:if test="$render">
       <xsl:next-match/>
@@ -2319,6 +2322,7 @@
       <xsl:apply-templates select="following-sibling::dbk:biblioset/node()" mode="#current"/>
     </element-citation>
   </xsl:template>
+  
   <xsl:template match="dbk:biblioset[preceding-sibling::dbk:biblioset]" mode="default"/>
   <xsl:template match="dbk:biblioset/@relation" mode="default"/>
 
@@ -2548,9 +2552,7 @@
   <xsl:template match="@label
                       |dbk:equation/dbk:title
                       |dbk:inlineequation/dbk:title" mode="default">
-    <label>
-      <xsl:value-of select="."/>
-    </label>
+    <label><xsl:value-of select="."/></label>
   </xsl:template>
   
   <xsl:template match="dbk:alt[@role = 'TeX'] | dbk:mathphrase[@role = 'TeX']" mode="default">
