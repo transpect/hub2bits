@@ -2394,6 +2394,18 @@
     <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
 
+  <xsl:template match="*:language[namespace-uri() = 'http://purl.org/dc/terms/']" mode="default">
+    <named-content content-type="language" vocab="uncontrolled" vocab-identifier="http://purl.org/dc/terms/">
+      <xsl:apply-templates mode="#current"/>
+    </named-content>
+  </xsl:template>
+
+  <xsl:template match="dbk:email" mode="default">
+    <xsl:copy>
+      <xsl:call-template name="css:content"/>
+    </xsl:copy>
+  </xsl:template>
+
   <xsl:template match="dbk:bibliography//dbk:bibliomisc[@role = 'edition']" mode="default">
     <edition>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
