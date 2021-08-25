@@ -24,10 +24,12 @@
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/>
   
-  <xsl:param name="vocab" as="xs:string" select="'bits'"/>
+  <xsl:param name="vocab" as="xs:string" select="'bits'">
+    <!-- i.e. "jats", "jats publishing", "jats archiving", "jats articleauthoring" | "bits"-->
+  </xsl:param>
   <xsl:param name="dtd-version" as="xs:string" select="'2.0'" />
   
-  <xsl:variable name="jats:vocabulary" as="xs:string" select="tokenize($vocab, '\s+')"/>
+  <xsl:variable name="jats:vocabulary" as="xs:string+" select="tokenize($vocab, '\s+')"/>
 
   <xsl:variable name="jats:appendix-to-bookpart" as="xs:boolean" select="false()"/>
   
@@ -517,7 +519,7 @@
         <xsl:sequence select="$override"/>
       </xsl:when>
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="''"/></xsl:when>
-      <xsl:when test="$name = 'acknowledgements' and $jats:vocabulary = 'jats'"><xsl:sequence select="'back'"/></xsl:when>
+      <xsl:when test="$name = 'acknowledgements' and (some $v in $jats:vocabulary satisfies $v = 'jats')"><xsl:sequence select="'back'"/></xsl:when>
       <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication')"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib', 'contrib-biographies', 'quotation', 'motto')]"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:glossary[preceding-sibling::*[1][jats:matter(.) = 'front-matter'] or following-sibling::*[1][jats:matter(.)  = 'front-matter']]"><xsl:sequence select="'front-matter'"/></xsl:when>
@@ -737,8 +739,13 @@
     </prefix>
   </xsl:template>
   
-  <xsl:template match="string-name[empty(parent::name-alternatives)]
-                                  [ancestor::article[1]/@dtd-version/xs:decimal(.) &lt; 1.2]" mode="clean-up">
+  <xsl:template match="contrib/string-name[empty(parent::name-alternatives)]
+                                          [ancestor::article[1]/@dtd-version/xs:decimal(.) &lt; 1.2]
+                                          [some $v in $jats:vocabulary satisfies ($v = 'jats')]
+                                          [every $v in $jats:vocabulary satisfies (not($v = ('archiving', 'articleauthoring')))]" mode="clean-up">
+    <!-- may not be contained in contrib in publishing tag set until v. 1.2-->
+    <!-- best practice would be to use option <p:with-option name="vocab" select="'jats publishing'"/> on step hub2bits if name-alternatives should be generated.
+      For backwards compatibility archiving is not set as default, so this template will come into action if option is not set or is set to "jats" only. -->
     <name-alternatives>
       <xsl:next-match/>
     </name-alternatives>
@@ -853,7 +860,7 @@
   <xsl:template match="dbk:pubdate" mode="default">
     <xsl:element name="{if(ancestor::dbk:bibliography) then 'date' else 'pub-date'}">
       <xsl:choose>
-        <xsl:when test="$jats:vocabulary = 'jats' and 
+        <xsl:when test="(some $v in $jats:vocabulary satisfies $v = 'jats') and 
                         (@role = 'year' or matches(., '^(19|20)\d\d$'))">
           <year>
             <xsl:apply-templates mode="#current"/>
