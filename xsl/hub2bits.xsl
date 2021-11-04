@@ -2373,6 +2373,18 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="dbk:biblioset/dbk:titleabbrev" mode="default">
+    <abbrev>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </abbrev>
+  </xsl:template>
+
+  <xsl:template match="dbk:biblioset[not(@relation)]/dbk:title" mode="default">
+    <source content-type="title">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </source>
+  </xsl:template>
+
   <xsl:template match="dbk:biblioset/dbk:abstract" mode="default">
     <annotation content-type="abstract">
       <xsl:apply-templates select="@*, node()" mode="#current"/>
