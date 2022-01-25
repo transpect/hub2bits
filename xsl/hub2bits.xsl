@@ -583,7 +583,7 @@
         <xsl:with-param name="elts" select="$elts-for-grouping"/>
         <xsl:with-param name="context" select="parent::*"/>
       </xsl:call-template>
-      <xsl:apply-templates select="* except ($elts-for-grouping, css:rules)" mode="#current"/>
+      <xsl:apply-templates select="* except ($elts-for-grouping, css:rules, dbk:keywordset[@role = $kwd-group-keywordset-roles])" mode="#current"/>
       <xsl:call-template name="kwd-group"/>
       <xsl:call-template name="custom-meta-group"/>
     </book-meta>
@@ -678,7 +678,7 @@
     </kwd>
   </xsl:template>
   
-  <xsl:template match="dbk:keyword[not(@role = $kwd-group-keywordset-roles)]" mode="default">
+  <xsl:template match="dbk:keywordset[not(@role = $kwd-group-keywordset-roles)]/dbk:keyword" mode="default">
     <custom-meta>
       <meta-name>
         <xsl:value-of select="@role"/>
