@@ -2543,7 +2543,7 @@
     </conf-loc>
   </xsl:template>
   
-  <xsl:template match="dbk:biblioref[not(@endterm) and (@linkend or @linkends)]" mode="default">
+  <xsl:template match="dbk:*[local-name() = ('biblioref', 'citation')][not(@endterm) and (@linkend or @linkends)]" mode="default">
     <xref ref-type="bibr" rid="{(@linkends, @linkend)[1]}">
       <xsl:apply-templates mode="#current"/>
     </xref>
