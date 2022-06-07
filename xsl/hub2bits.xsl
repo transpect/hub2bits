@@ -2632,13 +2632,6 @@
   <xsl:template match="alt-title/@content-type" mode="clean-up">
     <xsl:attribute name="alt-title-type" select="."/>
   </xsl:template>
-
-  <xsl:template match="css:rule[matches(@name, 'p_text_glossary_term(_-_.+?)?(_-_p_list)')]/@*[name() = ('css:margin-left', 'css:text-indent')] | 
-    p[matches(@content-type, 'p_text_glossary_term(_-_.+?)?(_-_p_list)')]/@*[name() = ('css:margin-left', 'css:text-indent')]" 
-    mode="epub-alternatives" priority="5">
-    <!-- keep indents in glosslist-list,  https://redmine.le-tex.de/issues/8771-->
-    <xsl:copy/>
-  </xsl:template>
   
   
 </xsl:stylesheet>
