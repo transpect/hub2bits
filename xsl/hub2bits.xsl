@@ -2527,6 +2527,12 @@
   
   <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
 
+  <xsl:template match="abstract/table-wrap" mode="clean-up">
+    <p>
+      <xsl:next-match/>
+    </p>
+  </xsl:template>
+
   <xsl:template match="dbk:confgroup" mode="default">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
