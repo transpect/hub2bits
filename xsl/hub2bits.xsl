@@ -1089,7 +1089,7 @@
     <xsl:sequence select="'front-matter'"/>
   </xsl:template>
   
-  <xsl:template match="dbk:bibliography | dbk:glossary | dbk:appendix | dbk:index |  dbk:preface[@role = 'acknowledgements'][preceding-sibling::*[self::dbk:appendix | self::dbk:chapter |  self::dbk:part | self::dbk:bibliography | dbk:index]] |
+  <xsl:template match="dbk:bibliography | dbk:glossary | dbk:appendix | dbk:index |  dbk:preface[@role = 'acknowledgements'][preceding-sibling::*[self::dbk:appendix | self::dbk:chapter |  self::dbk:part | self::dbk:bibliography | self::dbk:index]] |
                        dbk:section[matches(dbk:title/@role, $jats:additional-backmatter-parts-title-role-regex)]" 
                 mode="jats:part-submatter" as="xs:string">
     <xsl:sequence select="'back'"/>
