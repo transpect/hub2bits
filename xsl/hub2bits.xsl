@@ -1934,12 +1934,12 @@
       <xsl:apply-templates select="(@xml:id, (.//dbk:anchor[not(matches(@xml:id, '^(cell)?page_'))])[1]/@xml:id)[1]" mode="#current"/>
       <label>
         <xsl:apply-templates select=".//*:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
-        <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role eq 'hub:caption-number']"/>
+        <xsl:apply-templates mode="#current" select="dbk:title/dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1]"/>
       </label>
       <caption>
         <title>
           <xsl:apply-templates mode="#current"
-            select="dbk:title/(@* | node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')][1]))"/>
+            select="dbk:title/(@* | node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')][1]))"/>
         </title>
          <xsl:if test="dbk:caption">
           <xsl:apply-templates select="dbk:caption/dbk:para" mode="#current"/>
@@ -2111,10 +2111,10 @@
   </xsl:template>
   
    <xsl:template match="dbk:table/dbk:title" name="dbk:table-title" mode="default" priority="2">
-     <xsl:if test="dbk:phrase[@role eq 'hub:caption-number']">
+     <xsl:if test="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1]">
        <label>
          <xsl:apply-templates select="dbk:anchor[matches(@xml:id, '^(cell)?page_')][1]" mode="#current"/>
-         <xsl:apply-templates mode="#current" select="dbk:phrase[@role eq 'hub:caption-number']"/>
+         <xsl:apply-templates mode="#current" select="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1]"/>
        </label>
        </xsl:if>
      <xsl:if test=".//text() or ../dbk:caption">
@@ -2122,7 +2122,7 @@
          <xsl:if test=".//text()">
          <title>
            <xsl:apply-templates mode="#current"
-             select="@* | node() except (dbk:phrase[@role eq 'hub:caption-number'] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
+             select="@* | node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1] | dbk:tab | dbk:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
          </title>
          </xsl:if>
        <xsl:if test="../dbk:caption">
