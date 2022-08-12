@@ -1689,7 +1689,7 @@
     </index-term>
   </xsl:template>
   
-  <xsl:template match="dbk:quaternary" mode="default">
+  <xsl:template match="dbk:quinary" mode="default">
     <index-term>
       <xsl:apply-templates select="@sortas, @css:*" mode="#current"/>
       <term>
