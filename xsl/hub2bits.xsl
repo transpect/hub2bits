@@ -1651,9 +1651,9 @@
   <xsl:template match="dbk:indexterm/@pagenum" mode="default"/>
     
   <xsl:template match="dbk:primary" mode="default">
-    <xsl:apply-templates select="@sortas, @css:*" mode="#current"/>
+    <xsl:apply-templates select="@sortas" mode="#current"/>
     <term>
-      <xsl:apply-templates select="node() except (dbk:see, dbk:seealso)" mode="#current"/>
+      <xsl:apply-templates select="@css:*, node() except (dbk:see, dbk:seealso)" mode="#current"/>
     </term>
     <xsl:apply-templates select="if(../dbk:secondary) then ../dbk:secondary 
                                  else ( ../dbk:see union ../dbk:seealso union dbk:see union dbk:seealso)" mode="#current"/>
@@ -1661,9 +1661,9 @@
   
   <xsl:template match="dbk:secondary" mode="default">
     <index-term>
-      <xsl:apply-templates select="@sortas, @css:*" mode="#current"/>
+      <xsl:apply-templates select="@sortas" mode="#current"/>
       <term>
-        <xsl:apply-templates select="node()" mode="#current"/>
+        <xsl:apply-templates select="@css:*, node()" mode="#current"/>
       </term>
       <xsl:apply-templates select="if(../dbk:tertiary) then ../dbk:tertiary else ( ../dbk:see | ../dbk:seealso)" mode="#current"/>
     </index-term>
@@ -1671,9 +1671,9 @@
   
   <xsl:template match="dbk:tertiary" mode="default">
     <index-term>
-      <xsl:apply-templates select="@sortas, @css:*" mode="#current"/>
+      <xsl:apply-templates select="@sortas" mode="#current"/>
       <term>
-        <xsl:apply-templates select="node()" mode="#current"/>
+        <xsl:apply-templates select="@css:*, node()" mode="#current"/>
       </term>
       <xsl:apply-templates select="if(../dbk:quaternary) then ../dbk:quaternary else (../dbk:see | ../dbk:seealso)" mode="#current"/>
     </index-term>
@@ -1681,9 +1681,9 @@
   
   <xsl:template match="dbk:quaternary" mode="default">
     <index-term>
-      <xsl:apply-templates select="@sortas, @css:*" mode="#current"/>
+      <xsl:apply-templates select="@sortas" mode="#current"/>
       <term>
-        <xsl:apply-templates select="node()" mode="#current"/>
+        <xsl:apply-templates select="@css:*, node()" mode="#current"/>
       </term>
       <xsl:apply-templates select="if(../dbk:quinary) then ../dbk:quinary else (../dbk:see | ../dbk:seealso)" mode="#current"/>
     </index-term>
@@ -1691,9 +1691,9 @@
   
   <xsl:template match="dbk:quinary" mode="default">
     <index-term>
-      <xsl:apply-templates select="@sortas, @css:*" mode="#current"/>
+      <xsl:apply-templates select="@sortas" mode="#current"/>
       <term>
-        <xsl:apply-templates select="node()" mode="#current"/>
+        <xsl:apply-templates select="@css:*, node()" mode="#current"/>
       </term>
       <xsl:apply-templates select="../dbk:see | ../dbk:seealso" mode="#current"/>
     </index-term>
