@@ -1413,6 +1413,16 @@
     </xsl:if>
   </xsl:template>
   
+  <xsl:template match="@css:text-decoration-line[. = ('underline')]" mode="css:map-att-to-elt" as="xs:string?">
+    <xsl:param name="context" as="element(*)?"/>
+    <xsl:sequence select="$css:underline-elt-name"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:text-decoration-line[. = ('line-through')]" mode="css:map-att-to-elt" as="xs:string?">
+    <xsl:param name="context" as="element(*)?"/>
+    <xsl:sequence select="$css:line-through-elt-name"/>
+  </xsl:template>
+  
   <xsl:template match="dbk:title[dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')]]" mode="default">
     <xsl:variable name="identifier" select="dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1]" as="element(dbk:phrase)?"/>
     <xsl:if test="normalize-space($identifier) or dbk:anchor[matches(@xml:id, '^(cell)?page_')][. &lt;&lt; $identifier]">
@@ -1440,6 +1450,7 @@
   <xsl:variable name="css:italic-elt-name" as="xs:string" select="'italic'"/>
   <xsl:variable name="css:bold-elt-name" as="xs:string" select="'bold'"/>
   <xsl:variable name="css:underline-elt-name" as="xs:string?" select="'underline'"/>
+  <xsl:variable name="css:line-through-elt-name" as="xs:string?" select="'strike'"/>
   
   <xsl:template match="dbk:phrase" mode="default">
     <styled-content><xsl:call-template name="css:content"/></styled-content>
@@ -1729,6 +1740,12 @@
     <index-term-range-end>
       <xsl:call-template name="css:content"/>
     </index-term-range-end>
+  </xsl:template>
+  
+  <xsl:template match="term" mode="clean-up">
+    <xsl:copy>
+      <xsl:call-template name="css:content"/>
+    </xsl:copy>
   </xsl:template>
 
   <!-- FOOTNOTES -->
