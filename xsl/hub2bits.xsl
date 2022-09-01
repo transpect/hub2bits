@@ -1452,8 +1452,15 @@
   <xsl:variable name="css:underline-elt-name" as="xs:string?" select="'underline'"/>
   <xsl:variable name="css:line-through-elt-name" as="xs:string?" select="'strike'"/>
   
-  <xsl:template match="dbk:phrase" mode="default">
+  <!-- roles with css-atts that should not be mapped to elements -->
+  <xsl:variable name="literal-phrase-style-role-regex" select="'letex_Blockade'"/>
+  
+  <xsl:template match="dbk:phrase[not(matches(@role, $literal-phrase-style-role-regex))]" mode="default">
     <styled-content><xsl:call-template name="css:content"/></styled-content>
+  </xsl:template>
+  
+  <xsl:template match="dbk:phrase[matches(@role, $literal-phrase-style-role-regex)]" mode="default">
+    <styled-content><xsl:apply-templates select="@*, node()" mode="#current"/></styled-content>
   </xsl:template>
 
   <xsl:template match="dbk:phrase/@role" mode="default">
