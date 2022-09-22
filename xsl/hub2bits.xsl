@@ -1516,7 +1516,7 @@
     </p>
   </xsl:template>
   
-  <xsl:template match="dbk:br | dbk:phrase[@role = 'br']" mode="default">
+  <xsl:template match="dbk:br | dbk:phrase[@role = 'br']" mode="default" priority="1">
     <break/>
   </xsl:template>
   
