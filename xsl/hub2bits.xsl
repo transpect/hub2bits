@@ -167,6 +167,7 @@
       </xsl:for-each>
     </back>
   </xsl:template>
+
   <xsl:template match="body[not(following-sibling::back)]/ref-list" mode="clean-up"/>
 
   <xsl:template match="body[not(node())]" mode="clean-up"/>
@@ -2488,11 +2489,19 @@
     </date>
   </xsl:template>
 
+
+  <xsl:template match="dbk:note" mode="default">
+    <notes>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </notes>
+  </xsl:template>
+
   <xsl:template match="dbk:bibliography//dbk:bibliomisc[@role = 'edition']" mode="default">
     <edition>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </edition>
   </xsl:template>
+
   <xsl:template match="dbk:bibliography//dbk:bibliomisc/@role[. = 'edition']" mode="default"/>
   
   <xsl:template match="dbk:info/dbk:bibliomisc" mode="default">

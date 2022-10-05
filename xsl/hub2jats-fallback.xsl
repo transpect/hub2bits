@@ -50,7 +50,14 @@
     <xsl:variable name="name" select="$elt/local-name()" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$name = ('info', 'title', 'subtitle')"><xsl:sequence select="'front'"/></xsl:when>
-      <xsl:when test="$name = ('toc', 'preface', 'partintro', 'acknowledgements', 'dedication', 'abstract')"><xsl:sequence select="'front'"/></xsl:when>
+      <xsl:when test="$name = ('toc', 'preface', 'partintro', 'dedication', 'abstract')"><xsl:sequence select="'front'"/></xsl:when>
+      <xsl:when test="$name = ('acknowledgements', 'note')">
+        <xsl:sequence select="if ($elt[following-sibling::*[1][self::dbk:appendix 
+                                                               or 
+                                                               not(following-sibling::*[self::dbk:section])]])
+                              then 'back' 
+                              else 'front'"/>
+      </xsl:when>
       <xsl:when test="$elt/self::dbk:colophon[@role = ('front-matter-blurb', 'frontispiz', 'copyright-page', 'title-page', 'about-contrib')]"><xsl:sequence select="'front'"/></xsl:when>
       <xsl:when test="$name = ('section')"><xsl:sequence select="'body'"/></xsl:when>
       <xsl:when test="$name = ('appendix', 'index', 'glossary', 'bibliography')"><xsl:sequence select="'back'"/></xsl:when>
