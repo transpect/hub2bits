@@ -2449,6 +2449,45 @@
     </xsl:copy>
   </xsl:template>
 
+  <xsl:template match="dbk:revhistory" mode="default">
+    <pub-history>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </pub-history>
+  </xsl:template>
+
+  <xsl:template match="dbk:revhistory/dbk:revision" mode="default">
+    <date>
+<!-- suggested: accepted, corrected, pub, preprint, retracted, received, rev-recd, rev-request	 -->
+      <xsl:attribute name="date-type" select="     if (some $t in (dbk:revremark|@role) satisfies matches($t, 'accepted|angenommen', 'i')) then 'accepted' 
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision submitted|Revision eingereicht')) then 'rev-recd'                                       
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'Manuscript submitted |Manuskript eingereicht', 'i')) then 'received'
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'retracted|zurückgezogen')) then 'retracted'
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'corrected|korrigiert')) then 'corrected' 
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision requested|Revision (verlangt|angefordert)')) then 'rev-request' 
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'published|publiziert|veröffentlicht')) then 'pub' else  'unknown'"/>
+      <xsl:if test="dbk:date castable as xs:date">
+        <xsl:attribute name="iso-8601-date" select="xs:date(dbk:date)"/>
+      </xsl:if>
+      <xsl:variable name="date-regex" as="xs:string" select="'^((\d+)\.)(\p{Zs}?(\d+\.|\p{Lu}\p{Ll}+))\p{Zs}?(\d{4})'"/>
+      <xsl:analyze-string select="dbk:date" regex="{$date-regex}">
+        <xsl:matching-substring>
+          <xsl:if test="regex-group(2)">
+            <day><xsl:value-of select="regex-group(2)"/></day>
+          </xsl:if>
+          <xsl:if test="regex-group(4)">
+            <month><xsl:value-of select="substring-before(regex-group(4), '.')"/></month>
+          </xsl:if>
+          <xsl:if test="regex-group(5)">
+            <year><xsl:value-of select="regex-group(5)"/></year>
+          </xsl:if>
+        </xsl:matching-substring>
+        <xsl:non-matching-substring>
+          <string-date><xsl:value-of select="."/></string-date>
+        </xsl:non-matching-substring>
+      </xsl:analyze-string>
+    </date>
+  </xsl:template>
+
   <xsl:template match="dbk:bibliography//dbk:bibliomisc[@role = 'edition']" mode="default">
     <edition>
       <xsl:apply-templates select="@*, node()" mode="#current"/>

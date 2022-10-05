@@ -58,4 +58,10 @@
     </xsl:choose>
   </xsl:function>
 
+  <xsl:template match="dbk:revhistory" mode="default">
+    <history>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </history>
+  </xsl:template>
+
 </xsl:stylesheet>
