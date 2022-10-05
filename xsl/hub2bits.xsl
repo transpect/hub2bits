@@ -2043,7 +2043,7 @@
                              )
                         then 'inline-graphic' 
                         else 'graphic'}">
-      <xsl:apply-templates select="(ancestor::dbk:mediaobject | ancestor::dbk:inlinemediaobject)[1]/@xml:id" mode="#current"/>
+      <xsl:apply-templates select="(ancestor::dbk:mediaobject | ancestor::dbk:inlinemediaobject)[1]/(@xml:id|@role)" mode="#current"/>
       <xsl:call-template name="css:content"/>
       <xsl:apply-templates select="(ancestor::dbk:mediaobject | ancestor::dbk:inlinemediaobject)[1]/dbk:alt" mode="#current"/>
     </xsl:element>
