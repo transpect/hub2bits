@@ -2452,7 +2452,7 @@
 
   <xsl:template match="dbk:revhistory" mode="default">
     <pub-history>
-      <xsl:apply-templates select="node()" mode="#current"/>
+      <xsl:apply-templates select="node() except (dbk:info | dbk:title | dbk:titleabbrev)" mode="#current"/>
     </pub-history>
   </xsl:template>
 
