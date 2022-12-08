@@ -1964,7 +1964,10 @@
       <caption>
         <title>
           <xsl:apply-templates mode="#current"
-            select="dbk:title/(@* | node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1] | dbk:tab | *:anchor[matches(@xml:id, '^(cell)?page_')][1]))"/>
+                               select="dbk:title/@*,
+                                       dbk:title/node() except (dbk:phrase[@role = ('hub:caption-number', 'hub:identifier')][1] 
+                                                               |dbk:tab
+                                                               |*:anchor[matches(@xml:id, '^(cell)?page_')][1])"/>
         </title>
          <xsl:if test="dbk:caption">
           <xsl:apply-templates select="dbk:caption/dbk:para" mode="#current"/>
