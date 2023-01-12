@@ -691,9 +691,7 @@
   </xsl:template>
   
   <xsl:template match="dbk:authorgroup" mode="default">
-    <contrib-group>
-      <xsl:apply-templates mode="#current"/>
-    </contrib-group>
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:author|dbk:editor" mode="default">
