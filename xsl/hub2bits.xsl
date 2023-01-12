@@ -694,7 +694,9 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="dbk:author|dbk:editor" mode="default">
+  <xsl:template match="dbk:author
+                      |dbk:editor
+                      |dbk:othercredit" mode="default">
     <contrib contrib-type="{local-name()}">
       <xsl:call-template name="css:content"/>
     </contrib>
