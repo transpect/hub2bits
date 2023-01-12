@@ -9,7 +9,6 @@
   xmlns:hub="http://transpect.io/hub"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
-  
   exclude-result-prefixes="css dbk functx jats xs xlink hub hub2htm mml"
   version="2.0">
 
@@ -700,6 +699,10 @@
     <contrib contrib-type="{local-name()}">
       <xsl:call-template name="css:content"/>
     </contrib>
+  </xsl:template>
+  
+  <xsl:template match="contrib/@content-type" mode="clean-up">
+    <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
   
   <xsl:template match="dbk:bibliography//dbk:editor[count(node[normalize-space()]) = 1][dbk:orgname]" mode="default">
