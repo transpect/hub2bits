@@ -2627,6 +2627,12 @@
     </conf-loc>
   </xsl:template>
   
+  <xsl:template match="dbk:affiliation/dbk:address" mode="default">
+    <addr-line>
+      <xsl:apply-templates mode="#current"/>
+    </addr-line>
+  </xsl:template>
+  
   <xsl:template match="dbk:*[local-name() = ('biblioref', 'citation')][not(@endterm) and (@linkend or @linkends)]" mode="default">
     <xref ref-type="bibr" rid="{(@linkends, @linkend)[1]}">
       <xsl:apply-templates mode="#current"/>
