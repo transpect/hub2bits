@@ -579,6 +579,7 @@
                           dbk:authorgroup, dbk:author, dbk:editor, 
                           (dbk:copyright|dbk:legalnotice), dbk:bibliomisc"/>
     <book-meta>
+      <xsl:apply-templates select="@srcpath" mode="#current"/>
       <xsl:call-template name="title-info">
         <xsl:with-param name="elts" select="$elts-for-grouping"/>
         <xsl:with-param name="context" select="parent::*"/>
