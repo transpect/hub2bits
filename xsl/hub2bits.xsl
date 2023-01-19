@@ -817,6 +817,12 @@
     </publisher-loc>
   </xsl:template>
   
+  <xsl:template match="dbk:info/dbk:volume" mode="default">
+    <book-volume-number>
+      <xsl:apply-templates mode="#current"/>
+    </book-volume-number>
+  </xsl:template>
+  
   <xsl:template match="dbk:copyright" mode="default">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
