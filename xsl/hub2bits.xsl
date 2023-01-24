@@ -1304,6 +1304,10 @@
     <xsl:sequence select="'contrib-group'"/>
   </xsl:template>
   
+  <xsl:template match="dbk:keywordset" mode="jats:meta-component" as="xs:string">
+    <xsl:sequence select="'kwd-group'"/>
+  </xsl:template>
+  
   <xsl:template match="dbk:title | dbk:subtitle | dbk:titleabbrev" mode="jats:meta-component" as="xs:string">
     <!-- Probably can do without passing $context as a parameter, by simply matching book/title etc.
       with higher priority? Leave it as it is for now because a) who knows which customization uses the 
@@ -1324,7 +1328,7 @@
     <xsl:param name="context" as="element()?"/>
     <xsl:for-each-group select="$elts" group-by="jats:meta-component(., $context)">
       <xsl:choose>
-        <xsl:when test="current-grouping-key() = ('abstract', '')">
+        <xsl:when test="current-grouping-key() = ('abstract', '','kwd-group')">
           <xsl:apply-templates select="current-group()" mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
