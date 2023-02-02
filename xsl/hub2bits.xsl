@@ -847,7 +847,7 @@
   
   <xsl:template match="dbk:legalnotice" mode="default">
     <copyright-statement>
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="*/node()" mode="#current"/>
     </copyright-statement>
   </xsl:template>
   
