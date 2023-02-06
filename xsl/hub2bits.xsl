@@ -1365,8 +1365,8 @@
     </sec-meta>
     <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:titleabbrev" mode="#current"/>
   </xsl:template>
-  
-  <xsl:template match="dbk:section/dbk:info/dbk:author | dbk:appendix/dbk:info/dbk:author | dbk:acknowledgements/dbk:info/dbk:author | dbk:preface[@role = 'acknowledgements']/dbk:info/dbk:author" mode="default" priority="3">
+
+  <xsl:template match="*[name() = ('dbk:hub', 'dbk:section', 'dbk:appendix', 'dbk:acknowledgements') or self::dbk:preface[@role = 'acknowledgements']]/dbk:info/dbk:*[local-name() = ('author', 'authorgroup')]" mode="default" priority="3">
     <contrib-group>
       <xsl:next-match/>
     </contrib-group>
@@ -2043,6 +2043,18 @@
   
   <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']" mode="default">
       <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'license']" mode="default">
+    <license>
+      <xsl:apply-templates mode="#current"/>
+    </license>
+  </xsl:template>
+  
+  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'license']/dbk:para" mode="default">
+    <license-p>
+      <xsl:apply-templates mode="#current"/>
+    </license-p>
   </xsl:template>
   
   <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']/dbk:para" mode="default">
