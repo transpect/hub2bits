@@ -576,7 +576,7 @@
                   select="dbk:title, parent::*/dbk:title, 
                           dbk:subtitle, parent::*/dbk:subtitle,
                           dbk:titleabbrev, parent::*/dbk:titleabbrev,
-                          dbk:authorgroup, dbk:author, dbk:editor, 
+                          dbk:authorgroup, dbk:author, dbk:editor, dbk:othercredit,
                           (dbk:copyright|dbk:legalnotice), dbk:bibliomisc"/>
     <book-meta>
       <xsl:apply-templates select="@srcpath" mode="#current"/>
@@ -1312,7 +1312,10 @@
     <xsl:sequence select="'abstract'"/>
   </xsl:template>
   
-  <xsl:template match="dbk:authorgroup | dbk:author | dbk:editor" mode="jats:meta-component" as="xs:string">
+  <xsl:template match="dbk:authorgroup
+                      |dbk:author[not(parent::authorgroup)]
+                      |dbk:editor[not(parent::authorgroup)]
+                      |dbk:othercredit[not(parent::authorgroup)]" mode="jats:meta-component" as="xs:string">
     <xsl:sequence select="'contrib-group'"/>
   </xsl:template>
   
@@ -1366,7 +1369,8 @@
     <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:titleabbrev" mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="*[self::dbk:*[local-name() = ('hub', 'section', 'appendix', 'acknowledgements')] or self::dbk:preface[@role = 'acknowledgements']]/dbk:info/dbk:*[local-name() = ('author', 'authorgroup')]" mode="default" priority="3">
+  <xsl:template match="*[   self::dbk:*[local-name() = ('section', 'appendix', 'acknowledgements')] 
+                         or self::dbk:preface[@role = 'acknowledgements']]/dbk:info/dbk:*[local-name() = ('author', 'editor', 'othercredit')]" mode="default" priority="3">
     <contrib-group>
       <xsl:next-match/>
     </contrib-group>
