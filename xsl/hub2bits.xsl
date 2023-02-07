@@ -1366,7 +1366,7 @@
     <xsl:apply-templates select="dbk:title, dbk:subtitle, dbk:titleabbrev" mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="*[name() = ('dbk:hub', 'dbk:section', 'dbk:appendix', 'dbk:acknowledgements') or self::dbk:preface[@role = 'acknowledgements']]/dbk:info/dbk:*[local-name() = ('author', 'authorgroup')]" mode="default" priority="3">
+  <xsl:template match="*[self::dbk:*[local-name() = ('hub', 'section', 'appendix', 'acknowledgements')] or self::dbk:preface[@role = 'acknowledgements']]/dbk:info/dbk:*[local-name() = ('author', 'authorgroup')]" mode="default" priority="3">
     <contrib-group>
       <xsl:next-match/>
     </contrib-group>
