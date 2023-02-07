@@ -1313,9 +1313,9 @@
   </xsl:template>
   
   <xsl:template match="dbk:authorgroup
-                      |dbk:author[not(parent::authorgroup)]
-                      |dbk:editor[not(parent::authorgroup)]
-                      |dbk:othercredit[not(parent::authorgroup)]" mode="jats:meta-component" as="xs:string">
+                      |dbk:author[not(parent::dbk:authorgroup)]
+                      |dbk:editor[not(parent::dbk:authorgroup)]
+                      |dbk:othercredit[not(parent::dbk:authorgroup)]" mode="jats:meta-component" as="xs:string">
     <xsl:sequence select="'contrib-group'"/>
   </xsl:template>
   
