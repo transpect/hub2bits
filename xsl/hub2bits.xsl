@@ -626,9 +626,11 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </pub-id>
   </xsl:template>
+
   <xsl:template match="dbk:biblioid/@*[local-name() = ('class', 'role')][matches(., '^doi$', 'i')]" mode="default">
     <xsl:attribute name="pub-id-type" select="'doi'"/>
   </xsl:template>
+
   <xsl:template match="dbk:biblioid[@class = 'doi']/@role" mode="default"/>
   
   <xsl:template match="dbk:biblioid[matches((@class, @role)[1], '^issn$', 'i')]" mode="default">
@@ -1161,7 +1163,7 @@
   <xsl:template match="issue | issn" mode="meta-order" as="xs:integer">
     <xsl:sequence select="9"/>
   </xsl:template> 
-  <xsl:template match="issn-1" mode="meta-order" as="xs:integer">
+  <xsl:template match="issn-l" mode="meta-order" as="xs:integer">
     <xsl:sequence select="10"/>
   </xsl:template>
   <xsl:template match="isbn" mode="meta-order" as="xs:integer">
