@@ -2501,8 +2501,8 @@
     <date>
 <!-- suggested: accepted, corrected, pub, preprint, retracted, received, rev-recd, rev-request	 -->
       <xsl:attribute name="date-type" select="     if (some $t in (dbk:revremark|@role) satisfies matches($t, 'accepted|angenommen|akzeptiert', 'i')) then 'accepted' 
-                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision submitted|Revision eingereicht')) then 'rev-recd'                                       
-                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'Manuscript submitted |Manuskript eingereicht', 'i')) then 'received'
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision (submitted|received)|Revision eingereicht')) then 'rev-recd'                                       
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'Manuscript (submitted|received) |Manuskript eingereicht', 'i')) then 'received'
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'retracted|zurückgezogen')) then 'retracted'
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'corrected|korrigiert')) then 'corrected' 
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision requested|Revision (verlangt|angefordert)')) then 'rev-request' 
@@ -2531,7 +2531,7 @@
   </xsl:template>
 
 
-  <xsl:template match="dbk:note" mode="default">
+  <xsl:template match="dbk:note" mode="default" priority="3">
     <notes>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </notes>
