@@ -265,7 +265,7 @@
   
   <xsl:function name="jats:ref-label" as="xs:string">
     <xsl:param name="ref" as="element(ref)?"/>
-    <xsl:sequence select="string(index-of($ref/../ref/generate-id(), $ref/generate-id()))"/>
+    <xsl:sequence select="if (exists($ref)) then string(index-of($ref/../ref/generate-id(), $ref/generate-id())) else ''"/>
   </xsl:function>
   
   <xsl:template match="xref[@ref-type = 'table-fn']/@rid" mode="xlink-href" priority="1">
