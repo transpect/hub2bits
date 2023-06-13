@@ -1472,6 +1472,16 @@
     <disp-quote><xsl:call-template name="css:content"/></disp-quote>
   </xsl:template>
   
+  <xsl:template match="dbk:blockquote/dbk:attribution" mode="default">
+    <attrib><xsl:call-template name="css:content"/></attrib>
+  </xsl:template>
+  
+  <xsl:template match="dbk:blockquote" mode="clean-up">
+    <xsl:copy>
+      <xsl:apply-templates select="* except (attrib|permissions), attrib, permissions" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
   <!-- INLINE -->
   
   <xsl:variable name="css:italic-elt-name" as="xs:string" select="'italic'"/>
