@@ -2768,16 +2768,11 @@
     <xsl:attribute name="xlink:role" select="."/>
   </xsl:template>
   
-  <xsl:template match="sec/@content-type" mode="clean-up">
-    <xsl:attribute name="sec-type" select="."/>
-  </xsl:template>
-
-  <xsl:template match="fn/@content-type" mode="clean-up">
-    <xsl:attribute name="fn-type" select="."/>
-  </xsl:template>
-  
-  <xsl:template match="alt-title/@content-type" mode="clean-up">
-    <xsl:attribute name="alt-title-type" select="."/>
+  <xsl:template match="sec/@content-type
+                      |fn/@content-type
+                      |alt-title/@content-type
+                      |book-id/@content-type" mode="clean-up">
+    <xsl:attribute name="{concat(local-name(), '-type')}" select="."/>
   </xsl:template>
   
   
