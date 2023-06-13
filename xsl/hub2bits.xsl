@@ -2772,7 +2772,7 @@
                       |fn/@content-type
                       |alt-title/@content-type
                       |book-id/@content-type" mode="clean-up">
-    <xsl:attribute name="{concat(local-name(), '-type')}" select="."/>
+    <xsl:attribute name="{concat(parent::*/local-name(), '-type')}" select="."/>
   </xsl:template>
   
   
