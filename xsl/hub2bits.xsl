@@ -1776,7 +1776,7 @@
     <xsl:attribute name="rid" select="."/>
   </xsl:template>
   
-  <xsl:template match="dbk:indexterm/@type" mode="default">
+  <xsl:template match="dbk:indexterm/@type | dbk:index/@type" mode="default">
     <xsl:attribute name="index-type" select="."/>
   </xsl:template>
   
