@@ -175,7 +175,9 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="p[not(parent::*[self::list-item or self::ack] or self::term)][boxed-text][every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
+  <xsl:template match="p[not(parent::*[self::list-item or self::ack or self::*:th or self::*:td] or self::term)]
+                        [boxed-text]
+                        [every $n in node() satisfies ($n/self::boxed-text)]" mode="clean-up">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
