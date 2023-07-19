@@ -361,6 +361,13 @@
   </xsl:template>
   
   <xsl:key name="jats:style-by-type" match="css:rule" use="@name" />
+
+  <!--  no 'hub2bits: unhandled'-messages for MathML elements -->
+  <xsl:template match="*[ancestor-or-self::mml:math]" mode="default" priority="-0.9">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
   
   <xsl:template match="*" mode="default" priority="-1">
     <xsl:message>hub2bits: unhandled in mode default: <xsl:apply-templates select="." mode="css:unhandled"/>
