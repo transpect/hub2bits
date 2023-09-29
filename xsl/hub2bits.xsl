@@ -1999,7 +1999,7 @@
   <!-- FIGURES -->
   
   <xsl:template match="dbk:figure" mode="default">
-    <fig>
+    <xsl:element name="{if (dbk:informalfigure) then 'fig-group' else 'fig'}">
       <xsl:call-template name="css:other-atts"/>
       <xsl:apply-templates select="(@xml:id, (.//dbk:anchor[not(matches(@xml:id, '^(cell)?page_'))])[1]/@xml:id)[1]" mode="#current"/>
       <label>
@@ -2020,8 +2020,28 @@
         <xsl:if test="dbk:note">
           <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
         </xsl:if>
-      </caption>
+      </caption>i
       <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']] | dbk:note | dbk:caption)" mode="#current"/>
+      <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="dbk:informalfigure" mode="default">
+    <fig>
+      <xsl:call-template name="css:other-atts"/>
+      <xsl:apply-templates select="(@xml:id, (.//dbk:anchor[not(matches(@xml:id, '^(cell)?page_'))])[1]/@xml:id)[1]" mode="#current"/>
+      
+      <xsl:if test="dbk:caption[normalize-space()] or dbk:note[normalize-space()]">
+        <caption>
+          <xsl:if test="dbk:caption">
+            <xsl:apply-templates select="dbk:caption/dbk:para" mode="#current"/>
+          </xsl:if>
+          <xsl:if test="dbk:note">
+            <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
+          </xsl:if>
+        </caption>
+      </xsl:if>
+      <xsl:apply-templates select="* except (dbk:info[dbk:legalnotice[@role eq 'copyright']] | dbk:note | dbk:caption)" mode="#current"/>
       <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
     </fig>
   </xsl:template>
@@ -2097,7 +2117,7 @@
   
   <xsl:template match="dbk:imagedata" mode="default">
     <xsl:element name="{if ( 
-                             not(matches(name(../../..), '^(figure|entry|colophon|table|alt|sidebar|sect(\d|ion))$'))
+                             not(matches(name(../../..), '^(figure|informalfigure|entry|colophon|table|alt|sidebar|sect(\d|ion))$'))
                              or
                              name(../..) = 'inlinemediaobject' 
                              )
