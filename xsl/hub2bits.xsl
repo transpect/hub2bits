@@ -2020,7 +2020,7 @@
         <xsl:if test="dbk:note">
           <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
         </xsl:if>
-      </caption>i
+      </caption>
       <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']] | dbk:note | dbk:caption)" mode="#current"/>
       <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
     </xsl:element>
