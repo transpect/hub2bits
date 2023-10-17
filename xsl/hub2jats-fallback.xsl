@@ -18,7 +18,7 @@
       <xsl:namespace name="css" select="'http://www.w3.org/1996/css'"/>
       <xsl:namespace name="xlink" select="'http://www.w3.org/1999/xlink'"/>
       <xsl:copy-of select="@css:version"/>
-      <xsl:attribute name="article-type" select="'research-article'"/>
+      <xsl:attribute name="article-type" select="jats:article-type(.)"/>
       <xsl:attribute name="css:rule-selection-attribute" select="'content-type style-type'"/>
       <xsl:attribute name="source-dir-uri" select="dbk:info/dbk:keywordset[@role eq 'hub']/dbk:keyword[@role eq 'source-dir-uri']"/>
       <xsl:sequence select="$dtd-version-att"/>
@@ -35,6 +35,11 @@
       <xsl:call-template name="matter"/>
     </article>
   </xsl:template>
+
+  <xsl:function name="jats:article-type" as="xs:string">
+    <xsl:param name="root" as="element(*)"/>
+    <xsl:value-of select="'research-article'"/>
+  </xsl:function>
 
   <xsl:template match="/*/dbk:info" mode="default">
     <xsl:call-template name="meta"/>
