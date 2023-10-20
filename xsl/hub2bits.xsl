@@ -237,14 +237,11 @@
                                      [every $att in @* satisfies (name($att) = ('style-type', 'xml:id', 'srcpath'))]"
                 mode="clean-up" priority="2">
     <xsl:param name="p-atts" as="attribute(*)*" tunnel="yes"/>
+    <xsl:param name="root" as="document-node()?" tunnel="yes"/>
     <xsl:choose>
       <xsl:when test="exists($p-atts)">
         <xsl:variable name="style-atts" as="attribute(*)*"
-          select="key('jats:style-by-type', @style-type, root(.))/(css:attic | .)/@*[matches(name(), '^(css:|xml:lang$)')]"/>
-<!--        <xsl:if test="@srcpath = 'Stories/Story_u1645c.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[36]/CharacterStyleRange[2]'">
-          <xsl:message select="'00 -\-\-\-\-\-\-\-\-\-\-\-', $child-element"></xsl:message>
-          <xsl:message select="'22 -\-\-\-\-\-\-\-\-\-\-\-', $style-atts"></xsl:message>
-        </xsl:if>-->
+          select="key('jats:style-by-type', @style-type, ($root, root(.))[1])/(css:attic | .)/@*[matches(name(), '^(css:|xml:lang$)')]"/>
         <xsl:variable name="differing-attributes" select="for $a 
                                                            in $style-atts
                                                        return $a[
