@@ -317,12 +317,25 @@
   </xsl:template>
   
   <xsl:template match="styled-content/@*[matches(name(), '^(css:|xml:lang$)')]" mode="clean-up" priority="6">
-    <xsl:variable name="p-att" as="attribute(*)?" select="../ancestor::*[name() = ('p', 'title')][1]/@*[name() = name(current())]"/>
+    <xsl:variable name="p-ancestor" as="element(*)?" select="../ancestor::*[name() = ('p', 'title')][1]"/>
+    <xsl:variable name="p-att" as="attribute(*)?" select="$p-ancestor/@*[name() = name(current())]"/>
     <xsl:variable name="p-style-att" as="attribute(*)*">
       <xsl:if test="count(root(..)/node()) = 1 and count(root(..)/*) = 1">
         <xsl:sequence select="key(
                                   'jats:style-by-type', 
-                                  ../ancestor::*[name() = ('p', 'title')][1]/(@style-type|@content-type), 
+                                  $p-ancestor/(@style-type|@content-type), 
+                                  root(..)
+                              )/(css:attic | .)/@*[name() = name(current())]"/>
+      </xsl:if>
+    </xsl:variable>
+    <xsl:variable name="styled-content-ancestor" as="element(styled-content)?" 
+      select="../ancestor::styled-content[1][if ($p-ancestor) then exists(ancestor::* intersect $p-ancestor) else true()]"/>
+    <xsl:variable name="styled-content-att" as="attribute(*)?" select="$styled-content-ancestor/@*[name() = name(current())]"/>
+    <xsl:variable name="styled-content-ancestor-style-att" as="attribute(*)*">
+      <xsl:if test="count(root(..)/node()) = 1 and count(root(..)/*) = 1">
+        <xsl:sequence select="key(
+                                  'jats:style-by-type', 
+                                  $styled-content-ancestor/@style-type, 
                                   root(..)
                               )/(css:attic | .)/@*[name() = name(current())]"/>
       </xsl:if>
@@ -334,7 +347,7 @@
                                   root(..)
                               ), $p-style-att"/>
     </xsl:if>
-    <xsl:if test="not(($p-att, $p-style-att)[1] = .)">
+    <xsl:if test="not(($styled-content-att, $styled-content-ancestor-style-att, $p-att, $p-style-att)[1] = .)">
       <xsl:next-match/>
     </xsl:if>
   </xsl:template>
