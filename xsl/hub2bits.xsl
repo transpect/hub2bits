@@ -2810,7 +2810,8 @@
   <xsl:template match="sec/@content-type
                       |fn/@content-type
                       |alt-title/@content-type
-                      |book-id/@content-type" mode="clean-up">
+                      |book-id/@content-type
+                      |abstract/@content-type" mode="clean-up">
     <xsl:attribute name="{concat(parent::*/local-name(), '-type')}" select="."/>
   </xsl:template>
   
