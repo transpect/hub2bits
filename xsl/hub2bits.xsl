@@ -1073,6 +1073,7 @@
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'foreword')]"><xsl:sequence select="'foreword'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'acknowledgements')]"><xsl:sequence select="'ack'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[matches(@role, 'praise')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
+      <xsl:when test="$elt/self::dbk:epigraph"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface[@role = ('lot', 'lof', 'lob')]"><xsl:sequence select="'front-matter-part'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:preface"><xsl:sequence select="'preface'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:dedication"><xsl:sequence select="'dedication'"/></xsl:when>
@@ -1096,7 +1097,7 @@
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
       <xsl:when test="$elt/self::dbk:part or $elt/self::dbk:chapter"><xsl:sequence select="'body'"/></xsl:when>
-      <xsl:when test="local-name($elt) = ('preface', 'partintro', 'dedication', 'preface', 'colophon')"><xsl:sequence select="'named-book-part-body'"/></xsl:when>
+      <xsl:when test="local-name($elt) = ('preface', 'partintro', 'dedication', 'preface', 'colophon','epigraph')"><xsl:sequence select="'named-book-part-body'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="concat('unknown-book-part-body_', $elt/name())"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -1122,7 +1123,7 @@
   </xsl:template>
   
   <!-- this way, we can handle front matter appendices quite elegantly: --> 
-  <xsl:template match="dbk:toc | dbk:appendix[following-sibling::dbk:chapter | following-sibling::dbk:part]" 
+  <xsl:template match="dbk:toc | dbk:appendix[following-sibling::dbk:chapter | following-sibling::dbk:part] | dbk:epigraph" 
     mode="jats:part-submatter" as="xs:string">
     <xsl:sequence select="'front-matter'"/>
   </xsl:template>
@@ -1270,7 +1271,7 @@
   </xsl:template>
   
   <xsl:template match="  dbk:part | dbk:part[jats:is-appendix-part(.)][dbk:index] | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
-                       | dbk:partintro | dbk:colophon | dbk:dedication" mode="default">
+                       | dbk:partintro | dbk:colophon | dbk:dedication |dbk:epigraph" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
       <xsl:apply-templates select="." mode="split-uri"/>
@@ -1288,7 +1289,7 @@
             <xsl:when test="matches(current-grouping-key(), 'meta')">
               <xsl:call-template name="title-info">
                 <xsl:with-param name="elts" 
-                                select="current-group()/(self::dbk:title|self::dbk:info/*|self::dbk:subtitle|self::dbk:titleabbrev|self::dbk:bibliomisc)"/>
+                                select="current-group()/(self::dbk:title|self::dbk:info/* except dbk:epigraph |self::dbk:subtitle|self::dbk:titleabbrev|self::dbk:bibliomisc)"/>
                 <xsl:with-param name="context" select="parent::*"/>
               </xsl:call-template>
             </xsl:when>
@@ -1297,12 +1298,18 @@
             </xsl:otherwise>
           </xsl:choose>
         </xsl:element>
+        <xsl:if test="current-group()/self::dbk:info/dbk:epigraph">
+          <xsl:for-each-group select="current-group()/self::dbk:info/dbk:epigraph" group-adjacent="jats:part-submatter(.)">
+            <xsl:element name="{current-grouping-key()}">
+             <xsl:apply-templates select="current-group()" mode="#current"/>
+            </xsl:element>
+          </xsl:for-each-group>
+        </xsl:if>
       </xsl:for-each-group>
     </xsl:element>
   </xsl:template>
 
   <xsl:template match="@renderas[not(parent::dbk:section)]" mode="default"/>
-    
   <xsl:template match="dbk:preface/@role" mode="default">
     <xsl:attribute name="book-part-type" select="."/>
   </xsl:template>
@@ -1968,7 +1975,7 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="dbk:sidebar | dbk:formalpara" mode="default">
+  <xsl:template match="dbk:sidebar | dbk:formalpara | dbk:div" mode="default">
     <boxed-text>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </boxed-text>
