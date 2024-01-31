@@ -613,7 +613,7 @@
   
   <xsl:template match="article-meta|book-meta|book-part-meta|collection-meta|journal-meta|sec-meta" mode="clean-up">
     <xsl:copy>
-      <xsl:apply-templates select="jats:order-meta(*)" mode="#current"/>
+      <xsl:apply-templates select="@*, jats:order-meta(*)" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
