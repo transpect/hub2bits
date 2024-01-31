@@ -765,7 +765,11 @@
     </prefix>
   </xsl:template>
   
-  <xsl:template match="dbk:personname[dbk:surname]/dbk:lineage" mode="default"/>
+  <xsl:template match="dbk:personname[dbk:surname]/dbk:lineage" mode="default">
+    <suffix>
+      <xsl:apply-templates mode="#current"/>
+    </suffix>
+  </xsl:template>
   
   <xsl:template match="contrib/string-name[empty(parent::name-alternatives)]
                                           [ancestor::article[1]/@dtd-version/xs:decimal(.) &lt; 1.2]
@@ -806,10 +810,6 @@
   
   <xsl:template match="dbk:surname" mode="default">
     <xsl:element name="{local-name()}">
-      <xsl:if test="parent::dbk:personname/dbk:lineage">
-        <xsl:apply-templates select="parent::dbk:personname/dbk:lineage/node()" mode="#current"/>
-        <xsl:text>&#x20;</xsl:text>
-      </xsl:if>
       <xsl:apply-templates mode="#current"/>
     </xsl:element>
   </xsl:template>
