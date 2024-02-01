@@ -2542,9 +2542,9 @@
   </xsl:template>
 
   <xsl:template match="dbk:email" mode="default">
-    <xsl:copy>
+    <email>
       <xsl:call-template name="css:content"/>
-    </xsl:copy>
+    </email>
   </xsl:template>
 
   <xsl:template match="dbk:revhistory" mode="default">
