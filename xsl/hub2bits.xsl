@@ -823,9 +823,16 @@
   </xsl:template>
 
   <xsl:template match="dbk:bibliography//dbk:*[local-name() = ('author', 'editor')]/dbk:personname" mode="default">
-    <name content-type="{parent::*/name()}">
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </name>
+    <xsl:choose>
+      <xsl:when test="dbk:firstname|dbk:surname">
+        <name content-type="{parent::*/name()}">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </name>    
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="@*, node()" mode="#current"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="dbk:bibliography//dbk:publisher" mode="default">
