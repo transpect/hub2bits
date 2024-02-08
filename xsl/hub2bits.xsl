@@ -2531,8 +2531,15 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </named-content>
   </xsl:template>
+  
   <xsl:template match="dbk:bibliomisc[ancestor::dbk:*[local-name() = ('biblioentry', 'bibliomixed')]]/@role" mode="default" priority="-0.75">
     <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:biblioset/dbk:date" mode="default">
+    <date>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </date>
   </xsl:template>
 
   <xsl:template match="*:language[namespace-uri() = 'http://purl.org/dc/terms/']" mode="default">
