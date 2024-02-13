@@ -878,16 +878,18 @@
       <xsl:apply-templates select="*/node()" mode="#current"/>
     </copyright-statement>
   </xsl:template>
-  
- <!--  TO-DO!-->
     
   <xsl:template match="dbk:org" mode="default" priority="2">
-    <institution><xsl:apply-templates select="@*, node()[self::text() | self::dbk:orgname]" mode="#current"/></institution>
+    <institution-wrap>
+      <xsl:apply-templates select="@*, dbk:orgname" mode="#current"/>
+    </institution-wrap>
     <xsl:apply-templates select="* except dbk:orgname" mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:orgname" mode="default" priority="2">
-    <xsl:apply-templates select="@*, node()" mode="#current"/>
+    <institution>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </institution>
   </xsl:template>
 
   <xsl:template match="dbk:affiliation" mode="default" priority="2">
