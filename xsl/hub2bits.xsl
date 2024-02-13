@@ -1175,7 +1175,7 @@
     <xsl:apply-templates select="$elt" mode="meta-order"/>
   </xsl:function> 
   
-  <xsl:template match="article-id | book-id | journal-id | book-part-id" mode="meta-order" as="xs:integer">
+  <xsl:template match="article-id | book-id | journal-id | book-part-id | collection-id" mode="meta-order" as="xs:integer">
     <xsl:sequence select="1"/>
   </xsl:template>
   <xsl:template match="article-categories | subj-group" mode="meta-order" as="xs:integer">
