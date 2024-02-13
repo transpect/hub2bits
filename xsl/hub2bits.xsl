@@ -583,13 +583,11 @@
         <xsl:when test="current-grouping-key() ne ''">
           <xsl:element name="{current-grouping-key()}">
             <xsl:apply-templates select="current-group()" mode="#current"/>
-            <xsl:choose>
-              <xsl:when test="current-grouping-key() eq 'book-back' and $jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'no'">
-                <xsl:call-template name="endnotes">
-                  <xsl:with-param name="footnotes" as="element(dbk:footnote)*" select="//dbk:footnote"/>
-                </xsl:call-template>
-              </xsl:when>
-            </xsl:choose>
+            <xsl:if test="current-grouping-key() eq 'book-back' and $jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'no'">
+              <xsl:call-template name="endnotes">
+                <xsl:with-param name="footnotes" as="element(dbk:footnote)*" select="//dbk:footnote"/>
+              </xsl:call-template>
+            </xsl:if>
           </xsl:element>
         </xsl:when>
         <xsl:otherwise>
