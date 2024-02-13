@@ -1286,10 +1286,16 @@
   </xsl:template>
   
   <xsl:template match="app-group" mode="clean-up">
-    <xsl:copy copy-namespaces="no">
+    <xsl:element name="{if(parent::book-back) then 'book-app-group' else 'app-group'}">
       <xsl:apply-templates select="@*, node() except (ref-list | app)" mode="#current"/>
       <xsl:apply-templates select="app | ref-list" mode="#current"/>
-    </xsl:copy>
+    </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="book-app/app" mode="clean-up">
+    <book-app>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </book-app>
   </xsl:template>
   
   <xsl:template match="  dbk:part | dbk:part[jats:is-appendix-part(.)][dbk:index] | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
