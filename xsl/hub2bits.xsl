@@ -31,6 +31,10 @@
   <xsl:variable name="jats:vocabulary" as="xs:string+" select="tokenize($vocab, '\s+')"/>
 
   <xsl:variable name="jats:appendix-to-bookpart" as="xs:boolean" select="false()"/>
+  <!-- "footnotes|endnotes" include footnotes in <fn-group> -->
+  <xsl:variable name="jats:notes-type" select="'footnotes'" as="xs:string"/>
+  <!-- "yes|no" render <fn-group> for each chapter if $jats:notes-type = 'yes' -->
+  <xsl:variable name="jats:notes-per-chapter" select="'no'" as="xs:string"/>
   
   <xsl:template match="*" mode="split-uri">
     <!-- Override this in order to attach future split URIs to book-parts etc., as xml:base attributes.
@@ -544,7 +548,7 @@
       <xsl:when test="$elt/self::dbk:glossary[preceding-sibling::*[1][jats:matter(.) = 'front-matter'] or following-sibling::*[1][jats:matter(.)  = 'front-matter']]"><xsl:sequence select="'front-matter'"/></xsl:when>
       <xsl:when test="$elt/self::dbk:part[jats:is-appendix-part(.)]"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:when test="$name = ('part', 'chapter')"><xsl:sequence select="'book-body'"/></xsl:when>
-      <xsl:when test="$name = ('appendix', 'index', 'glossary', 'bibliography')"><xsl:sequence select="'book-back'"/></xsl:when>
+      <xsl:when test="$name = ('appendix', 'index', 'glossary', 'bibliography', 'fn-group')"><xsl:sequence select="'book-back'"/></xsl:when>
       <xsl:otherwise><xsl:sequence select="'dark-matter'"/></xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -573,12 +577,19 @@
     </book>
   </xsl:template>
 
-  <xsl:template name="matter">
+  <xsl:template name="matter">    
     <xsl:for-each-group select="*" group-adjacent="jats:matter(.)">
       <xsl:choose>
         <xsl:when test="current-grouping-key() ne ''">
           <xsl:element name="{current-grouping-key()}">
             <xsl:apply-templates select="current-group()" mode="#current"/>
+            <xsl:choose>
+              <xsl:when test="current-grouping-key() eq 'book-back' and $jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'no'">
+                <xsl:call-template name="endnotes">
+                  <xsl:with-param name="footnotes" as="element(dbk:footnote)*" select="//dbk:footnote"/>
+                </xsl:call-template>
+              </xsl:when>
+            </xsl:choose>
           </xsl:element>
         </xsl:when>
         <xsl:otherwise>
@@ -973,14 +984,18 @@
             <xsl:apply-templates select="dbk:info/(* except (dbk:title | dbk:titleabbrev))" mode="#current"/>
           </book-part-meta>
           <named-book-part-body>
-            <xsl:apply-templates select="node() except (dbk:title | dbk:titleabbrev | dbk:info)" mode="#current"/>
+            <xsl:apply-templates select="node() except (dbk:title | dbk:titleabbrev | dbk:info)" mode="#current">
+              <xsl:with-param name="create-xref-for-footnotes" select="$jats:notes-type eq 'endnotes'" as="xs:boolean?" tunnel="yes"/>
+            </xsl:apply-templates>
           </named-book-part-body>
         </front-matter-part>
       </xsl:when>
       <xsl:otherwise>
         <app>
           <xsl:apply-templates select="." mode="split-uri"/>
-          <xsl:apply-templates select="@*, node()" mode="#current"/>
+          <xsl:apply-templates select="@*, node()" mode="#current">
+            <xsl:with-param name="create-xref-for-footnotes" select="$jats:notes-type eq 'endnotes'" as="xs:boolean?" tunnel="yes"/>
+          </xsl:apply-templates>
         </app>
       </xsl:otherwise>
     </xsl:choose>
@@ -1303,7 +1318,9 @@
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:apply-templates select="current-group()" mode="#current"/>
+              <xsl:apply-templates select="current-group()" mode="#current">
+                <xsl:with-param name="create-xref-for-footnotes" select="$jats:notes-type eq 'endnotes'" as="xs:boolean?" tunnel="yes"/>
+              </xsl:apply-templates>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:element>
@@ -1315,7 +1332,21 @@
           </xsl:for-each-group>
         </xsl:if>
       </xsl:for-each-group>
+      <xsl:if test="$jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'yes'">
+        <xsl:call-template name="endnotes">
+          <xsl:with-param name="footnotes" select=".//dbk:footnote" as="element(dbk:footnote)*"/>
+        </xsl:call-template>
+      </xsl:if>
     </xsl:element>
+  </xsl:template>
+  
+  <xsl:template name="endnotes">
+    <xsl:param name="footnotes" as="element(dbk:footnote)*"/>
+    <xsl:if test="exists($footnotes)">
+      <fn-group>
+        <xsl:apply-templates select="$footnotes" mode="#current"/>
+      </fn-group>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="@renderas[not(parent::dbk:section)]" mode="default"/>
@@ -1830,16 +1861,29 @@
   <!-- FOOTNOTES -->
   
   <xsl:template match="dbk:footnote" mode="default">
+    <xsl:param name="create-xref-for-footnotes" as="xs:boolean?" select="false()" tunnel="yes"/>
     <xsl:variable name="label" select="dbk:para[1]/*[1][self::dbk:phrase][@role eq 'hub:identifier']" as="element(dbk:phrase)?"/>
-    <fn>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:if test="$label">
-        <label>
-          <xsl:apply-templates select="$label" mode="fn-label"/>
-        </label>  
-      </xsl:if>
-      <xsl:apply-templates mode="#current"/>
-    </fn>
+    <xsl:choose>
+      <xsl:when test="$create-xref-for-footnotes">
+        <xref ref-type="fn">
+          <xsl:attribute name="rid">
+            <xsl:apply-templates select="@xml:id" mode="#current"/>
+          </xsl:attribute>
+          <sup><xsl:value-of select="$label"/></sup>
+        </xref>
+      </xsl:when>
+      <xsl:otherwise>
+        <fn>
+          <xsl:apply-templates select="@*" mode="#current"/>
+          <xsl:if test="$label">
+            <label>
+              <xsl:apply-templates select="$label" mode="fn-label"/>
+            </label>  
+          </xsl:if>
+          <xsl:apply-templates mode="#current"/>
+        </fn>    
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="dbk:footnote/@label | dbk:footnoteref/@label" mode="default">
