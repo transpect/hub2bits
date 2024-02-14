@@ -1292,9 +1292,17 @@
     </xsl:element>
   </xsl:template>
   
-  <xsl:template match="book-app/app" mode="clean-up">
+  <xsl:template match="book-back/app" mode="clean-up">
     <book-app>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <book-part-meta>
+        <title-group>
+          <xsl:apply-templates select="title" mode="#current"/>
+        </title-group>
+      </book-part-meta>
+      <body>
+        <xsl:apply-templates select="* except title" mode="#current"/>
+      </body>
     </book-app>
   </xsl:template>
   
