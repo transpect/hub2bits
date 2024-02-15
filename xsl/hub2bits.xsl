@@ -1286,13 +1286,13 @@
   </xsl:template>
   
   <xsl:template match="app-group" mode="clean-up">
-    <xsl:element name="{if(parent::book-back) then 'book-app-group' else 'app-group'}">
+    <xsl:element name="{if(parent::book-back and xs:decimal($dtd-version) &gt;= 2) then 'book-app-group' else 'app-group'}">
       <xsl:apply-templates select="@*, node() except (ref-list | app)" mode="#current"/>
       <xsl:apply-templates select="app | ref-list" mode="#current"/>
     </xsl:element>
   </xsl:template>
   
-  <xsl:template match="book-back/app" mode="clean-up">
+  <xsl:template match="book-back/app[xs:decimal($dtd-version) &gt;= 2]" mode="clean-up">
     <book-app>
       <xsl:apply-templates select="@*" mode="#current"/>
       <book-part-meta>
