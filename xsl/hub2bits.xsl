@@ -1566,6 +1566,12 @@
   <xsl:variable name="css:bold-elt-name" as="xs:string" select="'bold'"/>
   <xsl:variable name="css:underline-elt-name" as="xs:string?" select="'underline'"/>
   <xsl:variable name="css:line-through-elt-name" as="xs:string?" select="'strike'"/>
+  <xsl:variable name="css:small-caps-name" as="xs:string?" select="'sc'"/>
+  
+  <xsl:template match="@css:font-variant[matches(., '^small-caps')]" mode="css:map-att-to-elt" as="xs:string?">
+    <xsl:param name="context" as="element(*)?"/>
+    <xsl:sequence select="$css:small-caps-name"/>
+  </xsl:template>
   
   <!-- roles with css-atts that should not be mapped to elements -->
   <xsl:variable name="literal-phrase-style-role-regex" select="'letex_Blockade'"/>
