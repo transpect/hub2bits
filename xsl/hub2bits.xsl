@@ -944,7 +944,7 @@
   <xsl:template match="dbk:toc/dbk:title
                       |dbk:index/dbk:title" mode="default" priority="2">
     <xsl:choose>
-      <xsl:when test="xs:decimal(replace($dtd-version, '^([\d.]+).*$', '$1')) ge 2">
+      <xsl:when test="xs:integer(jats:dtd-version()[1]) ge 2">
         <xsl:element name="{concat(parent::*/local-name(), '-title-group')}">
           <xsl:next-match/>
         </xsl:element>
@@ -1286,13 +1286,13 @@
   </xsl:template>
   
   <xsl:template match="app-group" mode="clean-up">
-    <xsl:element name="{if(parent::book-back and xs:decimal($dtd-version) &gt;= 2) then 'book-app-group' else 'app-group'}">
+    <xsl:element name="{if(parent::book-back and xs:integer(jats:dtd-version()[1]) &gt;= 2) then 'book-app-group' else 'app-group'}">
       <xsl:apply-templates select="@*, node() except (ref-list | app)" mode="#current"/>
       <xsl:apply-templates select="app | ref-list" mode="#current"/>
     </xsl:element>
   </xsl:template>
   
-  <xsl:template match="book-back/app[xs:decimal($dtd-version) &gt;= 2]" mode="clean-up">
+  <xsl:template match="book-back/app[xs:integer(jats:dtd-version()[1]) &gt;= 2]" mode="clean-up">
     <book-app>
       <xsl:apply-templates select="@*" mode="#current"/>
       <book-part-meta>
@@ -2893,6 +2893,18 @@
                       |abstract/@content-type" mode="clean-up">
     <xsl:attribute name="{concat(parent::*/local-name(), '-type')}" select="."/>
   </xsl:template>
+  
+  <!-- returns major, minor version and suffix of dtd version string -->
+  
+  <xsl:function name="jats:dtd-version" as="xs:string+">
+    <xsl:analyze-string select="$dtd-version" regex="^([\d.]+)(.*)$">
+      <xsl:matching-substring>
+        <xsl:sequence select="for $version-label in tokenize(regex-group(1), '\.')
+                              return xs:string(xs:integer($version-label)),
+                              replace(regex-group(2), '^[\p{P}]', '')"/>
+      </xsl:matching-substring>
+    </xsl:analyze-string>
+  </xsl:function>
   
   
 </xsl:stylesheet>
