@@ -732,6 +732,12 @@
     </contrib>
   </xsl:template>
   
+  <xsl:template match="dbk:biblioset/dbk:author
+                      |dbk:biblioset/dbk:editor
+                      |dbk:biblioset/dbk:othercredit" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
   <xsl:template match="contrib/@content-type" mode="clean-up">
     <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
@@ -2167,15 +2173,8 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  
-<!--  <xsl:template match="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="default">
-    <permissions>
-      <xsl:apply-templates mode="#current"/>
-    </permissions>
-  </xsl:template>-->
-  
   <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']" mode="default">
-      <xsl:apply-templates mode="#current"/>
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
   <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'license']" mode="default">
