@@ -1462,7 +1462,7 @@
     </contrib-group>
   </xsl:template>
   
-  <xsl:template match="dbk:book/dbk:title|dbk:book/dbk:info/dbk:title" mode="default">
+  <xsl:template match="dbk:book/dbk:title|dbk:book/dbk:info/dbk:title" mode="default" priority="5">
     <book-title>
       <xsl:apply-templates  select="@xml:id, @xml:base, node(), ../dbk:itermset/*, ../dbk:info/dbk:itermset/*" mode="#current"/>
     </book-title>
