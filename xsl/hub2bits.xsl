@@ -1307,7 +1307,7 @@
         </title-group>
       </book-part-meta>
       <body>
-        <xsl:apply-templates select="* except title" mode="#current"/>
+        <xsl:apply-templates select="node() except title" mode="#current"/>
       </body>
     </book-app>
   </xsl:template>
