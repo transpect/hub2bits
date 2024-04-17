@@ -242,6 +242,7 @@
                 mode="clean-up" priority="2">
     <xsl:param name="p-atts" as="attribute(*)*" tunnel="yes"/>
     <xsl:param name="root" as="document-node()?" tunnel="yes"/>
+    <xsl:if test="@srcpath = 'Stories/Story_u8f7b7.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[1]/CharacterStyleRange[2]'"><xsl:message select="'####', string-join($p-atts, '')"/></xsl:if>
     <xsl:choose>
       <xsl:when test="exists($p-atts)">
         <xsl:variable name="style-atts" as="attribute(*)*"
@@ -2071,7 +2072,8 @@
   
   <xsl:template match="dbk:poetry | dbk:poetry/dbk:linegroup | dbk:linegroup[not(parent::dbk:poetry)] " mode="default">
     <verse-group>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node() except *[matches(@role, $jats:verse-group-attrib) or self::dbk:legalnotice or self::dbk:copyright], 
+                                   *[matches(@role, $jats:verse-group-attrib) or self::dbk:legalnotice or self::dbk:copyright]" mode="#current"/>
     </verse-group>
   </xsl:template>
   
