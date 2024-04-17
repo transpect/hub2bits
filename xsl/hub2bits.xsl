@@ -1334,6 +1334,7 @@
                 <xsl:with-param name="elts" 
                                 select="current-group()/(self::dbk:title|self::dbk:info/* except dbk:epigraph |self::dbk:subtitle|self::dbk:titleabbrev|self::dbk:bibliomisc)"/>
                 <xsl:with-param name="context" select="parent::*"/>
+                <xsl:with-param name="create-xref-for-footnotes" select="$jats:notes-type eq 'endnotes'" as="xs:boolean?" tunnel="yes"/>
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
@@ -1431,11 +1432,15 @@
     <xsl:for-each-group select="$elts" group-by="jats:meta-component(., $context)">
       <xsl:choose>
         <xsl:when test="current-grouping-key() = ('abstract', '','kwd-group')">
-          <xsl:apply-templates select="current-group()" mode="#current"/>
+          <xsl:apply-templates select="current-group()" mode="#current">
+            <xsl:with-param name="create-xref-for-footnotes" select="$jats:notes-type eq 'endnotes'" as="xs:boolean?" tunnel="yes"/>
+          </xsl:apply-templates>
         </xsl:when>
         <xsl:otherwise>
           <xsl:element name="{current-grouping-key()}" namespace="">
-            <xsl:apply-templates select="current-group()" mode="#current"/>
+            <xsl:apply-templates select="current-group()" mode="#current">
+              <xsl:with-param name="create-xref-for-footnotes" select="$jats:notes-type eq 'endnotes'" as="xs:boolean?" tunnel="yes"/>
+            </xsl:apply-templates>
           </xsl:element>
         </xsl:otherwise>
       </xsl:choose>
