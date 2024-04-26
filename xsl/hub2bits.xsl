@@ -1221,47 +1221,53 @@
   <xsl:template match="publisher" mode="meta-order" as="xs:integer">
     <xsl:sequence select="12"/>
   </xsl:template>
-  <xsl:template match="edition" mode="meta-order" as="xs:integer">
+  <xsl:template match="fpage" mode="meta-order" as="xs:integer">
     <xsl:sequence select="13"/>
   </xsl:template>
-  <xsl:template match="supplementary-material" mode="meta-order" as="xs:integer">
+  <xsl:template match="lpage" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="13"/>
+  </xsl:template>
+  <xsl:template match="edition" mode="meta-order" as="xs:integer">
     <xsl:sequence select="14"/>
   </xsl:template>
-  <xsl:template match="pub-history" mode="meta-order" as="xs:integer">
+  <xsl:template match="supplementary-material" mode="meta-order" as="xs:integer">
     <xsl:sequence select="15"/>
   </xsl:template>
-  <xsl:template match="permissions" mode="meta-order" as="xs:integer">
+  <xsl:template match="pub-history" mode="meta-order" as="xs:integer">
     <xsl:sequence select="16"/>
   </xsl:template>
-  <xsl:template match="self-uri" mode="meta-order" as="xs:integer">
+  <xsl:template match="permissions" mode="meta-order" as="xs:integer">
     <xsl:sequence select="17"/>
   </xsl:template>
-  <xsl:template match="related-article | related-object" mode="meta-order" as="xs:integer">
+  <xsl:template match="self-uri" mode="meta-order" as="xs:integer">
     <xsl:sequence select="18"/>
   </xsl:template>
-  <xsl:template match="abstract" mode="meta-order" as="xs:integer">
+  <xsl:template match="related-article | related-object" mode="meta-order" as="xs:integer">
     <xsl:sequence select="19"/>
   </xsl:template>
-  <xsl:template match="trans-abstract" mode="meta-order" as="xs:integer">
+  <xsl:template match="abstract" mode="meta-order" as="xs:integer">
     <xsl:sequence select="20"/>
   </xsl:template>
-  <xsl:template match="kwd-group" mode="meta-order" as="xs:integer">
+  <xsl:template match="trans-abstract" mode="meta-order" as="xs:integer">
     <xsl:sequence select="21"/>
   </xsl:template>
-  <xsl:template match="funding-group" mode="meta-order" as="xs:integer">
+  <xsl:template match="kwd-group" mode="meta-order" as="xs:integer">
     <xsl:sequence select="22"/>
   </xsl:template>
-  <xsl:template match="conference" mode="meta-order" as="xs:integer">
+  <xsl:template match="funding-group" mode="meta-order" as="xs:integer">
     <xsl:sequence select="23"/>
   </xsl:template>
-  <xsl:template match="counts" mode="meta-order" as="xs:integer">
+  <xsl:template match="conference" mode="meta-order" as="xs:integer">
     <xsl:sequence select="24"/>
   </xsl:template>
-  <xsl:template match="custom-meta-group" mode="meta-order" as="xs:integer">
+  <xsl:template match="counts" mode="meta-order" as="xs:integer">
     <xsl:sequence select="25"/>
   </xsl:template>
-  <xsl:template match="notes" mode="meta-order" as="xs:integer">
+  <xsl:template match="custom-meta-group" mode="meta-order" as="xs:integer">
     <xsl:sequence select="26"/>
+  </xsl:template>
+  <xsl:template match="notes" mode="meta-order" as="xs:integer">
+    <xsl:sequence select="27"/>
   </xsl:template>
   <xsl:template match="node()" mode="meta-order" as="xs:integer" priority="-1">
     <xsl:sequence select="100"/>
