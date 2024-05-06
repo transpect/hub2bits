@@ -1568,7 +1568,7 @@
     <disp-quote><xsl:call-template name="css:content"/></disp-quote>
   </xsl:template>
   
-  <xsl:template match="dbk:blockquote/dbk:attribution" mode="default">
+  <xsl:template match="dbk:attribution" mode="default">
     <attrib><xsl:call-template name="css:content"/></attrib>
   </xsl:template>
   
