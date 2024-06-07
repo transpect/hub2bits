@@ -1320,7 +1320,7 @@
   </xsl:template>
   
   <xsl:template match="  dbk:part | dbk:part[jats:is-appendix-part(.)][dbk:index] | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
-                       | dbk:partintro | dbk:colophon | dbk:dedication |dbk:epigraph" mode="default">
+                       | dbk:partintro | dbk:colophon | dbk:dedication | dbk:epigraph[not(parent::dbk:info[parent::dbk:section])]" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
     <xsl:element name="{$elt-name}">
       <xsl:apply-templates select="." mode="split-uri"/>
@@ -1364,6 +1364,12 @@
         </xsl:call-template>
       </xsl:if>
     </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="dbk:epigraph[parent::dbk:info[parent::dbk:section]]" mode="default">
+    <disp-quote>
+      <xsl:call-template name="css:content"/>
+    </disp-quote>
   </xsl:template>
   
   <xsl:template name="endnotes">
@@ -1457,10 +1463,11 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="dbk:section/dbk:info[dbk:title][count(*) gt 1] | 
-                       dbk:acknowledgements/dbk:info[dbk:title][count(*) gt 1] | 
-                       dbk:preface[@role = 'acknowledgements']/dbk:info[dbk:title][count(*) gt 1] | 
-                       dbk:appendix/dbk:info[dbk:title][dbk:author | dbk:authorgroup | dbk:abstract[not(parent::dbk:biblioentry)] | dbk:keywordset | dbk:legalnotice | dbk:copyright]" mode="default" priority="2">
+  <xsl:template match="*[self::dbk:section
+                        |self::dbk:acknowledgements
+                        |self::dbk:preface[@role = 'acknowledgements']]/dbk:info[dbk:title][count(*) gt 1]
+                                                                                [dbk:author | dbk:authorgroup | dbk:abstract[not(parent::dbk:biblioentry)] | dbk:keywordset | dbk:legalnotice | dbk:copyright]  
+                      | dbk:appendix/dbk:info[dbk:title][dbk:author | dbk:authorgroup | dbk:abstract[not(parent::dbk:biblioentry)] | dbk:keywordset | dbk:legalnotice | dbk:copyright]" mode="default" priority="2">
     <sec-meta>
       <xsl:apply-templates select="dbk:authorgroup | dbk:author | dbk:abstract | dbk:keywordset | dbk:legalnotice | dbk:copyright" mode="#current"/>
     </sec-meta>
@@ -2795,7 +2802,8 @@
 
   <xsl:template match="dbk:biblioentry/@xml:id" mode="default"/>
   
-  <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
+  <xsl:template match="mixed-citation/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]
+                     | def-item/@*[name() = ('css:margin-left', 'css:text-indent', 'content-type')]" mode="clean-up"/>
 
   <xsl:template match="abstract/table-wrap" mode="clean-up">
     <p>
