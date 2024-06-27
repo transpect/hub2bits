@@ -1310,11 +1310,11 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <book-part-meta>
         <title-group>
-          <xsl:apply-templates select="title" mode="#current"/>
+          <xsl:apply-templates select="label, title" mode="#current"/>
         </title-group>
       </book-part-meta>
       <body>
-        <xsl:apply-templates select="node() except title" mode="#current"/>
+        <xsl:apply-templates select="node() except (label,title)" mode="#current"/>
       </body>
     </book-app>
   </xsl:template>
