@@ -2653,11 +2653,12 @@
     <date>
 <!-- suggested: accepted, corrected, pub, preprint, retracted, received, rev-recd, rev-request	 -->
       <xsl:attribute name="date-type" select="     if (some $t in (dbk:revremark|@role) satisfies matches($t, 'accepted|angenommen|akzeptiert', 'i')) then 'accepted' 
-                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision (submitted|received)|Revision eingereicht')) then 'rev-recd'                                       
-                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'Manuscript (submitted|received)|Manuskript eingereicht', 'i')) then 'received'
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision (submitted|received)|Revision einge(reicht|gangen)')) then 'rev-recd'                                       
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'Manuscript (submitted|received)|Manuskript einge(reicht|gangen)', 'i')) then 'received'
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'retracted|zurückgezogen')) then 'retracted'
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'corrected|korrigiert')) then 'corrected' 
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision requested|Revision (verlangt|angefordert)')) then 'rev-request' 
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'published online|Onlineveröffentlichung|onine veröffentlicht')) then 'epub' 
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'published|publiziert|veröffentlicht')) then 'pub' else  'unknown'"/>
       <xsl:if test="dbk:date castable as xs:date">
         <xsl:attribute name="iso-8601-date" select="xs:date(dbk:date)"/>
