@@ -443,6 +443,10 @@
     </xsl:choose>
     <xsl:apply-templates select=".." mode="split-uri"/>
   </xsl:template>
+  
+  <xsl:template match="@tgroupstyle" mode="default">
+    <xsl:attribute name="content-type" select="."/>
+  </xsl:template>
 
   <xsl:key name="by-id" match="*[@id | @xml:id]" use="@id | @xml:id"/>
   
@@ -2375,6 +2379,10 @@
           <xsl:for-each select="dbk:tgroup">
             <table>
               <xsl:apply-templates select="../@role | ../@css:* | ../@width" mode="#current"/>
+              <xsl:if test="@tgroupstyle">
+                <!-- when this att exists, several tables were merged into one table in hub. regain their atts-->
+                <xsl:apply-templates select="@tgroupstyle | @css:* | @width" mode="#current"/>
+              </xsl:if>
               <xsl:apply-templates select="." mode="#current"/>
               <!--<xsl:apply-templates select="* except (dbk:alt | dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>-->
             </table>
