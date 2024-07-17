@@ -610,7 +610,7 @@
                           dbk:subtitle, parent::*/dbk:subtitle,
                           dbk:titleabbrev, parent::*/dbk:titleabbrev,
                           dbk:authorgroup, dbk:author, dbk:editor, dbk:othercredit,
-                          (dbk:copyright|dbk:legalnotice), dbk:bibliomisc"/>
+                          (dbk:copyright|dbk:legalnotice), dbk:bibliomisc, dbk:cover"/>
     <book-meta>
       <xsl:apply-templates select="@srcpath" mode="#current"/>
       <xsl:call-template name="title-info">
@@ -1404,7 +1404,7 @@
     <xsl:sequence select="concat('unknown-meta_', name())"/>
   </xsl:template>
   
-  <xsl:template match="dbk:bibliomisc" mode="jats:meta-component" as="xs:string">
+  <xsl:template match="dbk:bibliomisc | dbk:cover" mode="jats:meta-component" as="xs:string">
     <xsl:sequence select="'custom-meta-group'"/>
   </xsl:template>
   
@@ -1605,7 +1605,7 @@
   <!-- roles with css-atts that should not be mapped to elements -->
   <xsl:variable name="literal-phrase-style-role-regex" select="'letex_Blockade'"/>
   
-  <xsl:template match="dbk:phrase[not(matches(@role, $literal-phrase-style-role-regex))]" mode="default">
+  <xsl:template match="dbk:phrase[not(matches(@role, $literal-phrase-style-role-regex))]" mode="default" priority="2">
     <styled-content><xsl:call-template name="css:content"/></styled-content>
   </xsl:template>
   
