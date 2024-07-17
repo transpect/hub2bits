@@ -1605,7 +1605,7 @@
   <!-- roles with css-atts that should not be mapped to elements -->
   <xsl:variable name="literal-phrase-style-role-regex" select="'letex_Blockade'"/>
   
-  <xsl:template match="dbk:phrase[not(matches(@role, $literal-phrase-style-role-regex))]" mode="default" priority="2">
+  <xsl:template match="dbk:phrase[not(matches(@role, $literal-phrase-style-role-regex))]" mode="default">
     <styled-content><xsl:call-template name="css:content"/></styled-content>
   </xsl:template>
   
