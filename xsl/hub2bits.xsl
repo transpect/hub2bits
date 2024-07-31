@@ -9,6 +9,7 @@
   xmlns:hub="http://transpect.io/hub"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
+  xmlns:tr="http://transpect.io"
   exclude-result-prefixes="css dbk functx jats xs xlink hub hub2htm mml"
   version="2.0">
 
@@ -1082,13 +1083,21 @@
       <xsl:call-template name="css:content"/>
     </def>
   </xsl:template>
-  
+
+  <xsl:variable name="use-static-index" select="false()"/>
   
   <xsl:template match="dbk:index" mode="default">
     <index>
       <xsl:apply-templates select="." mode="split-uri"/>
       <xsl:apply-templates select="@*, dbk:title" mode="#current"/>
-      <!-- will be filled in clean-up -->
+      <xsl:choose>
+        <xsl:when test="$use-static-index">
+          <xsl:apply-templates mode="#current"/>
+        </xsl:when>
+        <xsl:otherwise>
+        <!-- will be filled in clean-up -->
+        </xsl:otherwise>
+      </xsl:choose>
     </index>
   </xsl:template>
 
@@ -1317,9 +1326,9 @@
           <xsl:apply-templates select="label, title" mode="#current"/>
         </title-group>
       </book-part-meta>
-      <body>
+      <xsl:element name="{if (ref-list) then 'back' else 'body'}">
         <xsl:apply-templates select="node() except (label,title)" mode="#current"/>
-      </body>
+      </xsl:element>
     </book-app>
   </xsl:template>
   
@@ -1813,6 +1822,99 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:apply-templates select="dbk:primary" mode="#current"/>
     </index-term>
+  </xsl:template>
+  
+  <xsl:template match="dbk:indexdiv" mode="default">
+    <index-div>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </index-div>
+  </xsl:template>
+  
+<!--  static index-->
+  
+  <xsl:template match="dbk:indexdiv/dbk:title" mode="default">
+    <index-title-group>
+      <title>
+        <xsl:apply-templates select="@*, node()" mode="#current"/>
+      </title>
+    </index-title-group>
+  </xsl:template>
+  
+  <xsl:template match="dbk:indexentry" mode="default">
+    <index-entry>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </index-entry>
+  </xsl:template>
+  
+  <xsl:function name="tr:static-index" as="element(entry)">
+    <xsl:param name="index-entry"/>
+    <entry>
+      <xsl:for-each-group select="$index-entry/node()" group-starting-with="dbk:xref[1]">
+        <xsl:choose>
+          <xsl:when test="current-group()[self::dbk:xref]">
+            <refs>
+              <xsl:apply-templates select="current-group()" mode="default"/>
+            </refs>
+          </xsl:when>
+          <xsl:otherwise>
+            <term>
+              <xsl:sequence select="current-group()/normalize-space()"/>
+            </term>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each-group>
+    </entry>
+  </xsl:function>
+  
+  <xsl:template match="dbk:primaryie" mode="default">
+    <term><xsl:sequence select="tr:static-index(.)/term/node()"/></term>
+    <nav-pointer-group>
+      <xsl:sequence select="tr:static-index(.)/refs/node()"/>
+    </nav-pointer-group>
+  </xsl:template>
+  
+  <xsl:template match="dbk:xref[ancestor::dbk:indexentry]" mode="default">
+    <nav-pointer nav-pointer-type="{(@annotations, 'point')[1]}">
+      <xsl:attribute name="rid" select="@xlink:href"/>
+      <xsl:value-of select="replace(@xlink:href,'page-','')"/>
+    </nav-pointer>
+  </xsl:template>
+  
+  <xsl:template match="dbk:secondaryie" mode="default">
+    <index-entry>
+      <term><xsl:sequence select="tr:static-index(.)/term/node()"/></term>
+      <nav-pointer-group>
+        <xsl:sequence select="tr:static-index(.)/refs/node()"/>
+      </nav-pointer-group>
+      <xsl:variable name="context" select="." />
+      <xsl:apply-templates select="following-sibling::dbk:tertiaryie[preceding-sibling::dbk:secondaryie[1] = $context]" mode="#current">
+        <xsl:with-param name="process" select="true()"/>
+      </xsl:apply-templates>
+    </index-entry>
+  </xsl:template>
+  
+  <xsl:template match="dbk:tertiaryie" mode="default">
+    <xsl:param name="process"/>
+    <xsl:if test="$process">
+      <index-entry>
+        <term><xsl:sequence select="tr:static-index(.)/term/node()"/></term>
+        <nav-pointer-group>
+          <xsl:sequence select="tr:static-index(.)/refs/node()"/>
+        </nav-pointer-group>
+      </index-entry>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="dbk:seeie" mode="default">
+    <see-entry>
+      <xsl:apply-templates mode="#current"/>
+    </see-entry>
+  </xsl:template>
+  
+  <xsl:template match="dbk:seealsoie" mode="default">
+    <see-also-entry>
+      <xsl:apply-templates mode="#current"/>
+    </see-also-entry>
   </xsl:template>
   
   <!-- not supported in JATS -->
