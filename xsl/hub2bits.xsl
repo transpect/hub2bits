@@ -10,7 +10,7 @@
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
   xmlns:tr="http://transpect.io"
-  exclude-result-prefixes="css dbk functx jats xs xlink hub hub2htm mml"
+  exclude-result-prefixes="css dbk functx jats xs xlink hub hub2htm mml tr"
   version="2.0">
 
   <xsl:import href="http://transpect.io/hub2html/xsl/css-atts2wrap.xsl"/>
