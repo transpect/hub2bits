@@ -1875,6 +1875,8 @@
       </index-entry>
   </xsl:function>
   
+  <xsl:template match="*[local-name()=('primaryie','secondaryie','tertiaryie')]/dbk:tab" mode="default"/>
+  
   <xsl:template match="dbk:primaryie" mode="default">
     <xsl:sequence select="tr:create-static-index(.)/*"/>
   </xsl:template>
