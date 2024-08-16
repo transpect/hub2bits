@@ -1846,31 +1846,37 @@
     </index-entry>
   </xsl:template>
   
-  <xsl:function name="tr:static-index" as="element(entry)">
+  <xsl:function name="tr:create-static-index">
     <xsl:param name="index-entry"/>
-    <entry>
+      <index-entry>
       <xsl:for-each-group select="$index-entry/node()" group-starting-with="dbk:xref[1]">
         <xsl:choose>
           <xsl:when test="current-group()[self::dbk:xref]">
-            <refs>
+            <nav-pointer-group>
               <xsl:apply-templates select="current-group()" mode="default"/>
-            </refs>
+            </nav-pointer-group>
           </xsl:when>
           <xsl:otherwise>
-            <term>
-              <xsl:sequence select="current-group()/normalize-space()"/>
-            </term>
+            <xsl:for-each-group select="current-group()" group-adjacent="self::dbk:seealsoie or self::dbk:seeie">
+              <xsl:choose>
+                <xsl:when test="not(current-grouping-key())">
+                  <term>
+                    <xsl:apply-templates select="current-group()" mode="default"/>
+                  </term>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:apply-templates select="current-group()" mode="default"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:for-each-group>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each-group>
-    </entry>
+      </index-entry>
   </xsl:function>
   
   <xsl:template match="dbk:primaryie" mode="default">
-    <term><xsl:sequence select="tr:static-index(.)/term/node()"/></term>
-    <nav-pointer-group>
-      <xsl:sequence select="tr:static-index(.)/refs/node()"/>
-    </nav-pointer-group>
+    <xsl:sequence select="tr:create-static-index(.)/*"/>
   </xsl:template>
   
   <xsl:template match="dbk:xref[ancestor::dbk:indexentry]" mode="default">
@@ -1882,10 +1888,7 @@
   
   <xsl:template match="dbk:secondaryie" mode="default">
     <index-entry>
-      <term><xsl:sequence select="tr:static-index(.)/term/node()"/></term>
-      <nav-pointer-group>
-        <xsl:sequence select="tr:static-index(.)/refs/node()"/>
-      </nav-pointer-group>
+     <xsl:sequence select="tr:create-static-index(.)/*"/>
       <xsl:variable name="context" select="." />
       <xsl:apply-templates select="following-sibling::dbk:tertiaryie[preceding-sibling::dbk:secondaryie[1] = $context]" mode="#current">
         <xsl:with-param name="process" select="true()"/>
@@ -1897,10 +1900,7 @@
     <xsl:param name="process"/>
     <xsl:if test="$process">
       <index-entry>
-        <term><xsl:sequence select="tr:static-index(.)/term/node()"/></term>
-        <nav-pointer-group>
-          <xsl:sequence select="tr:static-index(.)/refs/node()"/>
-        </nav-pointer-group>
+       <xsl:sequence select="tr:create-static-index(.)/*"/>
       </index-entry>
     </xsl:if>
   </xsl:template>
