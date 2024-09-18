@@ -952,6 +952,7 @@
       <xsl:call-template name="css:content"/>
     </toc>
   </xsl:template>
+  
 
   <xsl:template match="dbk:toc/dbk:title
                       |dbk:index/dbk:title" mode="default" priority="2">
@@ -1371,7 +1372,8 @@
           </xsl:for-each-group>
         </xsl:if>
       </xsl:for-each-group>
-      <xsl:if test="$jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'yes'">
+      <xsl:if test="(self::dbk:chapter or self::dbk:part[not(dbk:chapter)])
+                    and $jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'yes'">
         <xsl:call-template name="endnotes">
           <xsl:with-param name="footnotes" select=".//dbk:footnote" as="element(dbk:footnote)*"/>
         </xsl:call-template>
@@ -1388,9 +1390,13 @@
   <xsl:template name="endnotes">
     <xsl:param name="footnotes" as="element(dbk:footnote)*"/>
     <xsl:if test="exists($footnotes)">
-      <fn-group>
-        <xsl:apply-templates select="$footnotes" mode="#current"/>
-      </fn-group>
+      <back> 
+        <fn-group>
+          <xsl:apply-templates select="$footnotes" mode="#current">
+            <xsl:with-param name="create-xref-for-footnotes" select="false()" as="xs:boolean?" tunnel="yes"/>
+          </xsl:apply-templates>
+        </fn-group>
+      </back>
     </xsl:if>
   </xsl:template>
 
@@ -2045,7 +2051,7 @@
     <xsl:apply-templates mode="default"/>
   </xsl:template>
   
-  <xsl:template match="dbk:footnote/dbk:para[1]/node()[1][self::dbk:phrase][@role eq 'hub:identifier']" mode="default"/>
+  <xsl:template match="dbk:footnote/dbk:para[1]/node()[1][self::dbk:phrase][@role eq 'hub:identifier']" mode="default" priority="2"/>
   
   <!-- LISTS -->
   
