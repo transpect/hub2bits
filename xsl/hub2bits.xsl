@@ -2038,6 +2038,7 @@
           <xsl:attribute name="rid">
             <xsl:apply-templates select="@xml:id" mode="#current"/>
           </xsl:attribute>
+          <xsl:apply-templates select="@xml:id" mode="optionally-create-id"/>
           <sup><xsl:value-of select="$label"/></sup>
         </xref>
       </xsl:when>
@@ -2053,6 +2054,10 @@
         </fn>    
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="dbk:footnote/@xml:id" mode="optionally-create-id">
+    <!-- this can be overwritten to add @id -->
   </xsl:template>
   
   <xsl:template match="dbk:footnote/@label | dbk:footnoteref/@label" mode="default">
