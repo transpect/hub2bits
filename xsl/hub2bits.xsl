@@ -1346,7 +1346,8 @@
         <xsl:with-param name="elt-name" select="$elt-name" tunnel="yes"/>
       </xsl:apply-templates>
       <xsl:variable name="context" select="." as="element(*)"/>
-      <xsl:for-each-group select="*" group-adjacent="jats:part-submatter(.)">
+      <xsl:variable name="grouped-matter-parts" as="element()*">
+        <xsl:for-each-group select="*" group-adjacent="jats:part-submatter(.)">
         <xsl:element name="{current-grouping-key()}">
           <xsl:choose>
             <xsl:when test="matches(current-grouping-key(), 'meta')">
@@ -1363,6 +1364,13 @@
               </xsl:apply-templates>
             </xsl:otherwise>
           </xsl:choose>
+          <xsl:if test="$context[not(self::dbk:part[dbk:chapter])]
+                         and $jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'yes'
+                         and current-grouping-key() = 'back'">
+            <xsl:call-template name="endnotes">
+              <xsl:with-param name="footnotes" select=".//dbk:footnote" as="element(dbk:footnote)*"/>
+            </xsl:call-template>
+          </xsl:if>
         </xsl:element>
         <xsl:if test="current-group()/self::dbk:info/dbk:epigraph">
           <xsl:for-each-group select="current-group()/self::dbk:info/dbk:epigraph" group-adjacent="jats:part-submatter(.)">
@@ -1372,11 +1380,16 @@
           </xsl:for-each-group>
         </xsl:if>
       </xsl:for-each-group>
-      <xsl:if test="(self::dbk:chapter or self::dbk:part[not(dbk:chapter)])
-                    and $jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'yes'">
-        <xsl:call-template name="endnotes">
-          <xsl:with-param name="footnotes" select=".//dbk:footnote" as="element(dbk:footnote)*"/>
-        </xsl:call-template>
+      </xsl:variable>
+      <xsl:sequence select="$grouped-matter-parts"/>
+      <xsl:if test="(not(self::dbk:part[dbk:chapter]))
+                    and $jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'yes'
+                    and not($grouped-matter-parts[self::*:back])">
+        <back>   
+          <xsl:call-template name="endnotes">
+            <xsl:with-param name="footnotes" select=".//dbk:footnote" as="element(dbk:footnote)*"/>
+          </xsl:call-template>
+        </back>
       </xsl:if>
     </xsl:element>
   </xsl:template>
@@ -1390,13 +1403,11 @@
   <xsl:template name="endnotes">
     <xsl:param name="footnotes" as="element(dbk:footnote)*"/>
     <xsl:if test="exists($footnotes)">
-      <back> 
-        <fn-group>
-          <xsl:apply-templates select="$footnotes" mode="#current">
-            <xsl:with-param name="create-xref-for-footnotes" select="false()" as="xs:boolean?" tunnel="yes"/>
-          </xsl:apply-templates>
-        </fn-group>
-      </back>
+      <fn-group>
+        <xsl:apply-templates select="$footnotes" mode="#current">
+          <xsl:with-param name="create-xref-for-footnotes" select="false()" as="xs:boolean?" tunnel="yes"/>
+        </xsl:apply-templates>
+      </fn-group>
     </xsl:if>
   </xsl:template>
 
