@@ -1384,7 +1384,8 @@
       <xsl:sequence select="$grouped-matter-parts"/>
       <xsl:if test="(not(self::dbk:part[dbk:chapter]))
                     and $jats:notes-type eq 'endnotes' and $jats:notes-per-chapter eq 'yes'
-                    and not($grouped-matter-parts[self::*:back])">
+                    and not($grouped-matter-parts[self::*:back])
+                    and exists(.//dbk:footnote)">
         <back>   
           <xsl:call-template name="endnotes">
             <xsl:with-param name="footnotes" select=".//dbk:footnote" as="element(dbk:footnote)*"/>
