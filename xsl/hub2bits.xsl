@@ -1610,7 +1610,7 @@
     <attrib><xsl:call-template name="css:content"/></attrib>
   </xsl:template>
   
-  <xsl:template match="dbk:blockquote" mode="clean-up">
+  <xsl:template match="disp-quote" mode="clean-up">
     <xsl:copy>
       <xsl:apply-templates select="* except (attrib|permissions), attrib, permissions" mode="#current"/>
     </xsl:copy>
