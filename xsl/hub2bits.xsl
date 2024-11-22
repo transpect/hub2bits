@@ -1612,7 +1612,7 @@
   
   <xsl:template match="disp-quote" mode="clean-up">
     <xsl:copy>
-      <xsl:apply-templates select="* except (attrib|permissions), attrib, permissions" mode="#current"/>
+      <xsl:apply-templates select="@*, * except (attrib|permissions), attrib, permissions" mode="#current"/>
     </xsl:copy>
   </xsl:template>
   
@@ -2528,9 +2528,9 @@
         <xsl:call-template name="css:other-atts"/>
         </xsl:for-each>-->
       <!-- extra content-type attribute at the contained table (also process css here, only id above?): -->
-      <xsl:if test="dbk:textobject[not(every $elt in node() satisfies $elt/self::dbk:sidebar)]">
+      <xsl:if test="dbk:textobject[not(every $elt in node() satisfies $elt/self::dbk:sidebar)] or dbk:caption[not(current()//dbk:tr)]">
         <table-wrap-foot>
-          <xsl:apply-templates select="dbk:textobject/dbk:para" mode="#current"/>
+          <xsl:apply-templates select="dbk:textobject/dbk:para, dbk:caption/dbk:para" mode="#current"/>
         </table-wrap-foot>
       </xsl:if>
     </table-wrap>
