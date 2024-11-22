@@ -1610,6 +1610,8 @@
     <attrib><xsl:call-template name="css:content"/></attrib>
   </xsl:template>
   
+  <xsl:template match="dbk:attribution/@role" mode="default"/>
+  
   <xsl:template match="disp-quote" mode="clean-up">
     <xsl:copy>
       <xsl:apply-templates select="@*, * except (attrib|permissions), attrib, permissions" mode="#current"/>
