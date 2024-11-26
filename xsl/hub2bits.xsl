@@ -2745,7 +2745,7 @@
     </source>
   </xsl:template>
 
-  <xsl:template match="dbk:bibliomisc[matches(@role, '^ur(i|l)$', 'i')]" mode="default">
+  <xsl:template match="dbk:bibliomisc[matches(@role, '^ur(i|l)$', 'i')] | dbk:uri" mode="default">
     <uri>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </uri>
