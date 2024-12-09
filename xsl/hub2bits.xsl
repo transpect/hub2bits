@@ -3027,12 +3027,12 @@
   </xsl:template>
   
   <xsl:template match="dbk:inlineequation[dbk:alt/@role = 'TeX'][mml:math]" mode="default">
-    <disp-formula>
-      <xsl:apply-templates select="@*" mode="#current"/>
+    <inline-formula>
+      <xsl:apply-templates select="@* except @label, @label, dbk:info | dbk:title" mode="#current"/>
       <alternatives>
-        <xsl:apply-templates select="*" mode="#current"/>
+        <xsl:apply-templates select="* except dbk:info | dbk:title" mode="#current"/>
       </alternatives>
-    </disp-formula>
+    </inline-formula>
   </xsl:template>
 
   <xsl:function name="jats:is-page-anchor" as="xs:boolean">
