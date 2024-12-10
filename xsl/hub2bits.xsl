@@ -36,6 +36,8 @@
   <xsl:variable name="jats:notes-type" select="'footnotes'" as="xs:string"/>
   <!-- "yes|no" render <fn-group> for each chapter if $jats:notes-type = 'yes' -->
   <xsl:variable name="jats:notes-per-chapter" select="'no'" as="xs:string"/>
+  <!-- render static index entries -->
+  <xsl:variable name="jats:use-static-index" select="false()" as="xs:boolean"/>
   
   <xsl:template match="*" mode="split-uri">
     <!-- Override this in order to attach future split URIs to book-parts etc., as xml:base attributes.
@@ -1084,15 +1086,13 @@
       <xsl:call-template name="css:content"/>
     </def>
   </xsl:template>
-
-  <xsl:variable name="use-static-index" select="false()"/>
   
   <xsl:template match="dbk:index" mode="default">
     <index>
       <xsl:apply-templates select="." mode="split-uri"/>
       <xsl:apply-templates select="@*, dbk:title" mode="#current"/>
       <xsl:choose>
-        <xsl:when test="$use-static-index">
+        <xsl:when test="$jats:use-static-index">
           <xsl:apply-templates mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
