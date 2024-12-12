@@ -3053,7 +3053,8 @@
                       |fn/@content-type
                       |alt-title/@content-type
                       |book-id/@content-type
-                      |abstract/@content-type" mode="clean-up">
+                      |abstract/@content-type
+                      |notes/@content-type" mode="clean-up">
     <xsl:attribute name="{concat(parent::*/local-name(), '-type')}" select="."/>
   </xsl:template>
   
