@@ -2235,12 +2235,24 @@
       <xsl:apply-templates select="@* except @role, dbk:line/node()" mode="#current"/>
     </attrib>
   </xsl:template>
+  
+  <xsl:template match="dbk:poetry/dbk:info/dbk:bibliosource" mode="default">
+    <attrib>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </attrib>
+  </xsl:template>
 
   <xsl:template match="dbk:linegroup/dbk:line" mode="default">
     <verse-line>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </verse-line>
   </xsl:template>
+  
+  <xsl:template match="dbk:poetry/dbk:info" mode="default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  
   
   
   <!-- FIGURES -->
