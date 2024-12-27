@@ -2235,12 +2235,6 @@
       <xsl:apply-templates select="@* except @role, dbk:line/node()" mode="#current"/>
     </attrib>
   </xsl:template>
-  
-  <xsl:template match="dbk:poetry/dbk:info/dbk:bibliosource" mode="default">
-    <attrib>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </attrib>
-  </xsl:template>
 
   <xsl:template match="dbk:linegroup/dbk:line" mode="default">
     <verse-line>
@@ -2252,7 +2246,9 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  
+  <xsl:template match="verse-group[count(*) = 2 and attrib]/verse-group" mode="clean-up">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
   
   
   <!-- FIGURES -->
@@ -2280,8 +2276,8 @@
           <xsl:apply-templates select="dbk:note/dbk:para" mode="#current"/>
         </xsl:if>
       </caption>
-      <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']] | dbk:note | dbk:caption)" mode="#current"/>
-      <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
+      <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright'] | dbk:legalnotice[@role eq 'credit']] | dbk:note | dbk:caption)" mode="#current"/>
+      <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright'] | dbk:legalnotice[@role eq 'credit']]" mode="#current"/>
     </xsl:element>
   </xsl:template>
 
@@ -2300,8 +2296,8 @@
           </xsl:if>
         </caption>
       </xsl:if>
-      <xsl:apply-templates select="* except (dbk:info[dbk:legalnotice[@role eq 'copyright']] | dbk:note | dbk:caption)" mode="#current"/>
-      <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright']]" mode="#current"/>
+      <xsl:apply-templates select="* except (dbk:info[dbk:legalnotice[@role eq 'copyright'] | dbk:legalnotice[@role eq 'credit']] | dbk:note | dbk:caption)" mode="#current"/>
+      <xsl:apply-templates select="dbk:info[dbk:legalnotice[@role eq 'copyright'] | dbk:legalnotice[@role eq 'credit']]" mode="#current"/>
     </fig>
   </xsl:template>
   
@@ -2338,8 +2334,26 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']" mode="default">
+  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'credit']/dbk:para" mode="default">
+    <attrib>
+      <xsl:apply-templates mode="#current"/>
+    </attrib>
+  </xsl:template>
+  
+  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'credit']" mode="default">
     <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']" mode="default">
+    <permissions>
+      <xsl:apply-templates mode="#current"/>
+    </permissions>
+  </xsl:template>
+  
+  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']/dbk:para" mode="default">
+    <copyright-statement>
+      <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
+    </copyright-statement>
   </xsl:template>
   
   <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'license']" mode="default">
@@ -2352,12 +2366,6 @@
     <license-p>
       <xsl:apply-templates mode="#current"/>
     </license-p>
-  </xsl:template>
-  
-  <xsl:template match="dbk:info/dbk:legalnotice[@role eq 'copyright']/dbk:para" mode="default">
-    <copyright-statement>
-      <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
-    </copyright-statement>
   </xsl:template>
   
   <xsl:template match="dbk:mediaobject | dbk:inlinemediaobject | dbk:imageobject" mode="default">
