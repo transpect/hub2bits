@@ -20,7 +20,7 @@
     You need to have a separate postprocessing Saxon run if this is important -->
   </xsl:output>
 
-  <xsl:param name="srcpaths" select="'no'"/>
+  <xsl:param name="keep-srcpaths" select="'yes'"/>
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/>
   
@@ -245,7 +245,6 @@
                 mode="clean-up" priority="2">
     <xsl:param name="p-atts" as="attribute(*)*" tunnel="yes"/>
     <xsl:param name="root" as="document-node()?" tunnel="yes"/>
-    <xsl:if test="@srcpath = 'Stories/Story_u8f7b7.xml?xpath=/idPkg:Story[1]/Story[1]/ParagraphStyleRange[1]/CharacterStyleRange[2]'"><xsl:message select="'####', string-join($p-atts, '')"/></xsl:if>
     <xsl:choose>
       <xsl:when test="exists($p-atts)">
         <xsl:variable name="style-atts" as="attribute(*)*"
@@ -528,11 +527,11 @@
     <xsl:copy/>
   </xsl:template>  
   
-  <xsl:template match="@srcpath[$srcpaths = 'yes']" mode="default" priority="2">
+  <xsl:template match="@srcpath[$keep-srcpaths = 'yes']" mode="default" priority="2">
     <xsl:copy/>
   </xsl:template>  
 
-  <xsl:template match="@srcpath[not($srcpaths = 'yes')]" mode="default" priority="2"/>
+  <xsl:template match="@srcpath[not($keep-srcpaths = 'yes')]" mode="default" priority="2"/>
   
   <!-- STRUCTURE -->
   
