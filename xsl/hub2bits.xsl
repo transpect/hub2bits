@@ -527,11 +527,11 @@
     <xsl:copy/>
   </xsl:template>  
   
-  <xsl:template match="@srcpath[$remove-srcpaths = 'yes']" mode="default" priority="2">
+  <xsl:template match="@srcpath[not($remove-srcpaths = 'yes')]" mode="default" priority="2">
     <xsl:copy/>
   </xsl:template>  
 
-  <xsl:template match="@srcpath[not($remove-srcpaths = 'yes')]" mode="default" priority="2"/>
+  <xsl:template match="@srcpath[$remove-srcpaths = 'yes']" mode="default" priority="2"/>
   
   <!-- STRUCTURE -->
   
