@@ -20,7 +20,7 @@
     You need to have a separate postprocessing Saxon run if this is important -->
   </xsl:output>
 
-  <xsl:param name="keep-srcpaths" select="'yes'"/>
+  <xsl:param name="remove-srcpaths" select="'no'"/>
 
   <xsl:param name="css:wrap-namespace" as="xs:string" select="''"/>
   
@@ -527,11 +527,11 @@
     <xsl:copy/>
   </xsl:template>  
   
-  <xsl:template match="@srcpath[$keep-srcpaths = 'yes']" mode="default" priority="2">
+  <xsl:template match="@srcpath[$remove-srcpaths = 'yes']" mode="default" priority="2">
     <xsl:copy/>
   </xsl:template>  
 
-  <xsl:template match="@srcpath[not($keep-srcpaths = 'yes')]" mode="default" priority="2"/>
+  <xsl:template match="@srcpath[not($remove-srcpaths = 'yes')]" mode="default" priority="2"/>
   
   <!-- STRUCTURE -->
   
