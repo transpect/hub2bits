@@ -2300,6 +2300,12 @@
     </fig>
   </xsl:template>
   
+  <xsl:template match="dbk:informalfigure[dbk:figure][@css:display='grid']" mode="default">
+    <fig-group>
+      <xsl:apply-templates select="@role, node()" mode="#current"/>
+    </fig-group>
+  </xsl:template>
+  
   <xsl:template match="dbk:figure/@role" mode="default">
     <xsl:attribute name="fig-type" select="."/>
   </xsl:template>
@@ -2323,7 +2329,7 @@
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:if test="$move-floating-target-in-fig-to-caption">
-        <xsl:copy-of select="../target"/>
+        <xsl:copy-of select="../target"/> 
       </xsl:if>
         <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:copy>
