@@ -2209,13 +2209,10 @@
     </boxed-text>
   </xsl:template>
   
-  <xsl:template match="dbk:sidebar[dbk:title]" mode="default">
-    <boxed-text>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <sec>
-        <xsl:apply-templates mode="#current"/>
-      </sec>
-    </boxed-text>
+  <xsl:template match="dbk:sidebar/dbk:title" mode="default">
+    <caption>
+      <xsl:next-match/>
+    </caption>
   </xsl:template>
   
   <!-- POETRY -->
