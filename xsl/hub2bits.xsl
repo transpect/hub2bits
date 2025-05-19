@@ -787,7 +787,7 @@
     </prefix>
   </xsl:template>
   
-  <xsl:template match="dbk:personname[dbk:surname]/dbk:lineage" mode="default">
+  <xsl:template match="dbk:personname[dbk:surname]/*[self::dbk:lineage or @role = 'suffix']" mode="default">
     <suffix>
       <xsl:apply-templates mode="#current"/>
     </suffix>
