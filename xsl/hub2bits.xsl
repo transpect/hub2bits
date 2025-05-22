@@ -365,16 +365,16 @@
     <xsl:param name="srcpath" as="attribute(srcpath)?" tunnel="yes"/>
     <xsl:copy copy-namespaces="no">
       <xsl:copy-of select="$srcpath"/>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, (:..[self::styled-content]/@style-type,:) node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
   
   <xsl:template match="italic[@css:font-style = 'normal']" mode="clean-up" priority="5">
-      <xsl:apply-templates mode="#current"/>
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
-
+  
   <xsl:template match="bold[@css:font-weight = 'normal']" mode="clean-up" priority="5">
-      <xsl:apply-templates mode="#current"/>
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
   <xsl:key name="jats:style-by-type" match="css:rule" use="@name" />
@@ -2391,10 +2391,36 @@
     </xsl:element>
   </xsl:template>
   
-  <xsl:template match="dbk:alt" mode="default">
-    <alt-text><xsl:apply-templates mode="#current"/></alt-text>
+  <xsl:template match="dbk:alt[@annotations]" mode="default_alt">
+    <alt-text><xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:value-of select="@annotations"/>
+    </alt-text>
+  </xsl:template>
+  
+  <xsl:template match="dbk:alt[parent::dbk:mediaobject | parent::dbk:inlinemediaobject]/@remap" priority="3"
+    mode="default_alt">
+    <!-- XMP source -->
+    <xsl:attribute name="specific-use" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="*" priority="-0.5" mode="default_alt"/>
+  
+  <xsl:template match="@*" priority="-0.5" mode="default_alt">
+    <xsl:apply-templates select="." mode="default"/>
   </xsl:template>
 
+  <xsl:template match="dbk:alt" mode="default">
+    <alt-text>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:if test="not(@annotations)">
+        <!-- if annotations: XMP metadata alt text is additionally given. if remap="fromXMP": alt is from XMP, no other alt text given-->
+        <xsl:apply-templates select="@remap" mode="default_alt"/>
+      </xsl:if>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </alt-text>
+    <xsl:apply-templates select="." mode="default_alt"/>
+  </xsl:template>
+  
   <!-- Override in adaptions -->
   <xsl:template match="dbk:imagedata/@fileref" mode="default">
     <xsl:attribute name="xlink:href" select="."/>
