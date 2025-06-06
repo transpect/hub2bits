@@ -639,6 +639,14 @@
       <xsl:apply-templates select="@*, surname, given-names, prefix, suffix" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+  
+  <!-- order children in element contrib -->
+  <xsl:template match="contrib" mode="clean-up">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, contrib-id, (anonymous | collab | collab-alternatives | name | name-alternatives | string-name), 
+                                       degrees, (address | aff | aff-alternatives | author-comment | bio | email | ext-link | on-behalf-of | role | uri | xref)" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
 
   <xsl:template name="kwd-group">
     <xsl:apply-templates select="dbk:keywordset[@role = $kwd-group-keywordset-roles]" mode="#current"/>
@@ -834,6 +842,12 @@
     <xsl:element name="{local-name()}">
       <xsl:apply-templates mode="#current"/>
     </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="dbk:uri[@type = 'orcid']" mode="default">
+    <contrib-id contrib-id-type="orcid">
+      <xsl:apply-templates mode="#current"/>
+    </contrib-id>
   </xsl:template>
 
   <xsl:template match="dbk:bibliography//dbk:authorgroup" mode="default">
