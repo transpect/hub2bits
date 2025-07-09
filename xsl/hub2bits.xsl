@@ -2671,6 +2671,11 @@
       <xsl:if test="@xml:id">
         <xsl:attribute name="id" select="@xml:id"/>
       </xsl:if>
+      <xsl:if test="dbk:citebiblioid[@role = 'citationnumber']">
+        <xsl:apply-templates select="dbk:citebiblioid[@role = 'citationnumber']" mode="#current">
+          <xsl:with-param name="render" select="true()"/>
+        </xsl:apply-templates>
+      </xsl:if>
       <xsl:call-template name="css:content"/>
     </ref>
   </xsl:template>
@@ -2681,12 +2686,26 @@
       <xsl:if test="@xml:id">
         <xsl:attribute name="id" select="@xml:id"/>
       </xsl:if>
+      <xsl:if test="dbk:citebiblioid[@role = 'citationnumber']">
+        <xsl:apply-templates select="dbk:citebiblioid[@role = 'citationnumber']" mode="#current">
+          <xsl:with-param name="render" select="true()"/>
+        </xsl:apply-templates>
+      </xsl:if>
       <citation-alternatives>
         <xsl:apply-templates select="dbk:abstract[@role = 'rendered'], dbk:biblioset" mode="#current">
           <xsl:with-param name="render" select="true()"/>
         </xsl:apply-templates>
       </citation-alternatives>
     </ref>
+  </xsl:template>
+  
+  <xsl:template match="dbk:citebiblioid[@role = 'citationnumber']" mode="default">
+    <xsl:param name="render" select="false()" as="xs:boolean"/>
+    <xsl:if test="$render">
+      <label>
+        <xsl:apply-templates mode="#current"/>
+      </label>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="*[local-name() = ('bibliodiv', 'bibliography', 'bibliolist')]
