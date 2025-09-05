@@ -787,6 +787,7 @@
         <string-name><xsl:call-template name="css:content"/></string-name>
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:apply-templates select="dbk:honorific[@role = 'degrees']" mode="#current"/>
   </xsl:template>
 
   <xsl:template match="dbk:personname/dbk:honorific" mode="default">
@@ -795,10 +796,22 @@
     </prefix>
   </xsl:template>
   
+  <xsl:template match="dbk:personname/dbk:honorific[@role = 'degrees']" mode="default" priority="2">
+    <degrees>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </degrees>
+  </xsl:template>
+  
   <xsl:template match="dbk:personname[dbk:surname]/*[self::dbk:lineage or @role = 'suffix']" mode="default">
     <suffix>
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
     </suffix>
+  </xsl:template>
+  
+  <xsl:template match="dbk:author/dbk:phrase[@role = 'role']" mode="default" priority="2">
+    <role>
+      <xsl:apply-templates select="@* except @role, node()" mode="#current"/>
+    </role>
   </xsl:template>
   
   <xsl:template match="contrib/string-name[empty(parent::name-alternatives)]
