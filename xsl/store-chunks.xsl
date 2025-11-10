@@ -74,12 +74,13 @@
               <export-name genid="{generate-id()}">
                 <xsl:choose>
                   <xsl:when test="$pos = 1">
-                    <!-- This is just a workaround for an issue that occurs when invoking this from XProc.
+                    <!-- Here was a workaround for an issue that occurs when invoking this from XProc.
                       Saxon thinks that the top-level element’s base URI is the URI that the document was 
                       read from. Therefore it refuses to “store” it to the same location. We avoid this by 
                     duplicating the last slash in the URI. -->
+                    <!-- With Saxon HE 10.7, this doesn’t seem to work any more. -->
                     <xsl:attribute name="xml:base" 
-                      select="replace(current-grouping-key(), '^(.+/)', '$1/')"/>
+                      select="replace(current-grouping-key(), '^(.+chunks/)(index\.xml)$', '$1normal/$2')"/>
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:attribute name="xml:base"
@@ -124,6 +125,7 @@
     <xsl:param name="export-file-names" as="document-node(element(export-file-names))" tunnel="yes"/>
     <xsl:variable name="unique-uri" as="xs:string" 
       select="key('export-name-by-genid', generate-id(), $export-file-names)/@xml:base"/>
+<!--    <xsl:message select="'UUUUUUUUUU ', $unique-uri"></xsl:message>-->
     <xsl:result-document href="{$unique-uri}">
       <xsl:copy>
         <xsl:apply-templates select="@*, node()" mode="split"/>
