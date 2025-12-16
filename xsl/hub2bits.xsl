@@ -1321,7 +1321,7 @@
                   'article-categories', 'title-group', 'contrib-group', 'aff', 
                   'aff-alternatives', 'author-notes', 'pub-date', 'pub-date-not-available', 
                   'volume', 'volume-id', 'volume-series', 'issue', 'issue-id', 
-                  'issue-title', 'issue-sponsor', 'issue-part', 'volume-issue-group', 
+                  'issue-title', 'issue-title-group','issue-sponsor', 'issue-part', 'volume-issue-group', 
                   'isbn', 'supplement', 'fpage', 'lpage', 'page-range', 'elocation-id', 
                   'email', 'ext-link', 'uri', 'product', 'supplementary-material', 
                   'history', 'pub-history', 'permissions', 'self-uri', 'related-article', 
