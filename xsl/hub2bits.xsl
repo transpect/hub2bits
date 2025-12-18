@@ -2885,7 +2885,7 @@
 <!-- suggested: accepted, corrected, pub, preprint, retracted, received, rev-recd, rev-request	 -->
       <xsl:attribute name="date-type" select="     if (some $t in (dbk:revremark|@role) satisfies matches($t, 'accepted|angenommen|akzeptiert', 'i')) then 'accepted' 
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision (submitted|received)|Revision einge(reicht|gangen)', 'i')) then 'rev-recd'                                       
-                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'Manuscript (submitted|received)|Manuskript einge(reicht|gangen)', 'i')) then 'received'
+                                              else if (some $t in (dbk:revremark|@role) satisfies matches($t, '(Manuscript )?(submitted|received)|Manuskript einge(reicht|gangen)', 'i')) then 'received'
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'retracted|zurückgezogen', 'i')) then 'retracted'
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'corrected|korrigiert','i')) then 'corrected' 
                                               else if (some $t in (dbk:revremark|@role) satisfies matches($t, 'revision requested|Revision (verlangt|angefordert)', 'i')) then 'rev-request' 
