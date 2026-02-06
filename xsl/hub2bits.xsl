@@ -664,7 +664,15 @@
     </book-id>
   </xsl:template>
 
-  <xsl:template match="dbk:biblioid[matches((@class, @role)[1], '^doi$', 'i')]" mode="default">
+  <xsl:template match="dbk:biblioid[matches((@class, @role)[1], '^doi$', 'i')]
+                                   [ancestor::dbk:info]
+                                   [some $v in $jats:vocabulary satisfies $v = 'jats']" mode="default" priority="2">
+    <issue-id>
+      <xsl:apply-templates select="@class, @role, node()" mode="#current"/>
+    </issue-id>
+  </xsl:template>
+
+  <xsl:template match="dbk:biblioid[matches((@class, @role)[1], '^doi$', 'i')][not(ancestor::dbk:info)]" mode="default">
     <pub-id>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </pub-id>
@@ -771,7 +779,6 @@
           <xsl:apply-templates select="dbk:surname" mode="#current"/>
           <xsl:if test="exists(dbk:firstname)">
             <given-names>
-              <xsl:apply-templates select="dbk:firstname/@*" mode="#current"/>
               <xsl:for-each select="dbk:firstname">
                 <xsl:apply-templates mode="#current"/>
                 <xsl:if test="not(position() = last())">
@@ -1486,7 +1493,7 @@
     2-argument function and b) spelling out all matching patterns might be more verbose than the following: -->
     <xsl:param name="context" as="element(*)?"/>
     <xsl:choose>
-      <xsl:when test="$context/local-name() = ('book', 'hub')">
+      <xsl:when test="$context/local-name() = ('book', 'hub') and (some $v in $jats:vocabulary satisfies ($v = 'bits'))">
         <xsl:sequence select="'book-title-group'"/>
       </xsl:when>
       <xsl:otherwise>

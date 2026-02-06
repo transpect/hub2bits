@@ -11,6 +11,7 @@
   <xsl:import href="hub2bits.xsl"/>
 
   <xsl:param name="vocab" as="xs:string" select="'jats'"/>
+  <xsl:param name="dtd-version" as="xs:string" select="'1.1'" />
 
   <!-- General structure. Overridden because of metadata concerns-->
   <xsl:template match="dbk:book | dbk:hub" mode="default" priority="2">
@@ -40,14 +41,36 @@
     <xsl:param name="root" as="element(*)"/>
     <xsl:value-of select="'research-article'"/>
   </xsl:function>
-
+  
   <xsl:template match="/*/dbk:info" mode="default">
+    <xsl:variable name="context" select="parent::*/local-name()" as="xs:string"/>
+    <xsl:variable name="elts-for-grouping" as="element()*"
+                  select="dbk:title, parent::*/dbk:title, 
+                          dbk:subtitle, parent::*/dbk:subtitle,
+                          dbk:titleabbrev, parent::*/dbk:titleabbrev,
+                          dbk:authorgroup, dbk:author, dbk:editor, dbk:othercredit,
+                          (dbk:copyright|dbk:legalnotice), dbk:bibliomisc, dbk:cover"/>
     <xsl:call-template name="meta"/>
+    <article-meta>
+      <xsl:apply-templates select="@srcpath" mode="#current"/>
+      <xsl:call-template name="title-info">
+        <xsl:with-param name="elts" select="$elts-for-grouping"/>
+        <xsl:with-param name="context" select="parent::*"/>
+      </xsl:call-template>
+      <xsl:apply-templates select="* except ($elts-for-grouping, css:rules, dbk:keywordset[@role = $kwd-group-keywordset-roles])" mode="#current"/>
+      <xsl:call-template name="kwd-group"/>
+      <xsl:call-template name="custom-meta-group"/>
+    </article-meta>
   </xsl:template>
   
+  <xsl:template match="dbk:hub/dbk:title | dbk:hub/dbk:info/dbk:title" mode="default" priority="5">
+    <article-title>
+      <xsl:apply-templates  select="@xml:id, @xml:base, node(), ../dbk:itermset/*, ../dbk:info/dbk:itermset/*" mode="#current"/>
+    </article-title>
+  </xsl:template>
+
   <xsl:template name="meta">
     <journal-meta/>
-    <article-meta/>
   </xsl:template>
   
   <xsl:function name="jats:matter" as="xs:string">
