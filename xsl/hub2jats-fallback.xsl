@@ -50,17 +50,9 @@
                           dbk:titleabbrev, parent::*/dbk:titleabbrev,
                           dbk:authorgroup, dbk:author, dbk:editor, dbk:othercredit,
                           (dbk:copyright|dbk:legalnotice), dbk:bibliomisc, dbk:cover"/>
-    <xsl:call-template name="meta"/>
-    <article-meta>
-      <xsl:apply-templates select="@srcpath" mode="#current"/>
-      <xsl:call-template name="title-info">
-        <xsl:with-param name="elts" select="$elts-for-grouping"/>
-        <xsl:with-param name="context" select="parent::*"/>
-      </xsl:call-template>
-      <xsl:apply-templates select="* except ($elts-for-grouping, css:rules, dbk:keywordset[@role = $kwd-group-keywordset-roles])" mode="#current"/>
-      <xsl:call-template name="kwd-group"/>
-      <xsl:call-template name="custom-meta-group"/>
-    </article-meta>
+    <xsl:call-template name="meta">
+      <xsl:with-param name="elts" select="$elts-for-grouping" as="element()*"/>
+    </xsl:call-template>
   </xsl:template>
   
   <xsl:template match="dbk:hub/dbk:title | dbk:hub/dbk:info/dbk:title" mode="default" priority="5">
@@ -70,7 +62,18 @@
   </xsl:template>
 
   <xsl:template name="meta">
+    <xsl:param name="elts" as="element()*"/>
     <journal-meta/>
+     <article-meta>
+      <xsl:apply-templates select="@srcpath" mode="#current"/>
+      <xsl:call-template name="title-info">
+        <xsl:with-param name="elts" select="$elts" as="element()*"/>
+        <xsl:with-param name="context" select="parent::*"/>
+      </xsl:call-template>
+      <xsl:apply-templates select="* except ($elts, css:rules, dbk:keywordset[@role = $kwd-group-keywordset-roles])" mode="#current"/>
+      <xsl:call-template name="kwd-group"/>
+      <xsl:call-template name="custom-meta-group"/>
+    </article-meta>
   </xsl:template>
   
   <xsl:function name="jats:matter" as="xs:string">
