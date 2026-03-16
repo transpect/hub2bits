@@ -1259,7 +1259,7 @@
   <xsl:template match="issue | issn" mode="meta-order" as="xs:integer">
     <xsl:sequence select="9"/>
   </xsl:template> 
-  <xsl:template match="issn-l" mode="meta-order" as="xs:integer">
+  <xsl:template match="issn-l | issue-id" mode="meta-order" as="xs:integer">
     <xsl:sequence select="10"/>
   </xsl:template>
   <xsl:template match="isbn" mode="meta-order" as="xs:integer">

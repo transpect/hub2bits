@@ -60,6 +60,12 @@
       <xsl:apply-templates  select="@xml:id, @xml:base, node(), ../dbk:itermset/*, ../dbk:info/dbk:itermset/*" mode="#current"/>
     </article-title>
   </xsl:template>
+  
+  <xsl:template match="dbk:biblioid" mode="default">
+    <issue-id>
+      <xsl:apply-templates select="@class, @role, node()" mode="#current"/>
+    </issue-id>
+  </xsl:template>
 
   <xsl:template name="meta">
     <xsl:param name="elts" as="element()*"/>
