@@ -1333,7 +1333,7 @@
                   'email', 'ext-link', 'uri', 'product', 'supplementary-material', 
                   'history', 'pub-history', 'permissions', 'self-uri', 'related-article', 
                   'related-object', 'abstract', 'trans-abstract', 'kwd-group', 
-                  'funding-group', 'support-group', 'conference', 'counts', 'custom-meta-group'
+                  'funding-group', 'support-group', 'conference', 'counts', 'custom-meta-group','notes'
                 ), name()
               )"/>
   </xsl:template>
@@ -2578,7 +2578,7 @@
     <table-wrap>
       <xsl:variable name="context" select="."/>
       <xsl:call-template name="more-specific-box-content-type"/>
-      <xsl:apply-templates select="@* except (@role | @css:*| @width), dbk:title | dbk:caption[exists(current()//dbk:tr)]" mode="#current"/>
+      <xsl:apply-templates select="@* except (@role | @css:*| @width | @frame), dbk:title | dbk:caption[exists(current()//dbk:tr)]" mode="#current"/>
       <xsl:choose>
         <xsl:when test="exists(dbk:mediaobject) and not(dbk:tgroup)">
           <xsl:apply-templates select="* except (dbk:title | dbk:info[dbk:legalnotice[@role eq 'copyright']])" mode="#current"/>
@@ -2589,7 +2589,7 @@
           <xsl:apply-templates select="dbk:alt" mode="#current"/>
           <xsl:for-each select="dbk:tgroup">
             <table>
-              <xsl:apply-templates select="../@role | ../@css:* | ../@width" mode="#current"/>
+              <xsl:apply-templates select="../@role | ../@css:* | ../@width | ../@frame" mode="#current"/>
               <xsl:if test="@tgroupstyle">
                 <!-- when this att exists, several tables were merged into one table in hub. regain their atts-->
                 <xsl:apply-templates select="@tgroupstyle | @css:* | @width" mode="#current"/>
