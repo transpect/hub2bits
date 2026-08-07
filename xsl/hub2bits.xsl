@@ -2875,35 +2875,6 @@
     </date>
   </xsl:template>
 
-  <xsl:template match="element-citation" mode="clean-up">
-    <xsl:copy>
-      <xsl:apply-templates select="@*, jats:order-element-citation(node())" mode="#current"/>
-    </xsl:copy>
-  </xsl:template>
-
-  <xsl:function name="jats:order-element-citation" as="node()*">
-    <xsl:param name="seq" as="node()*"/>
-    <xsl:for-each select="$seq">
-      <xsl:sort select="jats:get-element-citation-order-int(.)"/>
-      <xsl:sequence select="."/>
-    </xsl:for-each>
-  </xsl:function>
-  
-  <xsl:function name="jats:get-element-citation-order-int" as="xs:integer?">
-    <xsl:param name="elt" as="node()"/>
-    <xsl:apply-templates select="$elt" mode="element-citation-order"/>
-  </xsl:function> 
-
-  <!-- var element-citation-children-names, currently as in JATS 1.4 -->
-  <xsl:variable name="element-citation-children-names" as="xs:string+"
-    select="(
-              'annotation', 'article-title', 'chapter-title', 'collab', 'collab-alternatives', 'collab-name', 'collab-name-alternatives', 'collab-wrap', 'comment', 'conf-acronym', 'conf-date', 'conf-loc', 'conf-name', 'conf-sponsor', 'data-title', 'date', 'date-in-citation', 'day', 'edition', 'email', 'elocation-id', 'etal', 'ext-link', 'fpage', 'gov', 'institution', 'institution-wrap', 'isbn', 'issn', 'issn-l', 'issue', 'issue-id', 'issue-part', 'issue-title', 'lpage', 'month', 'name', 'name-alternatives', 'object-id', 'page-range', 'part-title', 'patent', 'person-group', 'pub-id', 'publisher-loc', 'publisher-name', 'role', 'season', 'series', 'size', 'source', 'std', 'string-date', 'string-name', 'supplement', 'trans-source', 'trans-title', 'uri', 'version', 'volume', 'volume-id', 'volume-series', 'year'
-            )"/>
-
-  <xsl:template match="element-citation/*" mode="element-citation-order" as="xs:integer?">
-    <xsl:sequence select="index-of($element-citation-children-names, name())"/>
-  </xsl:template>
-
   <xsl:template match="*:language[namespace-uri() = 'http://purl.org/dc/terms/']" mode="default">
     <named-content content-type="language" vocab="uncontrolled" vocab-identifier="http://purl.org/dc/terms/">
       <xsl:apply-templates mode="#current"/>
