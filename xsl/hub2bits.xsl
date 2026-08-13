@@ -3177,5 +3177,32 @@
     </xsl:analyze-string>
   </xsl:function>
   
+<!--  export tables with style attribute -->
+  <xsl:variable name="table-cells-with-style-att" select="false()"/>
+  
+   <xsl:template match="td | th" mode="clean-up">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:variable name="prelim" as="attribute(*)*">
+        <xsl:apply-templates select="@css:*" mode="css-atts-to-style-att"/>
+      </xsl:variable>
+      <xsl:if test="$prelim and $table-cells-with-style-att">
+        <xsl:attribute name="style" 
+          select="string-join($prelim/concat(local-name(), ':', .), ';')"/>
+      </xsl:if>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="td[$table-cells-with-style-att]/@css:*
+                     | th[$table-cells-with-style-att]/@css:*" mode="clean-up"/>
+  
+  <!--  overwrite me  -->
+  <xsl:template match="@css:text-align | @css:background-color | @css:*[matches(local-name(),'border')]" mode="css-atts-to-style-att">
+    <xsl:copy/>
+  </xsl:template>
+  
+  <xsl:template match="@css:*" mode="css-atts-to-style-att"/>
+  
   
 </xsl:stylesheet>
