@@ -913,6 +913,12 @@
     </publisher-loc>
   </xsl:template>
   
+  <xsl:template match="dbk:publisher/dbk:address/dbk:city" mode="default">
+    <city>
+      <xsl:apply-templates mode="#current"/>
+    </city>
+  </xsl:template>
+  
   <xsl:template match="dbk:copyright" mode="default">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
