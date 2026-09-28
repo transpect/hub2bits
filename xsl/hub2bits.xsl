@@ -2290,7 +2290,7 @@
   <!-- FIGURES -->
   
   <xsl:template match="dbk:figure" mode="default">
-    <xsl:element name="{if (dbk:informalfigure) then 'fig-group' else 'fig'}">
+    <xsl:element name="{if (dbk:informalfigure|dbk:figure) then 'fig-group' else 'fig'}">
       <xsl:call-template name="css:other-atts"/>
       <xsl:apply-templates select="(@xml:id, (.//dbk:anchor[not(matches(@xml:id, '^(cell)?page_'))])[1]/@xml:id)[1]" mode="#current"/>
       <label>
@@ -2317,7 +2317,7 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="dbk:informalfigure" mode="default">
+  <xsl:template match="dbk:informalfigure[not(dbk:figure)]" mode="default">
     <fig>
       <xsl:call-template name="css:other-atts"/>
       <xsl:apply-templates select="(@xml:id, (.//dbk:anchor[not(matches(@xml:id, '^(cell)?page_'))])[1]/@xml:id)[1]" mode="#current"/>
@@ -2337,7 +2337,7 @@
     </fig>
   </xsl:template>
   
-  <xsl:template match="dbk:informalfigure[dbk:figure][@css:display='grid']" mode="default">
+  <xsl:template match="dbk:informalfigure[dbk:figure]" mode="default">
     <fig-group>
       <xsl:apply-templates select="@role, node()" mode="#current"/>
     </fig-group>
