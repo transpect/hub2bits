@@ -1372,6 +1372,10 @@
     </book-app>
   </xsl:template>
   
+  <xsl:template match="book-back/app[xs:integer(jats:dtd-version()[1]) &gt;= 2]/@content-type" mode="clean-up">
+    <xsl:attribute name="book-part-type" select="."/>
+  </xsl:template>
+    
   <xsl:template match="  dbk:part | dbk:part[jats:is-appendix-part(.)][dbk:index] | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
                        | dbk:partintro | dbk:colophon | dbk:dedication | dbk:epigraph[not(parent::dbk:info[parent::dbk:section])]" mode="default">
     <xsl:variable name="elt-name" as="xs:string" select="jats:book-part(.)"/>
