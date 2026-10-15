@@ -146,6 +146,13 @@
   <xsl:template match="th[p][count(p) eq 1][not(p/bold)]" mode="clean-up">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:variable name="prelim" as="attribute(*)*">
+        <xsl:apply-templates select="@css:*" mode="css-atts-to-style-att"/>
+      </xsl:variable>
+      <xsl:if test="$prelim and $table-cells-with-style-att">
+        <xsl:attribute name="style" 
+          select="string-join($prelim/concat(local-name(), ':', .), ';')"/>
+      </xsl:if>
       <xsl:attribute name="css:font-weight" select="'normal'"/>
       <xsl:apply-templates select="p/node()" mode="#current"/>
     </xsl:copy>
