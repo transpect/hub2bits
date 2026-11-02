@@ -1358,14 +1358,31 @@
     </app-group>
   </xsl:template>
   
-  <xsl:template match="app-group" mode="clean-up">
+  <xsl:template match="app-group|book-app-group" mode="clean-up">
+    <xsl:variable name="is-bag" select="(parent::book-back and (xs:integer(jats:dtd-version()[1]) &gt;= 2)) or self::book-app-group" as="xs:boolean"/>
     <xsl:element name="{if(parent::book-back and xs:integer(jats:dtd-version()[1]) &gt;= 2) then 'book-app-group' else 'app-group'}">
-      <xsl:apply-templates select="@*, node() except (ref-list | app)" mode="#current"/>
-      <xsl:apply-templates select="app | ref-list" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:choose>
+        <xsl:when test="$is-bag">
+          <book-part-meta>
+            <title-group>
+              <xsl:apply-templates select="label, title" mode="#current"/>
+            </title-group>
+          </book-part-meta>
+        </xsl:when>
+      <xsl:otherwise>
+          <xsl:apply-templates select="label, title" mode="#current"/>
+      </xsl:otherwise>
+      </xsl:choose>
+        <xsl:apply-templates select="node() except (label, title, index, app, ref-list)" mode="#current"/>
+      <xsl:apply-templates select="app | book-app | ref-list[not($is-bag)]" mode="#current"/>
     </xsl:element>
+    <xsl:apply-templates select="ref-list[$is-bag]|index" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="book-back/app[xs:integer(jats:dtd-version()[1]) &gt;= 2]" mode="clean-up">
+  <xsl:template match="book-back/app[xs:integer(jats:dtd-version()[1]) &gt;= 2]|
+                       book-app-group/app|
+                       book-back/app-group/app[xs:integer(jats:dtd-version()[1]) &gt;= 2]" mode="clean-up">
     <book-app>
       <xsl:apply-templates select="@*" mode="#current"/>
       <book-part-meta>
@@ -1379,9 +1396,11 @@
     </book-app>
   </xsl:template>
   
-  <xsl:template match="book-back/app[xs:integer(jats:dtd-version()[1]) &gt;= 2]/@content-type" mode="clean-up">
+  <xsl:template match="book-back/app[xs:integer(jats:dtd-version()[1]) &gt;= 2]/@content-type|
+                       book-back/app-group/app[xs:integer(jats:dtd-version()[1]) &gt;= 2]/@content-type" mode="clean-up">
     <xsl:attribute name="book-part-type" select="."/>
   </xsl:template>
+
     
   <xsl:template match="  dbk:part | dbk:part[jats:is-appendix-part(.)][dbk:index] | dbk:chapter | dbk:preface[not(@role = 'acknowledgements')] 
                        | dbk:partintro | dbk:colophon | dbk:dedication | dbk:epigraph[not(parent::dbk:info[parent::dbk:section])]" mode="default">
