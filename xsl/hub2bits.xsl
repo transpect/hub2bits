@@ -1390,9 +1390,21 @@
           <xsl:apply-templates select="label, title" mode="#current"/>
         </title-group>
       </book-part-meta>
-      <xsl:element name="{if (ref-list) then 'back' else 'body'}">
-        <xsl:apply-templates select="node() except (label,title)" mode="#current"/>
-      </xsl:element>
+      <xsl:variable name="jats:back-element-names" select="('app', 'app-group', 'dedication', 'ref-list', 'index', 'index-group', 'bio', 'glossary', 'notes', 'fn-group', 'sig-block', 'toc', 'toc-group')"/>
+      <xsl:for-each-group select="node() except (label,title)" group-starting-with="*[local-name() = $jats:back-element-names]">
+        <xsl:choose>
+          <xsl:when test="current-group()[1][local-name() = $jats:back-element-names]">
+            <xsl:element name="back">
+              <xsl:apply-templates select="current-group()" mode="#current"/>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="body">
+              <xsl:apply-templates select="current-group()" mode="#current"/>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each-group>
     </book-app>
   </xsl:template>
   
